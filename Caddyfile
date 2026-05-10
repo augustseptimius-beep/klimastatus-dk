@@ -1,0 +1,7 @@
+{
+  email admin@klimastatus.dk
+}
+
+klimastatus.dk, *.klimastatus.dk {
+  reverse_proxy app:3000
+}
