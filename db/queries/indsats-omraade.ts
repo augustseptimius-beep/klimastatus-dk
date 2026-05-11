@@ -9,6 +9,8 @@ type IndsatsOmraadeData = {
   sektor: 'energy' | 'transport' | 'buildings' | 'food' | 'agriculture' | 'waste' | 'adaptation' | 'other';
   beskrivelse?: string;
   ansvarligForvaltning?: string;
+  forbrugskategoriTag?: string;
+  aktiv?: boolean;
 };
 
 export async function getAllIndsatsOmraader(kommuneId: string) {

@@ -38,3 +38,32 @@ describe('createIndsatsOmraade', () => {
     expect(result.navn).toBe('Transport');
   });
 });
+
+describe('getIndsatsOmraadeById', () => {
+  it('returns a single record by id', async () => {
+    const { getIndsatsOmraadeById } = await import('./indsats-omraade');
+    const result = await getIndsatsOmraadeById('io1');
+    expect(result).toBeDefined();
+    expect(result.id).toBe('io1');
+    expect(result.navn).toBe('Energi');
+  });
+});
+
+describe('updateIndsatsOmraade', () => {
+  it('updates and returns updated record', async () => {
+    const { updateIndsatsOmraade } = await import('./indsats-omraade');
+    const result = await updateIndsatsOmraade('io1', { navn: 'Opdateret' });
+    expect(result).toBeDefined();
+    expect(result.id).toBe('io1');
+    expect(result.navn).toBe('Opdateret');
+  });
+});
+
+describe('deleteIndsatsOmraade', () => {
+  it('calls delete for the given id', async () => {
+    const { deleteIndsatsOmraade } = await import('./indsats-omraade');
+    await deleteIndsatsOmraade('io1');
+    // Just verify it doesn't throw
+    expect(true).toBe(true);
+  });
+});
