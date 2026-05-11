@@ -1,6 +1,6 @@
 'use server';
 import { verifySession } from '@/lib/dal';
-import { createTiltag, updateTiltag } from '@/db/queries';
+import { createTiltag, updateTiltag, getTiltagById, getIndsatsOmraadeById } from '@/db/queries';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import type { FormState } from '@/lib/definitions';
@@ -23,6 +23,9 @@ export async function createTiltagAction(_state: FormState, formData: FormData):
   const parsed = schema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: parsed.error.flatten().fieldErrors };
 
+  const indsatsOmraade = await getIndsatsOmraadeById(parsed.data.indsatsOmraadeId);
+  if (!indsatsOmraade || indsatsOmraade.kommuneId !== session.kommuneId) return { message: 'Ugyldigt indsatsområde' };
+
   await createTiltag({ ...parsed.data, kommuneId: session.kommuneId });
   redirect('/tiltag');
 }
@@ -35,8 +38,14 @@ export async function updateTiltagAction(
   const session = await verifySession();
   if (!session?.kommuneId) return { message: 'Ikke autoriseret' };
 
+  const existing = await getTiltagById(id);
+  if (!existing || existing.kommuneId !== session.kommuneId) return { message: 'Ikke autoriseret' };
+
   const parsed = schema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: parsed.error.flatten().fieldErrors };
+
+  const indsatsOmraade = await getIndsatsOmraadeById(parsed.data.indsatsOmraadeId);
+  if (!indsatsOmraade || indsatsOmraade.kommuneId !== session.kommuneId) return { message: 'Ugyldigt indsatsområde' };
 
   await updateTiltag(id, parsed.data);
   redirect('/tiltag');
