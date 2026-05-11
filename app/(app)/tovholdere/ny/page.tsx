@@ -1,10 +1,14 @@
+import { verifySession } from '@/lib/dal';
+import { redirect } from 'next/navigation';
 import { TovholderForm } from '@/components/tovholder-form';
 import { createTovholderAction } from '@/app/(app)/tovholdere/actions';
 import Link from 'next/link';
 
 export const metadata = { title: 'Ny tovholder — Klimastatus.dk' };
 
-export default function NyTovholderPage() {
+export default async function NyTovholderPage() {
+  const session = await verifySession();
+  if (!session?.kommuneId) redirect('/login');
   return (
     <div>
       <div className="mb-6 flex items-center gap-4">

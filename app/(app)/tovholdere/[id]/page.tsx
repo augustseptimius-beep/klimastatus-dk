@@ -1,8 +1,5 @@
 import { verifySession } from '@/lib/dal';
-import { getTovholderById, getAllTiltag } from '@/db/queries';
-import { db } from '@/db';
-import { tovholderTiltag } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { getTovholderById, getAllTiltag, getAssignmentsByTovholderId } from '@/db/queries';
 import { redirect } from 'next/navigation';
 import { TovholderForm } from '@/components/tovholder-form';
 import { updateTovholderAction, assignTiltagAction, removeTiltagAction } from '@/app/(app)/tovholdere/actions';
@@ -18,7 +15,7 @@ export default async function TovholderDetailPage({ params }: { params: Promise<
   const [tovholder, allTiltag, assignments] = await Promise.all([
     getTovholderById(id),
     getAllTiltag(session.kommuneId),
-    db.query.tovholderTiltag.findMany({ where: eq(tovholderTiltag.tovholderId, id) }),
+    getAssignmentsByTovholderId(id),
   ]);
   if (!tovholder || tovholder.kommuneId !== session.kommuneId) redirect('/tovholdere');
 

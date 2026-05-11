@@ -50,6 +50,12 @@ export async function assignTiltagToTovholder(tovholderId: string, tiltagId: str
   return created;
 }
 
+export async function getAssignmentsByTovholderId(tovholderId: string) {
+  return db.query.tovholderTiltag.findMany({
+    where: eq(tovholderTiltag.tovholderId, tovholderId),
+  });
+}
+
 export async function removeTiltagFromTovholder(tovholderId: string, tiltagId: string) {
   await db.delete(tovholderTiltag).where(
     and(

@@ -3,6 +3,7 @@ import { verifySession } from '@/lib/dal';
 import {
   createTovholder, updateTovholder, getAllTovholdere,
   assignTiltagToTovholder, removeTiltagFromTovholder,
+  getTovholderById,
 } from '@/db/queries';
 import { createMagicLink } from '@/db/queries/magic-link';
 import { sendMagicLinkEmail } from '@/lib/email';
@@ -36,6 +37,9 @@ export async function updateTovholderAction(
   const session = await verifySession();
   if (!session?.kommuneId) return { message: 'Ikke autoriseret' };
 
+  const existing = await getTovholderById(id);
+  if (!existing || existing.kommuneId !== session.kommuneId) return { message: 'Ikke autoriseret' };
+
   const parsed = schema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: parsed.error.flatten().fieldErrors };
 
@@ -46,12 +50,16 @@ export async function updateTovholderAction(
 export async function assignTiltagAction(tovholderId: string, tiltagId: string) {
   const session = await verifySession();
   if (!session?.kommuneId) throw new Error('Ikke autoriseret');
+  const th = await getTovholderById(tovholderId);
+  if (!th || th.kommuneId !== session.kommuneId) throw new Error('Ikke autoriseret');
   await assignTiltagToTovholder(tovholderId, tiltagId);
 }
 
 export async function removeTiltagAction(tovholderId: string, tiltagId: string) {
   const session = await verifySession();
   if (!session?.kommuneId) throw new Error('Ikke autoriseret');
+  const th = await getTovholderById(tovholderId);
+  if (!th || th.kommuneId !== session.kommuneId) throw new Error('Ikke autoriseret');
   await removeTiltagFromTovholder(tovholderId, tiltagId);
 }
 
