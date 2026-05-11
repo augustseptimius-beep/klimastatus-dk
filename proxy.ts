@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { decrypt } from '@/lib/session';
 
 const publicRoutes = ['/', '/login'];
+const publicPrefixes = ['/rapport'];
 const adminRoutes = ['/admin'];
 
 export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
-  const isPublic = publicRoutes.includes(path);
+  const isPublic =
+    publicRoutes.includes(path) || publicPrefixes.some((p) => path.startsWith(p));
   const isAdmin = adminRoutes.some((r) => path.startsWith(r));
 
   const token = req.cookies.get('session')?.value;
