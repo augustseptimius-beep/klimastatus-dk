@@ -1,6 +1,6 @@
 'use client';
 import { useActionState } from 'react';
-import { createKommuneAction } from '@/app/(admin)/kommuner/actions';
+import { createKommuneAction } from '@/app/admin/kommuner/actions';
 import { Button } from '@/components/ui/button';
 
 export function CreateKommuneForm() {
