@@ -1,6 +1,6 @@
 'use server';
 import { verifySession } from '@/lib/dal';
-import { createIndsatsOmraade, updateIndsatsOmraade, deleteIndsatsOmraade } from '@/db/queries';
+import { createIndsatsOmraade, updateIndsatsOmraade, deleteIndsatsOmraade, getIndsatsOmraadeById } from '@/db/queries';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import type { FormState } from '@/lib/definitions';
@@ -34,6 +34,9 @@ export async function updateIndsatsOmraadeAction(
 ): Promise<FormState> {
   const session = await verifySession();
   if (!session?.kommuneId) return { message: 'Ikke autoriseret' };
+
+  const existing = await getIndsatsOmraadeById(id);
+  if (!existing || existing.kommuneId !== session.kommuneId) return { message: 'Ikke autoriseret' };
 
   const parsed = schema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: parsed.error.flatten().fieldErrors };

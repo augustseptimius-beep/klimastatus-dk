@@ -5,7 +5,7 @@ async function setupJobs() {
   const boss = new PgBoss(process.env.DATABASE_URL!);
   await boss.start();
 
-  await boss.work('rykker', { teamSize: 1, teamConcurrency: 1 }, async () => {
+  await boss.work('rykker', { localConcurrency: 1 }, async () => {
     await handleRykker();
   });
 

@@ -14,7 +14,7 @@ export async function handleRykker(): Promise<void> {
       createdAt: magicLink.createdAt,
     })
     .from(magicLink)
-    .where(gt(magicLink.expiresAt, now));
+    .where(and(gt(magicLink.expiresAt, now), eq(magicLink.used, false)));
 
   // Deduplicate: keep most recent link per tovholder
   const latestByTovholder = new Map<string, Date>();
