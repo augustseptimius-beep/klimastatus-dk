@@ -1,6 +1,7 @@
+import { hash } from '@node-rs/argon2';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { cctfKriterie } from './schema';
+import { cctfKriterie, user } from './schema';
 
 const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client);
@@ -124,6 +125,20 @@ async function seed() {
   console.log('Seeding CCTF v2.5 criteria...');
   await db.insert(cctfKriterie).values(CCTF_V25_CRITERIA).onConflictDoNothing();
   console.log(`Seeded ${CCTF_V25_CRITERIA.length} criteria.`);
+
+  console.log('Seeding admin user...');
+  const adminPassword = process.env.ADMIN_PASSWORD ?? 'admin123!';
+  const passwordHash = await hash(adminPassword);
+  await db
+    .insert(user)
+    .values({
+      email: 'augustseptimius@gmail.com',
+      passwordHash,
+      navn: 'August Septimius',
+      role: 'admin',
+    })
+    .onConflictDoNothing();
+  console.log('Admin user seeded (email: augustseptimius@gmail.com).');
   process.exit(0);
 }
 
