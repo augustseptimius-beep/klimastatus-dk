@@ -1,0 +1,1 @@
+ALTER TABLE "kommune_indikator" ADD CONSTRAINT "kommune_indikator_kommune_template_unique" UNIQUE("kommune_id","template_id");
