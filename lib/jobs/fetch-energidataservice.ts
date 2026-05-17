@@ -78,7 +78,10 @@ export async function handleFetchEnergidataservice(options?: {
         vaerdi: totalMW,
         kilde: 'energidataservice',
         autoHentet: true,
-      }).onConflictDoNothing();
+      }).onConflictDoUpdate({
+        target: [indikatorMaaling.indikatorId, indikatorMaaling.aar],
+        set: { vaerdi: totalMW, kilde: 'energidataservice' },
+      });
       await updateSidstHentet(ki.id, new Date());
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);

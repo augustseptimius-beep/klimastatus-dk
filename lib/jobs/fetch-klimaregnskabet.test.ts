@@ -29,8 +29,9 @@ vi.mock('@/db/queries/kommune-indikator', () => ({
   getKommuneIndikatorById: vi.fn(),
 }));
 
+const mockOnConflictDoUpdate = vi.fn().mockResolvedValue(undefined);
 const mockOnConflictDoNothing = vi.fn().mockResolvedValue(undefined);
-const mockValues = vi.fn(() => ({ onConflictDoNothing: mockOnConflictDoNothing }));
+const mockValues = vi.fn(() => ({ onConflictDoUpdate: mockOnConflictDoUpdate, onConflictDoNothing: mockOnConflictDoNothing }));
 const mockInsert = vi.fn(() => ({ values: mockValues }));
 
 vi.mock('@/db', () => ({
@@ -77,6 +78,7 @@ describe('handleFetchKlimaregnskabet', () => {
     mockGetActiveKommuneIndikatorer.mockResolvedValue([mockKI]);
     mockUpdateSidstHentet.mockResolvedValue(undefined);
     mockUpdateSidsteFejl.mockResolvedValue(undefined);
+    mockOnConflictDoUpdate.mockResolvedValue(undefined);
     mockOnConflictDoNothing.mockResolvedValue(undefined);
 
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({

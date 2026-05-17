@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, real, integer, boolean, date, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, real, integer, boolean, date, timestamp, unique } from 'drizzle-orm/pg-core';
 import { indikatorNiveauEnum, datakildeTypeEnum, apiKildeEnum } from './enums';
 import { tiltag } from './tiltag';
 import { maal, indsatsOmraade } from './klimaplan';
@@ -26,7 +26,9 @@ export const indikatorMaaling = pgTable('indikator_maaling', {
   bemaerkning: text('bemaerkning'),
   autoHentet: boolean('auto_hentet').notNull().default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  unique('indikator_maaling_indikator_aar_unique').on(t.indikatorId, t.aar),
+]);
 
 export const indikatorTiltag = pgTable('indikator_tiltag', {
   id: uuid('id').primaryKey().defaultRandom(),

@@ -68,7 +68,10 @@ async function processKommuneIndikator(ki: ActiveKommuneIndikator, fromYear?: nu
       vaerdi,
       kilde: 'klimaregnskab',
       autoHentet: true,
-    }).onConflictDoNothing();
+    }).onConflictDoUpdate({
+      target: [indikatorMaaling.indikatorId, indikatorMaaling.aar],
+      set: { vaerdi, kilde: 'klimaregnskab' },
+    });
   }
 
   // Write sector breakdown to drivhusgasregnskabPost

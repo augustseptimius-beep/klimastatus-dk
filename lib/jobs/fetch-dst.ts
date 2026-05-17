@@ -103,7 +103,10 @@ export async function handleFetchDst(options?: {
           vaerdi,
           kilde: 'dst',
           autoHentet: true,
-        }).onConflictDoNothing();
+        }).onConflictDoUpdate({
+          target: [indikatorMaaling.indikatorId, indikatorMaaling.aar],
+          set: { vaerdi, kilde: 'dst' },
+        });
       }
       await updateSidstHentet(ki.id, new Date());
     } catch (err) {

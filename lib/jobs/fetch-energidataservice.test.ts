@@ -28,8 +28,8 @@ vi.mock('@/db/queries/kommune-indikator', () => ({
   updateSidsteFejl: mockUpdateSidsteFejl,
 }));
 
-const mockOnConflictDoNothing = vi.fn().mockResolvedValue(undefined);
-const mockValues = vi.fn(() => ({ onConflictDoNothing: mockOnConflictDoNothing }));
+const mockOnConflictDoUpdate = vi.fn().mockResolvedValue(undefined);
+const mockValues = vi.fn(() => ({ onConflictDoUpdate: mockOnConflictDoUpdate }));
 const mockInsert = vi.fn(() => ({ values: mockValues }));
 
 vi.mock('@/db', () => ({
@@ -83,7 +83,7 @@ describe('handleFetchEnergidataservice', () => {
     mockGetActiveKommuneIndikatorer.mockResolvedValue([mockKI]);
     mockUpdateSidstHentet.mockResolvedValue(undefined);
     mockUpdateSidsteFejl.mockResolvedValue(undefined);
-    mockOnConflictDoNothing.mockResolvedValue(undefined);
+    mockOnConflictDoUpdate.mockResolvedValue(undefined);
 
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,

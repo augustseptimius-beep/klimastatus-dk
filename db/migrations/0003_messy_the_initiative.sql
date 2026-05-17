@@ -1,0 +1,1 @@
+ALTER TABLE "indikator_maaling" ADD CONSTRAINT "indikator_maaling_indikator_aar_unique" UNIQUE("indikator_id","aar");
