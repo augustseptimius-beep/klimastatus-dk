@@ -3,6 +3,9 @@ import { getKommuneById, getAllTovholdere, getAllTiltag, getAllIndsatsOmraader }
 import { getLatestRapporterForTovholder } from '@/db/queries/rapport';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { db } from '@/db';
+import { kommuneIndikator, indikatorTemplate, indikatorMaaling } from '@/db/schema';
+import { eq, and, desc } from 'drizzle-orm';
 
 export const metadata = { title: 'Dashboard — Klimastatus.dk' };
 
@@ -17,6 +20,45 @@ export default async function DashboardPage() {
     getAllIndsatsOmraader(session.kommuneId),
   ]);
   if (!kommune) redirect('/login');
+
+  const co2eKI = await db
+    .select({ indikatorId: kommuneIndikator.indikatorId })
+    .from(kommuneIndikator)
+    .innerJoin(indikatorTemplate, eq(kommuneIndikator.templateId, indikatorTemplate.id))
+    .where(and(
+      eq(kommuneIndikator.kommuneId, session.kommuneId),
+      eq(kommuneIndikator.aktiv, true),
+      eq(indikatorTemplate.kilde, 'klimaregnskab'),
+    ))
+    .limit(1);
+
+  const veKI = await db
+    .select({ indikatorId: kommuneIndikator.indikatorId })
+    .from(kommuneIndikator)
+    .innerJoin(indikatorTemplate, eq(kommuneIndikator.templateId, indikatorTemplate.id))
+    .where(and(
+      eq(kommuneIndikator.kommuneId, session.kommuneId),
+      eq(kommuneIndikator.aktiv, true),
+      eq(indikatorTemplate.kilde, 'energidataservice'),
+    ))
+    .limit(1);
+
+  const [co2eSeneste, veMWSeneste] = await Promise.all([
+    co2eKI[0]
+      ? db.select({ vaerdi: indikatorMaaling.vaerdi, aar: indikatorMaaling.aar })
+          .from(indikatorMaaling)
+          .where(eq(indikatorMaaling.indikatorId, co2eKI[0].indikatorId))
+          .orderBy(desc(indikatorMaaling.aar))
+          .limit(1)
+      : Promise.resolve([]),
+    veKI[0]
+      ? db.select({ vaerdi: indikatorMaaling.vaerdi, aar: indikatorMaaling.aar })
+          .from(indikatorMaaling)
+          .where(eq(indikatorMaaling.indikatorId, veKI[0].indikatorId))
+          .orderBy(desc(indikatorMaaling.aar))
+          .limit(1)
+      : Promise.resolve([]),
+  ]);
 
   const aktiveTiltag = tiltag.filter((t) => t.status !== 'discontinued');
   const igangvaerende = tiltag.filter((t) => t.status === 'in_progress').length;
@@ -56,6 +98,22 @@ export default async function DashboardPage() {
           description="Selvevaluering ikke påbegyndt"
           status="neutral"
         />
+        {co2eKI.length > 0 && (
+          <StatusCard
+            title="CO₂e pr. capita"
+            value={co2eSeneste[0] ? `${co2eSeneste[0].vaerdi} t` : '—'}
+            description={co2eSeneste[0] ? `ton CO₂e/indb. (${co2eSeneste[0].aar})` : 'Ingen data endnu'}
+            status="neutral"
+          />
+        )}
+        {veKI.length > 0 && (
+          <StatusCard
+            title="VE-kapacitet"
+            value={veMWSeneste[0] ? `${Math.round(veMWSeneste[0].vaerdi)} MW` : '—'}
+            description={veMWSeneste[0] ? `vind + sol (${veMWSeneste[0].aar})` : 'Ingen data endnu'}
+            status="neutral"
+          />
+        )}
       </div>
 
       <div className="mt-8 grid grid-cols-3 gap-4">

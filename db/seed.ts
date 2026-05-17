@@ -139,6 +139,39 @@ async function seed() {
     })
     .onConflictDoNothing();
   console.log('Admin user seeded (email: augustseptimius@gmail.com).');
+
+  console.log('Seeding indicator templates...');
+  const { indikatorTemplate } = await import('./schema');
+  await db.insert(indikatorTemplate).values([
+    {
+      titel: 'Samlet CO₂e pr. capita',
+      kilde: 'klimaregnskab',
+      apiQuery: JSON.stringify({ type: 'Nøgletal', sektor: 'Samlet' }),
+      enhed: 'ton CO₂e/indb.',
+      beskrivelse: 'Kommunens samlede drivhusgasudledning pr. indbygger. Kilde: Klimaregnskabet.dk.',
+      cctfKriterier: [6, 11, 15],
+      aktiv: true,
+    },
+    {
+      titel: 'VE-kapacitet (vind + sol)',
+      kilde: 'energidataservice',
+      apiQuery: JSON.stringify({ dataset: 'CapacityPerMunicipality', fields: ['OnshoreWindMW', 'SolarPowerMW'] }),
+      enhed: 'MW',
+      beskrivelse: 'Samlet installeret kapacitet for landvind og solenergi i kommunen. Kilde: Energi Data Service.',
+      cctfKriterier: [7, 11],
+      aktiv: true,
+    },
+    {
+      titel: 'Befolkningstal',
+      kilde: 'dst',
+      apiQuery: JSON.stringify({ tabel: 'FOLK1A', variabler: { KØN: 'TOT', ALDER: 'IALT' }, felt: 'INDHOLD' }),
+      enhed: 'antal',
+      beskrivelse: 'Kommunens samlede folketal. Bruges til beregning af pr.-capita-indikatorer. Kilde: Danmarks Statistik.',
+      cctfKriterier: [],
+      aktiv: true,
+    },
+  ] as const).onConflictDoNothing();
+  console.log('Seeded 3 indicator templates.');
   process.exit(0);
 }
 
