@@ -81,16 +81,13 @@ export async function hentNuAction(
   const fromYear = fromYearRaw && fromYearRaw !== '' ? Number(fromYearRaw) : undefined;
 
   try {
-    const { PgBoss } = await import('pg-boss');
-    const boss = new PgBoss(process.env.DATABASE_URL!);
-    await boss.start();
-
     const template = await getTemplateById(ki.templateId);
     if (!template) return { message: 'Template ikke fundet.' };
 
+    const { getBoss } = await import('@/lib/jobs/boss-client');
+    const boss = await getBoss();
     const jobName = `fetch-${template.kilde}`;
     await boss.send(jobName, { kommuneIndikatorId, fromYear });
-    await boss.stop();
   } catch {
     return { message: 'Fejl ved opstart af hentning.' };
   }
