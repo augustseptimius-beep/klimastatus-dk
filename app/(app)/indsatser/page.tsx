@@ -39,7 +39,6 @@ export default async function IndsatserPage() {
           <h1>Indsatsområder</h1>
         </div>
         <div className="actions">
-          <Link href="/indsatser/importer" className="ks-btn ks-btn-secondary">↑ Importer fra fil</Link>
           <Link href="/indsatser/ny" className="ks-btn ks-btn-primary">+ Nyt indsatsområde</Link>
         </div>
       </div>
@@ -62,7 +61,7 @@ export default async function IndsatserPage() {
           <div>
             <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--forest-900)', marginBottom: 6 }}>Har du allerede et handlingskatalog?</div>
             <p style={{ fontSize: 13, color: 'var(--ink-700)', lineHeight: 1.6, margin: 0 }}>
-              Brug <Link href="/indsatser/importer" style={{ color: 'var(--forest-900)', fontWeight: 600 }}>Importer fra fil</Link> til at uploade et eksisterende katalog som PDF, Word eller Excel — Claude opretter indsatsområder og handlinger automatisk.
+              Opret indsatsområderne manuelt og tilføj handlinger under hvert område. Brug beskrivelsesfeltet til at notere, hvilke handlinger der hører til.
             </p>
           </div>
         </div>
