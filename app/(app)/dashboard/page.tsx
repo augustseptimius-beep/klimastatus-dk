@@ -62,7 +62,6 @@ export default async function DashboardPage() {
 
   const aktiveTiltag = tiltag.filter((t) => t.status !== 'discontinued');
   const igangvaerende = tiltag.filter((t) => t.status === 'in_progress').length;
-
   const aktiveTovholdere = tovholdere.filter((t) => t.aktiv);
   const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const rapporter = await Promise.all(
@@ -72,81 +71,85 @@ export default async function DashboardPage() {
     (rs) => rs.some((r) => new Date(r.createdAt) > cutoff),
   ).length;
 
+  const statCols = 2 + (co2eKI.length > 0 ? 1 : 0) + (veKI.length > 0 ? 1 : 0);
+
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">{kommune.navn} Kommune</h1>
-        <p className="mt-1 text-sm text-gray-500">Klimastatus-overblik</p>
+    <>
+      <div className="ks-page-header">
+        <div>
+          <div className="eyebrow">Klimastatus 2025</div>
+          <h1>{kommune.navn} Kommune</h1>
+        </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <StatusCard
-          title="Handlinger"
-          value={`${igangvaerende}/${aktiveTiltag.length}`}
-          description="igangværende tiltag"
-          status={igangvaerende > 0 ? 'green' : 'neutral'}
-        />
-        <StatusCard
-          title="Tovholdere"
-          value={aktiveTovholdere.length === 0 ? '—' : `${harSvaret}/${aktiveTovholdere.length}`}
-          description={aktiveTovholdere.length === 0 ? 'Ingen tovholdere' : 'har rapporteret (30 dage)'}
-          status={aktiveTovholdere.length === 0 ? 'neutral' : harSvaret === aktiveTovholdere.length ? 'green' : 'yellow'}
-        />
-        <StatusCard
-          title="CCTF-status"
-          value="—"
-          description="Selvevaluering ikke påbegyndt"
-          status="neutral"
-        />
+      {/* Stat grid */}
+      <div className="ks-stat-grid" style={{ gridTemplateColumns: `repeat(${statCols}, 1fr)` }}>
+        <div className="ks-stat">
+          <div className="label">Handlinger igangværende</div>
+          <div className="num">
+            <em>{igangvaerende}</em>/{aktiveTiltag.length}
+          </div>
+        </div>
+        <div className="ks-stat">
+          <div className="label">Tovholdere rapporteret (30 dage)</div>
+          <div className="num">
+            {aktiveTovholdere.length === 0
+              ? <span style={{ fontSize: 24, color: 'var(--ink-400)' }}>Ingen</span>
+              : <><em>{harSvaret}</em>/{aktiveTovholdere.length}</>}
+          </div>
+        </div>
         {co2eKI.length > 0 && (
-          <StatusCard
-            title="CO₂e pr. capita"
-            value={co2eSeneste[0] ? `${co2eSeneste[0].vaerdi} t` : '—'}
-            description={co2eSeneste[0] ? `ton CO₂e/indb. (${co2eSeneste[0].aar})` : 'Ingen data endnu'}
-            status="neutral"
-          />
+          <div className="ks-stat">
+            <div className="label">CO₂e pr. capita</div>
+            <div className="num">
+              {co2eSeneste[0]
+                ? <><em>{co2eSeneste[0].vaerdi}</em> <span style={{ fontSize: 16, fontWeight: 500, color: 'var(--ink-500)' }}>t ({co2eSeneste[0].aar})</span></>
+                : <span style={{ fontSize: 20, color: 'var(--ink-400)' }}>Ingen data</span>}
+            </div>
+          </div>
         )}
         {veKI.length > 0 && (
-          <StatusCard
-            title="VE-kapacitet"
-            value={veMWSeneste[0] ? `${Math.round(veMWSeneste[0].vaerdi)} MW` : '—'}
-            description={veMWSeneste[0] ? `vind + sol (${veMWSeneste[0].aar})` : 'Ingen data endnu'}
-            status="neutral"
-          />
+          <div className="ks-stat">
+            <div className="label">VE-kapacitet vind + sol</div>
+            <div className="num">
+              {veMWSeneste[0]
+                ? <><em>{Math.round(veMWSeneste[0].vaerdi)}</em> <span style={{ fontSize: 16, fontWeight: 500, color: 'var(--ink-500)' }}>MW ({veMWSeneste[0].aar})</span></>
+                : <span style={{ fontSize: 20, color: 'var(--ink-400)' }}>Ingen data</span>}
+            </div>
+          </div>
         )}
       </div>
 
-      <div className="mt-8 grid grid-cols-3 gap-4">
-        <QuickLink href="/indsatser" label="Indsatsområder" count={indsatser.length} />
-        <QuickLink href="/tiltag" label="Handlingsoverblik" count={aktiveTiltag.length} />
-        <QuickLink href="/tovholdere" label="Tovholdere" count={aktiveTovholdere.length} />
+      {/* Quick links */}
+      <div className="ks-section">
+        <div className="ks-section-head">
+          <div>
+            <div className="eyebrow">Overblik</div>
+            <h2>Genveje</h2>
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+          <QuickLink href="/indsatser"  label="Indsatsområder"   count={indsatser.length} />
+          <QuickLink href="/tiltag"     label="Handlingsoverblik" count={aktiveTiltag.length} />
+          <QuickLink href="/tovholdere" label="Tovholdere"        count={aktiveTovholdere.length} />
+        </div>
       </div>
-    </div>
-  );
-}
-
-function StatusCard({ title, value, description, status }: {
-  title: string; value: string; description: string;
-  status: 'green' | 'yellow' | 'red' | 'neutral';
-}) {
-  const colors = {
-    green: 'bg-green-50 border-green-200', yellow: 'bg-yellow-50 border-yellow-200',
-    red: 'bg-red-50 border-red-200', neutral: 'bg-white border-gray-200',
-  };
-  return (
-    <div className={`rounded-xl border p-4 ${colors[status]}`}>
-      <p className="text-xs font-medium uppercase tracking-wide text-gray-400">{title}</p>
-      <p className="mt-1 text-2xl font-bold text-gray-900">{value}</p>
-      <p className="mt-0.5 text-xs text-gray-500">{description}</p>
-    </div>
+    </>
   );
 }
 
 function QuickLink({ href, label, count }: { href: string; label: string; count: number }) {
   return (
-    <Link href={href} className="rounded-xl border border-gray-200 p-4 hover:border-gray-300 hover:bg-gray-50">
-      <p className="text-sm font-medium text-gray-700">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-gray-900">{count}</p>
+    <Link href={href} style={{ textDecoration: 'none' }}>
+      <div className="ks-card" style={{ cursor: 'pointer', transition: 'border-color 120ms ease' }}
+        onMouseEnter={undefined}>
+        <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--forest-900)', marginBottom: 12 }}>
+          {label}
+        </div>
+        <div style={{ fontSize: 38, fontWeight: 700, letterSpacing: '-0.025em', color: 'var(--ink-900)', fontVariantNumeric: 'tabular-nums' }}>
+          {count}
+        </div>
+      </div>
     </Link>
   );
 }

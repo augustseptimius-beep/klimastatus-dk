@@ -2,6 +2,7 @@ import { verifySession } from '@/lib/dal';
 import { getKommuneById } from '@/db/queries';
 import { redirect } from 'next/navigation';
 import { AppSidebar } from '@/components/app-sidebar';
+import './app.css';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await verifySession();
@@ -14,10 +15,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!kommune) redirect('/login');
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="ks-app">
+      <header className="ks-topbar">
+        <div className="ks-topbar-left">
+          <a className="logo" href="/dashboard" aria-label="Klimastatus.dk">
+            <span>Klimastatus<span className="period">.</span>dk</span>
+          </a>
+          <span className="kommune-name">{kommune.navn}</span>
+        </div>
+      </header>
       <AppSidebar kommuneNavn={kommune.navn} />
-      <main className="flex-1 overflow-y-auto bg-gray-50">
-        <div className="mx-auto max-w-4xl px-8 py-8">{children}</div>
+      <main className="ks-main">
+        {children}
       </main>
     </div>
   );
