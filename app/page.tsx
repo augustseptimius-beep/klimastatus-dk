@@ -54,7 +54,7 @@ export default function Home() {
           font-size: 1.15em;
           font-weight: 700;
           line-height: 0;
-          margin: 0 -0.08em 0 -0.04em;
+          margin: 0 0.04em;
         }
 
         /* Buttons */
