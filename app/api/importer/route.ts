@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 export const maxDuration = 60;
 
 const MAX_FILE_MB = 15;
-const MAX_TEXT_CHARS = 80_000;
+const MAX_TEXT_CHARS = 30_000;
 
 const SYSTEM_PROMPT = `Du er assistent til klimakoordinatorer i danske kommuner.
 Analyser det uploadede handlingskatalog og udtræk kommunens klimaindsatser og -handlinger.
@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
           content: `Udtræk alle indsatsområder og handlinger fra dette handlingskatalog:\n\n${textContent.slice(0, MAX_TEXT_CHARS)}`,
         }],
       },
-      { timeout: 45_000 },
+      { timeout: 55_000 },
     );
 
     const toolUse = response.content.find((b) => b.type === 'tool_use') as Anthropic.ToolUseBlock | undefined;
