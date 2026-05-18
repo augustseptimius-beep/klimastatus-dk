@@ -96,12 +96,51 @@ export async function POST(req: NextRequest) {
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+  const tool: Anthropic.Tool = {
+    name: 'gem_handlingskatalog',
+    description: 'Gem udtrukne indsatsområder og handlinger fra handlingskataloget',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        indsatsomraader: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              navn: { type: 'string' },
+              type: { type: 'string', enum: ['ghg_reduction', 'adaptation', 'consumption', 'just_transition', 'cross_cutting'] },
+              sektor: { type: 'string', enum: ['energy', 'transport', 'buildings', 'food', 'agriculture', 'waste', 'adaptation', 'other'] },
+              beskrivelse: { type: 'string' },
+              handlinger: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    titel: { type: 'string' },
+                    type: { type: 'string', enum: ['reduction', 'adaptation', 'both'] },
+                    status: { type: 'string', enum: ['planned', 'in_progress', 'completed', 'discontinued'] },
+                    beskrivelse: { type: 'string' },
+                  },
+                  required: ['titel', 'type', 'status'],
+                },
+              },
+            },
+            required: ['navn', 'type', 'sektor', 'handlinger'],
+          },
+        },
+      },
+      required: ['indsatsomraader'],
+    },
+  };
+
   try {
     const response = await client.messages.create(
       {
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 4096,
+        max_tokens: 8096,
         system: SYSTEM_PROMPT,
+        tools: [tool],
+        tool_choice: { type: 'tool', name: 'gem_handlingskatalog' },
         messages: [{
           role: 'user',
           content: `Udtræk alle indsatsområder og handlinger fra dette handlingskatalog:\n\n${textContent.slice(0, MAX_TEXT_CHARS)}`,
@@ -110,19 +149,16 @@ export async function POST(req: NextRequest) {
       { timeout: 45_000 },
     );
 
-    const raw = response.content[0].type === 'text' ? response.content[0].text : '';
-    const jsonStart = raw.indexOf('{');
-    const jsonEnd = raw.lastIndexOf('}');
-    if (jsonStart === -1 || jsonEnd === -1) {
-      return NextResponse.json({ error: 'AI returnerede ikke gyldigt JSON — prøv igen', raw }, { status: 500 });
+    const toolUse = response.content.find((b) => b.type === 'tool_use') as Anthropic.ToolUseBlock | undefined;
+    if (!toolUse) {
+      return NextResponse.json({ error: 'AI returnerede ikke struktureret data — prøv igen' }, { status: 500 });
     }
 
-    const parsed = JSON.parse(raw.slice(jsonStart, jsonEnd + 1));
-    return NextResponse.json(parsed);
+    return NextResponse.json(toolUse.input);
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
     if (msg.includes('timeout') || msg.includes('timed out')) {
-      return NextResponse.json({ error: 'AI-analysen tog for lang tid. Prøv med en mindre fil eller færre handlinger.' }, { status: 504 });
+      return NextResponse.json({ error: 'AI-analysen tog for lang tid. Prøv med en kortere fil.' }, { status: 504 });
     }
     return NextResponse.json({ error: `AI-fejl: ${msg}` }, { status: 500 });
   }
