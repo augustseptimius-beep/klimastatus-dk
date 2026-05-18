@@ -78,8 +78,9 @@ export async function POST(req: NextRequest) {
       const result = await mammoth.extractRawText({ buffer: Buffer.from(buffer) });
       textContent = result.value;
     } else {
-      // PDF: extract text with pdf-parse
-      const pdfParse = (await import('pdf-parse')).default;
+      // PDF: extract text with pdf-parse (CJS module — use require for reliable import)
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const pdfParse = require('pdf-parse') as (buf: Buffer) => Promise<{ text: string }>;
       const buffer = await file.arrayBuffer();
       const result = await pdfParse(Buffer.from(buffer));
       textContent = result.text;
