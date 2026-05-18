@@ -6,8 +6,23 @@ import Link from 'next/link';
 export const metadata = { title: 'Indsatsområder — Klimastatus.dk' };
 
 const TYPE_LABELS: Record<string, string> = {
-  ghg_reduction: 'GHG-reduktion', adaptation: 'Tilpasning',
-  consumption: 'Forbrug', just_transition: 'Retfærdig omstilling', cross_cutting: 'Tværgående',
+  ghg_reduction: 'Drivhusgasreduktion',
+  adaptation: 'Klimatilpasning',
+  consumption: 'Forbrug',
+  just_transition: 'Retfærdig omstilling',
+  cross_cutting: 'Tværgående',
+};
+const TYPE_BADGE: Record<string, string> = {
+  ghg_reduction: 'ks-badge-success',
+  adaptation: 'ks-badge-info',
+  consumption: 'ks-badge-warn',
+  just_transition: 'ks-badge-neutral',
+  cross_cutting: 'ks-badge-neutral',
+};
+const SEKTOR_LABELS: Record<string, string> = {
+  energy: 'Energi', transport: 'Transport', buildings: 'Bygninger',
+  food: 'Fødevarer', agriculture: 'Landbrug', waste: 'Affald',
+  adaptation: 'Klimatilpasning', other: 'Andet',
 };
 
 export default async function IndsatserPage() {
@@ -17,32 +32,94 @@ export default async function IndsatserPage() {
   const indsatser = await getAllIndsatsOmraader(session.kommuneId);
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Indsatsområder</h1>
-        <Link href="/indsatser/ny" className="rounded-md bg-gray-900 px-4 py-2 text-sm text-white hover:bg-gray-700">
-          Nyt indsatsområde
-        </Link>
+    <>
+      <div className="ks-page-header">
+        <div>
+          <div className="eyebrow">Klimaplan</div>
+          <h1>Indsatsområder</h1>
+        </div>
+        <div className="actions">
+          <Link href="/indsatser/importer" className="ks-btn ks-btn-secondary">↑ Importer fra fil</Link>
+          <Link href="/indsatser/ny" className="ks-btn ks-btn-primary">+ Nyt indsatsområde</Link>
+        </div>
       </div>
+
+      {/* Help text */}
+      <div className="ks-card" style={{ marginBottom: 32, background: 'var(--moss-50)', border: '1px solid var(--moss-100)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24 }}>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--forest-900)', marginBottom: 6 }}>Hvad er et indsatsområde?</div>
+            <p style={{ fontSize: 13, color: 'var(--ink-700)', lineHeight: 1.6, margin: 0 }}>
+              Et indsatsområde samler beslægtede handlinger under ét tema — f.eks. "Energirenovering af kommunale bygninger" eller "Klimatilpasning af bycentrum". Det svarer til CCTF-begreberne sektorstrategi og handlingsklynge.
+            </p>
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--forest-900)', marginBottom: 6 }}>Kan jeg oprette egne?</div>
+            <p style={{ fontSize: 13, color: 'var(--ink-700)', lineHeight: 1.6, margin: 0 }}>
+              Ja. CCTF stiller ikke krav om specifikke navne. Du navngiver indsatsområderne, som det passer til jeres klimaplan. Det vigtige er, at de dækker jeres handlinger og kan knyttes til CCTF-kriterierne via handlingerne.
+            </p>
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--forest-900)', marginBottom: 6 }}>Har du allerede et handlingskatalog?</div>
+            <p style={{ fontSize: 13, color: 'var(--ink-700)', lineHeight: 1.6, margin: 0 }}>
+              Brug <Link href="/indsatser/importer" style={{ color: 'var(--forest-900)', fontWeight: 600 }}>Importer fra fil</Link> til at uploade et eksisterende katalog som PDF, Word eller Excel — Claude opretter indsatsområder og handlinger automatisk.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {indsatser.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-gray-300 px-6 py-12 text-center text-sm text-gray-400">
-          Ingen indsatsområder endnu. Opret det første for at komme i gang med tiltag.
+        <div className="ks-empty">
+          <h3>Ingen indsatsområder endnu</h3>
+          <p>Opret dit første indsatsområde manuelt, eller importer et eksisterende handlingskatalog med AI.</p>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+            <Link href="/indsatser/importer" className="ks-btn ks-btn-secondary">↑ Importer fra fil</Link>
+            <Link href="/indsatser/ny" className="ks-btn ks-btn-primary">+ Nyt indsatsområde</Link>
+          </div>
         </div>
       ) : (
-        <div className="divide-y rounded-xl border border-gray-200">
-          {indsatser.map((io) => (
-            <div key={io.id} className="flex items-center justify-between px-4 py-3">
-              <div>
-                <p className="font-medium text-gray-900">{io.navn}</p>
-                <p className="text-xs text-gray-500">{TYPE_LABELS[io.type]} · {io.sektor}</p>
-              </div>
-              <Link href={`/indsatser/${io.id}/rediger`} className="text-sm text-gray-500 hover:text-gray-900">
-                Rediger
-              </Link>
-            </div>
-          ))}
-        </div>
+        <table className="ks-table">
+          <thead>
+            <tr>
+              <th>Navn</th>
+              <th>Type</th>
+              <th>Sektor</th>
+              <th>Ansvarlig forvaltning</th>
+              <th style={{ width: 80 }} />
+            </tr>
+          </thead>
+          <tbody>
+            {indsatser.map((io) => (
+              <tr key={io.id}>
+                <td>
+                  <span style={{ fontWeight: 600, color: 'var(--ink-900)' }}>{io.navn}</span>
+                  {io.beskrivelse && (
+                    <div style={{ fontSize: 12, color: 'var(--ink-400)', marginTop: 2 }}>{io.beskrivelse}</div>
+                  )}
+                </td>
+                <td>
+                  <span className={`ks-badge ${TYPE_BADGE[io.type]}`}>{TYPE_LABELS[io.type]}</span>
+                </td>
+                <td style={{ fontSize: 13, color: 'var(--ink-500)' }}>
+                  {SEKTOR_LABELS[io.sektor] ?? io.sektor}
+                </td>
+                <td style={{ fontSize: 13, color: 'var(--ink-500)' }}>
+                  {io.ansvarligForvaltning ?? '—'}
+                </td>
+                <td>
+                  <Link
+                    href={`/indsatser/${io.id}/rediger`}
+                    className="ks-btn ks-btn-secondary"
+                    style={{ padding: '5px 10px', fontSize: 12 }}
+                    >
+                    Rediger
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
-    </div>
+    </>
   );
 }
