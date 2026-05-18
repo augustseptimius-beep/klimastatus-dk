@@ -5,39 +5,55 @@ import * as XLSX from 'xlsx';
 export const maxDuration = 60;
 
 const MAX_FILE_MB = 15;
-const MAX_TEXT_CHARS = 30_000;
+const MAX_TEXT_CHARS = 60_000;
 
 const SYSTEM_PROMPT = `Du er assistent til klimakoordinatorer i danske kommuner.
-Analyser det uploadede handlingskatalog og udtræk kommunens klimaindsatser og -handlinger.
+Analyser handlingskataloget og udtræk ALLE klimaindsatser og -handlinger.
+Kald funktionen gem_handlingskatalog med det fundne indhold.
 
-Returner KUN et JSON-objekt — ingen forklarende tekst, ingen markdown-blokke. Strukturen:
-{
-  "indsatsomraader": [
-    {
-      "navn": "Navn på indsatsområde (kortfattet, maks 60 tegn)",
-      "type": "ghg_reduction" | "adaptation" | "consumption" | "just_transition" | "cross_cutting",
-      "sektor": "energy" | "transport" | "buildings" | "food" | "agriculture" | "waste" | "adaptation" | "other",
-      "beskrivelse": "Kort beskrivelse af indsatsområdet (valgfri)",
-      "handlinger": [
-        {
-          "titel": "Handelstitlen (kortfattet, maks 80 tegn)",
-          "type": "reduction" | "adaptation" | "both",
-          "status": "planned" | "in_progress" | "completed" | "discontinued",
-          "beskrivelse": "Evt. kort beskrivelse"
-        }
-      ]
-    }
-  ]
-}
-
-Vurderingskriterier:
+Vurderingskriterier for type:
 - ghg_reduction: CO₂-/drivhusgasreduktion
 - adaptation: klimatilpasning, oversvømmelse, tørke, varme
 - consumption: forbrugsmønstre, indkøb
 - just_transition: retfærdig omstilling, social
-- cross_cutting: tværgående, gælder flere sektorer
+- cross_cutting: tværgående, gælder flere sektorer`;
 
-Returner KUN gyldigt JSON.`;
+const TOOL: Anthropic.Tool = {
+  name: 'gem_handlingskatalog',
+  description: 'Gem udtrukne indsatsområder og handlinger fra handlingskataloget',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      indsatsomraader: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            navn: { type: 'string', description: 'Navn på indsatsområde, maks 60 tegn' },
+            type: { type: 'string', enum: ['ghg_reduction', 'adaptation', 'consumption', 'just_transition', 'cross_cutting'] },
+            sektor: { type: 'string', enum: ['energy', 'transport', 'buildings', 'food', 'agriculture', 'waste', 'adaptation', 'other'] },
+            beskrivelse: { type: 'string' },
+            handlinger: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  titel: { type: 'string', description: 'Handlingens titel, maks 80 tegn' },
+                  type: { type: 'string', enum: ['reduction', 'adaptation', 'both'] },
+                  status: { type: 'string', enum: ['planned', 'in_progress', 'completed', 'discontinued'] },
+                  beskrivelse: { type: 'string' },
+                },
+                required: ['titel', 'type', 'status'],
+              },
+            },
+          },
+          required: ['navn', 'type', 'sektor', 'handlinger'],
+        },
+      },
+    },
+    required: ['indsatsomraader'],
+  },
+};
 
 export async function POST(req: NextRequest) {
   if (!process.env.ANTHROPIC_API_KEY) {
@@ -53,98 +69,59 @@ export async function POST(req: NextRequest) {
   }
 
   const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
-  const allowedExt = ['pdf', 'csv', 'xlsx', 'xls', 'docx'];
-  if (!allowedExt.includes(ext)) {
+  if (!['pdf', 'csv', 'xlsx', 'xls', 'docx'].includes(ext)) {
     return NextResponse.json({ error: `Filtype .${ext} understøttes ikke` }, { status: 400 });
-  }
-
-  let textContent: string;
-
-  try {
-    if (ext === 'csv') {
-      textContent = await file.text();
-    } else if (ext === 'xlsx' || ext === 'xls') {
-      const buffer = await file.arrayBuffer();
-      const workbook = XLSX.read(buffer, { type: 'buffer' });
-      const rows: string[] = [];
-      for (const sheetName of workbook.SheetNames) {
-        rows.push(`\n=== Ark: ${sheetName} ===`);
-        rows.push(XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName]));
-      }
-      textContent = rows.join('\n');
-    } else if (ext === 'docx') {
-      const mammoth = await import('mammoth');
-      const buffer = await file.arrayBuffer();
-      const result = await mammoth.extractRawText({ buffer: Buffer.from(buffer) });
-      textContent = result.value;
-    } else {
-      // pdf-parse v1 index.js tries to open a test file on import — use the lib directly to avoid this
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const pdfParse = require('pdf-parse/lib/pdf-parse') as (buf: Buffer) => Promise<{ text: string }>;
-      const buffer = await file.arrayBuffer();
-      const result = await pdfParse(Buffer.from(buffer));
-      textContent = result.text;
-    }
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : String(e);
-    return NextResponse.json({ error: `Kunne ikke læse filen: ${msg}` }, { status: 400 });
-  }
-
-  if (!textContent.trim()) {
-    return NextResponse.json({ error: 'Filen ser ud til at være tom eller kan ikke læses (fx scanned PDF uden tekstlag)' }, { status: 400 });
   }
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-  const tool: Anthropic.Tool = {
-    name: 'gem_handlingskatalog',
-    description: 'Gem udtrukne indsatsområder og handlinger fra handlingskataloget',
-    input_schema: {
-      type: 'object' as const,
-      properties: {
-        indsatsomraader: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              navn: { type: 'string' },
-              type: { type: 'string', enum: ['ghg_reduction', 'adaptation', 'consumption', 'just_transition', 'cross_cutting'] },
-              sektor: { type: 'string', enum: ['energy', 'transport', 'buildings', 'food', 'agriculture', 'waste', 'adaptation', 'other'] },
-              beskrivelse: { type: 'string' },
-              handlinger: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    titel: { type: 'string' },
-                    type: { type: 'string', enum: ['reduction', 'adaptation', 'both'] },
-                    status: { type: 'string', enum: ['planned', 'in_progress', 'completed', 'discontinued'] },
-                    beskrivelse: { type: 'string' },
-                  },
-                  required: ['titel', 'type', 'status'],
-                },
-              },
-            },
-            required: ['navn', 'type', 'sektor', 'handlinger'],
-          },
-        },
-      },
-      required: ['indsatsomraader'],
-    },
-  };
+  let userContent: Anthropic.MessageParam['content'];
+
+  if (ext === 'pdf') {
+    // Send PDF directly to Claude — no text extraction needed, handles full document natively
+    const buffer = await file.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+    userContent = [
+      {
+        type: 'document',
+        source: { type: 'base64', media_type: 'application/pdf', data: base64 },
+      } as Anthropic.DocumentBlockParam,
+      { type: 'text', text: 'Udtræk alle indsatsområder og handlinger fra dette handlingskatalog.' },
+    ];
+  } else {
+    let text: string;
+    try {
+      if (ext === 'csv') {
+        text = await file.text();
+      } else if (ext === 'xlsx' || ext === 'xls') {
+        const buffer = await file.arrayBuffer();
+        const wb = XLSX.read(buffer, { type: 'buffer' });
+        text = wb.SheetNames.map((n) => `=== ${n} ===\n${XLSX.utils.sheet_to_csv(wb.Sheets[n])}`).join('\n\n');
+      } else {
+        const mammoth = await import('mammoth');
+        const buffer = await file.arrayBuffer();
+        text = (await mammoth.extractRawText({ buffer: Buffer.from(buffer) })).value;
+      }
+    } catch (e: unknown) {
+      return NextResponse.json({ error: `Kunne ikke læse filen: ${e instanceof Error ? e.message : e}` }, { status: 400 });
+    }
+
+    if (!text.trim()) {
+      return NextResponse.json({ error: 'Filen ser ud til at være tom eller kan ikke læses' }, { status: 400 });
+    }
+
+    userContent = `Udtræk alle indsatsområder og handlinger fra dette handlingskatalog:\n\n${text.slice(0, MAX_TEXT_CHARS)}`;
+  }
 
   try {
     const response = await client.messages.create(
       {
-        model: 'claude-haiku-4-5-20251001',
+        model: 'claude-sonnet-4-6',
         max_tokens: 8096,
         system: SYSTEM_PROMPT,
-        tools: [tool],
+        tools: [TOOL],
         tool_choice: { type: 'tool', name: 'gem_handlingskatalog' },
-        messages: [{
-          role: 'user',
-          content: `Udtræk alle indsatsområder og handlinger fra dette handlingskatalog:\n\n${textContent.slice(0, MAX_TEXT_CHARS)}`,
-        }],
+        messages: [{ role: 'user', content: userContent }],
       },
       { timeout: 55_000 },
     );
@@ -153,7 +130,6 @@ export async function POST(req: NextRequest) {
     if (!toolUse) {
       return NextResponse.json({ error: 'AI returnerede ikke struktureret data — prøv igen' }, { status: 500 });
     }
-
     return NextResponse.json(toolUse.input);
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
