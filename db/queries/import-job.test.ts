@@ -85,7 +85,7 @@ describe('updateImportJobStatus', () => {
     await updateImportJobStatus('job1', 'complete', { resultat: { indsatsomraader: [] } });
     expect(mockUpdate).toHaveBeenCalled();
     expect(mockSet).toHaveBeenCalledWith(
-      expect.objectContaining({ status: 'complete', resultat: { indsatsomraader: [] } }),
+      expect.objectContaining({ status: 'complete', resultat: { indsatsomraader: [] }, opdateret: expect.any(Date) }),
     );
   });
 
