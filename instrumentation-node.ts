@@ -3,6 +3,7 @@ import { handleRykker } from './lib/jobs/rykker';
 import { handleFetchKlimaregnskabet } from './lib/jobs/fetch-klimaregnskabet';
 import { handleFetchEnergidataservice } from './lib/jobs/fetch-energidataservice';
 import { handleFetchDst } from './lib/jobs/fetch-dst';
+import { handleImportHandlingskatalog } from './lib/jobs/import-handlingskatalog';
 
 async function setupJobs() {
   const boss = new PgBoss(process.env.DATABASE_URL!);
@@ -34,6 +35,13 @@ async function setupJobs() {
     await handleFetchDst(data ?? {});
   });
   await boss.schedule('fetch-dst', '0 6 1 * *', {}, { retryLimit: 2 });
+
+  await boss.createQueue('import-handlingskatalog');
+  await boss.work('import-handlingskatalog', { localConcurrency: 1 }, async (jobs) => {
+    const data = jobs[0]?.data as { importJobId: string } | undefined;
+    if (!data?.importJobId) return;
+    await handleImportHandlingskatalog(data);
+  });
 }
 
 setupJobs().catch((err) => {
