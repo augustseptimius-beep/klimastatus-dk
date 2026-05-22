@@ -55,3 +55,6 @@ export const scenarieTypeEnum = pgEnum('scenarie_type', ['bau', 'action']);
 export const dokumentationsstyrkeEnum = pgEnum('dokumentationsstyrke', ['primary', 'secondary']);
 export const kriterieStatusEnum = pgEnum('kriterie_status', ['complete', 'partial', 'missing']);
 export const auditActionEnum = pgEnum('audit_action', ['create', 'update', 'delete']);
+export const importJobStatusEnum = pgEnum('import_job_status', [
+  'pending', 'processing', 'complete', 'failed',
+]);

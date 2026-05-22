@@ -10,3 +10,4 @@ export * from './regnskab';
 export * from './cctf';
 export * from './audit';
 export * from './indikator-template';
+export * from './import-job';
