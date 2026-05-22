@@ -37,6 +37,9 @@ export async function POST(req: NextRequest) {
     if (ext === 'pdf') {
       const buffer = await file.arrayBuffer();
       filindhold = Buffer.from(buffer).toString('base64');
+      if (filindhold.length > 20_000_000) {
+        return NextResponse.json({ error: 'PDF er for stor til analyse (maks ~15 MB)' }, { status: 400 });
+      }
     } else if (ext === 'csv') {
       filindhold = (await file.text()).slice(0, MAX_TEXT_CHARS);
     } else if (ext === 'xlsx' || ext === 'xls') {

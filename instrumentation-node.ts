@@ -36,7 +36,7 @@ async function setupJobs() {
   });
   await boss.schedule('fetch-dst', '0 6 1 * *', {}, { retryLimit: 2 });
 
-  await boss.createQueue('import-handlingskatalog');
+  await boss.createQueue('import-handlingskatalog', { retryLimit: 0 });
   await boss.work('import-handlingskatalog', { localConcurrency: 1 }, async (jobs) => {
     const data = jobs[0]?.data as { importJobId: string } | undefined;
     if (!data?.importJobId) return;
