@@ -48,16 +48,37 @@ export function ImporterClient() {
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const res = await fetch('/api/importer', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? 'Ukendt fejl');
-      const raw: Indsats[] = (data.indsatsomraader ?? []).map((io: Omit<Indsats, 'inkluder' | 'handlinger'> & { handlinger: Omit<Handling, 'inkluder'>[] }) => ({
-        ...io,
-        inkluder: true,
-        handlinger: (io.handlinger ?? []).map((h) => ({ ...h, inkluder: true })),
-      }));
-      setIndsatser(raw);
-      setStep('review');
+      const enqueueRes = await fetch('/api/importer/enqueue', { method: 'POST', body: fd });
+      const enqueueData = await enqueueRes.json();
+      if (!enqueueRes.ok) throw new Error(enqueueData.error ?? 'Ukendt fejl ved upload');
+
+      const { jobId } = enqueueData as { jobId: string };
+
+      // Poll status hvert 3. sekund i maks 5 minutter
+      const deadline = Date.now() + 5 * 60 * 1000;
+      while (Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, 3000));
+        const statusRes = await fetch(`/api/importer/status/${jobId}`);
+        const statusData = await statusRes.json() as { status: string; resultat?: { indsatsomraader?: unknown[] }; fejl?: string };
+        if (!statusRes.ok) throw new Error(statusData.fejl ?? 'Fejl ved statushentning');
+
+        if (statusData.status === 'complete') {
+          const raw: Indsats[] = ((statusData.resultat?.indsatsomraader ?? []) as (Omit<Indsats, 'inkluder' | 'handlinger'> & { handlinger: Omit<Handling, 'inkluder'>[] })[]).map((io) => ({
+            ...io,
+            inkluder: true,
+            handlinger: (io.handlinger ?? []).map((h) => ({ ...h, inkluder: true })),
+          }));
+          setIndsatser(raw);
+          setStep('review');
+          return;
+        }
+
+        if (statusData.status === 'failed') {
+          throw new Error(statusData.fejl ?? 'AI-analysen mislykkedes');
+        }
+      }
+
+      throw new Error('AI-analysen tog for lang tid. Prøv igen med en kortere fil.');
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : String(e));
       setStep('error');
