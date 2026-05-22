@@ -4,7 +4,7 @@ import { importJobStatusEnum } from './enums';
 
 export const importJob = pgTable('import_job', {
   id: uuid('id').primaryKey().defaultRandom(),
-  kommuneId: uuid('kommune_id').notNull().references(() => kommune.id),
+  kommuneId: uuid('kommune_id').notNull().references(() => kommune.id, { onDelete: 'cascade' }),
   filnavn: text('filnavn').notNull(),
   filtype: text('filtype').notNull(),
   filindhold: text('filindhold').notNull(),
