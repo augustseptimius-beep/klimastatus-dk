@@ -1,0 +1,83 @@
+flowchart TD
+    subgraph Offentlig["Offentlig adgang"]
+        LANDING["/ — Landingpage\n(marketing)"]
+        LOGIN["/(auth)/login\nEmail + adgangskode"]
+    end
+
+    subgraph TovholderFlow["Tovholder-flow (ingen login)"]
+        EMAILLINK["Email med unikt token-link"]
+        TOKEN["/rapport/[token]\nSæt cookie, valider token"]
+        UDLOEBET["/rapport/udloebet\nLink udløbet"]
+        RAPPORT["/rapport\nStatusindberetning"]
+        SAVERAP["saveRapportAction()\nUpsert pr. tiltag"]
+    end
+
+    subgraph Auth["Autentificering"]
+        AUTHACTION["login()\nValidér email + argon2-hash"]
+        SESSION["createSession()\nJWT-cookie med rolle + kommuneId"]
+    end
+
+    subgraph AdminApp["Admin — /admin/*"]
+        ADMINKOMMUNER["/admin/kommuner\nOpret og administrér kommuner"]
+        ADMININDIKATORER["/admin/indikatorer\nGlobale indikatordefinitioner"]
+    end
+
+    subgraph KoordinatorApp["Koordinator — /(app)/*"]
+        DASHBOARD["/dashboard\nOverblik"]
+        INDSATSER["/indsatser\nIndsatsområder"]
+        TILTAG["/tiltag\nKlimatiltag"]
+        TOVHOLDERE["/tovholdere\nTovholderstyring"]
+        DATA["/data\nDataoversigt"]
+        INDSTILLINGER["/indstillinger"]
+        IMPORTER["/indsatser/importer\nCSV/API-import"]
+    end
+
+    subgraph DB["Database (PostgreSQL)"]
+        DBRAP["Tovholder_rapport"]
+        DBTILTAG["Tiltag"]
+        DBINDSATS["Indsatsområde"]
+        DBINDIKATOR["Indikator + Indikator_måling"]
+        DBCCTF["CCTF_kriterie_mapping"]
+        DBSELV["Selvevaluering"]
+    end
+
+    subgraph Externe["Eksterne datakilder (API)"]
+        KLIMAREG["Klimaregnskabet.dk"]
+        ENERGI["Energidataservice"]
+        BBR["BBR"]
+        DST["Danmarks Statistik"]
+        DMI["DMI Klimaatlas"]
+    end
+
+    %% Offentlig navigation
+    LANDING -->|"Log ind"| LOGIN
+    LOGIN --> AUTHACTION
+    AUTHACTION -->|"Fejl"| LOGIN
+    AUTHACTION -->|"OK"| SESSION
+    SESSION -->|"rolle = admin"| ADMINKOMMUNER
+    SESSION -->|"rolle = koordinator"| DASHBOARD
+
+    %% Tovholder-flow
+    EMAILLINK --> TOKEN
+    TOKEN -->|"Ugyldig/udløbet"| UDLOEBET
+    TOKEN -->|"Gyldig → sæt cookie"| RAPPORT
+    RAPPORT -->|"Submit"| SAVERAP
+    SAVERAP -->|"Valider ejerskab"| DBRAP
+
+    %% Koordinator navigation
+    DASHBOARD --> INDSATSER & TILTAG & TOVHOLDERE & DATA & INDSTILLINGER
+    INDSATSER --> IMPORTER
+    TOVHOLDERE -->|"Generér token-link"| EMAILLINK
+
+    %% DB-relationer
+    TILTAG <-->|"CRUD"| DBTILTAG
+    INDSATSER <-->|"CRUD"| DBINDSATS
+    DATA --> DBINDIKATOR
+    DBRAP --> DBCCTF
+    DBTILTAG --> DBCCTF
+    DBINDSATS --> DBCCTF
+    DBINDIKATOR --> DBCCTF
+    DBCCTF -->|"Auto-evaluering"| DBSELV
+
+    %% Ekstern datahentning
+    Externe -->|"Periodisk pull"| DBINDIKATOR

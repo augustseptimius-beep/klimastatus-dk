@@ -1,0 +1,840 @@
+# Fase 1: Østerby Kommune Seed — Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Fyld systemet med realistiske demo-data for den fiktive Østerby Kommune (baseret på Hernings klimaplan), så dashboardet kan demonstreres.
+
+**Architecture:** Et separat `db/seeds/oesterby.ts` script med al Østerby-data. Scriptet opretter sin egen DB-forbindelse, er idempotent (tjekker om kommunekode `0999` allerede eksisterer) og inserter i rækkefølge: kommune → koordinator → indsatsområder → tiltag → mål → tovholdere → indikatorer. `db/seed.ts` importerer og kalder det.
+
+**Tech Stack:** Drizzle ORM, postgres.js, @node-rs/argon2, tsx
+
+---
+
+## File Map
+
+| Fil | Handling | Ansvar |
+|-----|----------|--------|
+| `db/seeds/oesterby.ts` | Create | Al Østerby seed-data |
+| `db/seed.ts` | Modify | Kalder `seedOesterby()` |
+
+---
+
+## Task 1: Opret `db/seeds/oesterby.ts`
+
+**Files:**
+- Create: `db/seeds/oesterby.ts`
+
+- [ ] **Opret mappen og filen**
+
+```bash
+mkdir -p /Users/augustseptimiuskrogh/Documents/Klimastatus.dk/db/seeds
+```
+
+- [ ] **Skriv `db/seeds/oesterby.ts` med følgende indhold**
+
+```ts
+import { hash } from '@node-rs/argon2';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import { eq } from 'drizzle-orm';
+import {
+  kommune,
+  user,
+  indsatsOmraade,
+  maal,
+  tiltag,
+  tovholder,
+  tovholderTiltag,
+  indikator,
+  indikatorMaaling,
+  indikatorTiltag,
+  indikatorIndsatsOmraade,
+  kommuneIndikator,
+  indikatorTemplate,
+} from '../schema';
+
+export async function seedOesterby() {
+  const client = postgres(process.env.DATABASE_URL!);
+  const db = drizzle(client);
+
+  try {
+    // Idempotency: spring over hvis allerede seeded
+    const existing = await db.select().from(kommune).where(eq(kommune.kommunekode, '0999')).limit(1);
+    if (existing.length > 0) {
+      console.log('Østerby Kommune allerede seeded — springer over.');
+      return;
+    }
+
+    console.log('Seeder Østerby Kommune...');
+
+    // 1. Kommune
+    const [oesterby] = await db.insert(kommune).values({
+      kommunekode: '0999',
+      navn: 'Østerby Kommune',
+      befolkningstal: 51200,
+      arealKm2: 1085,
+      klimakommitmentDato: '2021-06-01',
+      klimakommitmentTekst:
+        'Østerby Kommune forpligter sig til at opnå 70% CO₂e-reduktion inden 2030 og klimaneutralitet inden 2045 i overensstemmelse med Parisaftalens 1,5°C-ambition.',
+      primaryColor: '#1a5c38',
+      secondaryColor: '#e8f5e9',
+      subdomain: 'oesterby',
+    }).returning();
+
+    // 2. Koordinator-bruger
+    const passwordHash = await hash('oesterby2026!');
+    await db.insert(user).values({
+      kommuneId: oesterby.id,
+      email: 'koordinator@oesterby.dk',
+      passwordHash,
+      navn: 'Maja Vestergaard',
+      role: 'koordinator',
+    }).onConflictDoNothing();
+
+    // 3. Indsatsområder
+    const [io1, io2, io3, io4, io5] = await db.insert(indsatsOmraade).values([
+      {
+        kommuneId: oesterby.id,
+        navn: 'Vedvarende energi og udfasning af fossiler',
+        type: 'ghg_reduction' as const,
+        sektor: 'energy' as const,
+        ansvarligForvaltning: 'Teknik & Miljø',
+        beskrivelse:
+          'Udbygning af sol- og vindenergi samt udfasning af fossile brændsler i varme- og elproduktion. Sektoren udgør ca. 11% af kommunens samlede CO₂e-udledning.',
+        aktiv: true,
+      },
+      {
+        kommuneId: oesterby.id,
+        navn: 'Transport og mobilitet',
+        type: 'ghg_reduction' as const,
+        sektor: 'transport' as const,
+        ansvarligForvaltning: 'Vej & Park',
+        beskrivelse:
+          'Grøn omstilling af transport med fokus på kollektiv trafik, cyklisme og elektrifisering. Transport udgør ca. 26% af kommunens samlede udledning.',
+        aktiv: true,
+      },
+      {
+        kommuneId: oesterby.id,
+        navn: 'Landbrug, natur og lavbundsarealer',
+        type: 'ghg_reduction' as const,
+        sektor: 'agriculture' as const,
+        ansvarligForvaltning: 'Natur & Landbrug',
+        beskrivelse:
+          'Reduktion af landbrugets drivhusgasudledning via udtag af lavbundsarealer, skovrejsning og biogas. Den største sektor med ca. 55% af kommunens samlede CO₂e-udledning.',
+        aktiv: true,
+      },
+      {
+        kommuneId: oesterby.id,
+        navn: 'Bygninger og bæredygtigt forbrug',
+        type: 'cross_cutting' as const,
+        sektor: 'buildings' as const,
+        ansvarligForvaltning: 'Ejendomsservice',
+        beskrivelse:
+          'Renovering af boliger og kommunale bygninger samt grønne indkøb. Udgør ca. 8% af kommunens samlede udledning.',
+        aktiv: true,
+      },
+      {
+        kommuneId: oesterby.id,
+        navn: 'Klimatilpasning',
+        type: 'adaptation' as const,
+        sektor: 'adaptation' as const,
+        ansvarligForvaltning: 'Teknik & Miljø',
+        beskrivelse:
+          'Sikring af kommunen mod stigende klimarisici: oversvømmelse, ekstremregn, hedebølger og tørke.',
+        aktiv: true,
+      },
+    ]).returning();
+
+    // 4. Tiltag (22 stk.)
+    const insertedTiltag = await db.insert(tiltag).values([
+      // --- Indsats 1: Vedvarende energi (5 tiltag) ---
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io1.id,
+        titel: 'Etablering af solpark Nordmark (85 ha)',
+        type: 'reduction' as const,
+        status: 'in_progress' as const,
+        beskrivelse:
+          'Anlæg af 85 ha solcellepark nord for Østerby by. Forventet kapacitet: 85 MW. Samarbejde med lokalt energiselskab.',
+        forventetEffektCo2Ton: 42000,
+        tidsrammeStart: '2024-01-01',
+        tidsrammeSlut: '2026-12-31',
+        ansvarligOrganisation: 'Energi Østerby A/S',
+        barrierer:
+          'Naboklager om landskabspåvirkning. Netkapacitet begrænset — afventer Energinet-opgradering.',
+        prioriteretTiltag: true,
+        udfaserFossileBraendsler: true,
+        retfaerdigFordelingRelevant: false,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io1.id,
+        titel: 'Repowering af ældre vindmøller',
+        type: 'reduction' as const,
+        status: 'planned' as const,
+        beskrivelse:
+          'Udskiftning af 12 ældre vindmøller (2–3 MW) med moderne møller (5+ MW). Øger samlet kapacitet fra ~30 MW til ~65 MW.',
+        forventetEffektCo2Ton: 28000,
+        tidsrammeStart: '2026-01-01',
+        tidsrammeSlut: '2029-12-31',
+        ansvarligOrganisation: 'Teknik & Miljø',
+        barrierer: 'Afventer opdateret kommuneplan. Finansieringsmodel ikke afklaret.',
+        prioriteretTiltag: true,
+        udfaserFossileBraendsler: true,
+        retfaerdigFordelingRelevant: false,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io1.id,
+        titel: 'Udfasning af oliefyr i kommunale bygninger',
+        type: 'reduction' as const,
+        status: 'completed' as const,
+        beskrivelse:
+          'Alle 23 kommunale bygninger med oliefyr er overgået til varmepumpe eller fjernvarme.',
+        forventetEffektCo2Ton: 1200,
+        tidsrammeStart: '2022-01-01',
+        tidsrammeSlut: '2024-06-30',
+        ansvarligOrganisation: 'Ejendomsservice',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: true,
+        retfaerdigFordelingRelevant: false,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io1.id,
+        titel: 'Fjernvarmeudvidelse til Østerby Vest',
+        type: 'reduction' as const,
+        status: 'in_progress' as const,
+        beskrivelse:
+          'Udvidelse af fjernvarmenettet til 1.200 boliger i Østerby Vest der i dag opvarmes med naturgas.',
+        forventetEffektCo2Ton: 8500,
+        tidsrammeStart: '2024-06-01',
+        tidsrammeSlut: '2027-06-30',
+        ansvarligOrganisation: 'Energi Østerby A/S',
+        barrierer:
+          'Gravearbejde forsinket pga. ledningsanlæg. Tilslutningsprocent lavere end forventet.',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: true,
+        retfaerdigFordelingRelevant: false,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io1.id,
+        titel: 'Power-to-X forundersøgelse med lokalt energiselskab',
+        type: 'reduction' as const,
+        status: 'planned' as const,
+        beskrivelse:
+          'Forundersøgelse af brintanlæg til lagring og konvertering af overskudsstrøm fra vedvarende energi.',
+        tidsrammeStart: '2025-01-01',
+        tidsrammeSlut: '2030-12-31',
+        ansvarligOrganisation: 'Teknik & Miljø',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: false,
+        retfaerdigFordelingRelevant: false,
+      },
+
+      // --- Indsats 2: Transport (5 tiltag) ---
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io2.id,
+        titel: 'El-busser på 3 kommunale ruter',
+        type: 'reduction' as const,
+        status: 'in_progress' as const,
+        beskrivelse:
+          'Indkøb og idriftsættelse af 8 el-busser på de 3 mest trafikerede lokalruter.',
+        forventetEffektCo2Ton: 950,
+        tidsrammeStart: '2024-01-01',
+        tidsrammeSlut: '2025-12-31',
+        ansvarligOrganisation: 'Vej & Park',
+        barrierer: 'Levering af busser forsinket 6 måneder pga. forsyningsproblemer.',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: true,
+        retfaerdigFordelingRelevant: false,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io2.id,
+        titel: 'Pendlercykelstier (15 km ny infrastruktur)',
+        type: 'reduction' as const,
+        status: 'planned' as const,
+        beskrivelse:
+          'Anlæg af 15 km forbedrede pendlercykelruter mellem de 3 største bysamfund i kommunen.',
+        forventetEffektCo2Ton: 600,
+        tidsrammeStart: '2025-01-01',
+        tidsrammeSlut: '2028-12-31',
+        ansvarligOrganisation: 'Vej & Park',
+        barrierer:
+          'Jordkøb i forhandling. Finansiering delvis afhængig af statslig cykelstipulje.',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: false,
+        retfaerdigFordelingRelevant: false,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io2.id,
+        titel: 'Kommunal køretøjsflåde 100% el inden 2027',
+        type: 'reduction' as const,
+        status: 'in_progress' as const,
+        beskrivelse:
+          'Udskiftning af 47 kommunale benzin-/dieselkøretøjer med elbiler. 22 er udskiftet pr. 2024.',
+        forventetEffektCo2Ton: 420,
+        tidsrammeStart: '2023-01-01',
+        tidsrammeSlut: '2027-12-31',
+        ansvarligOrganisation: 'Ejendomsservice',
+        barrierer:
+          'Rækkevidde utilstrækkelig til visse tekniske køretøjer. Afventer bedre markedstilbud.',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: true,
+        retfaerdigFordelingRelevant: false,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io2.id,
+        titel: 'Samkørselsprogram for virksomheder',
+        type: 'reduction' as const,
+        status: 'planned' as const,
+        beskrivelse:
+          'Etablering af digital samkørselsplatform i samarbejde med 15 store lokale virksomheder.',
+        forventetEffektCo2Ton: 300,
+        tidsrammeStart: '2025-01-01',
+        tidsrammeSlut: '2027-12-31',
+        ansvarligOrganisation: 'Vej & Park',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: false,
+        retfaerdigFordelingRelevant: false,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io2.id,
+        titel: 'Ladestandere på kommunale p-pladser (40 stk.)',
+        type: 'reduction' as const,
+        status: 'completed' as const,
+        beskrivelse:
+          '40 ladestander-punkter opstillet på 12 kommunale parkeringspladser i kommunen.',
+        forventetEffektCo2Ton: 180,
+        tidsrammeStart: '2022-06-01',
+        tidsrammeSlut: '2023-12-31',
+        ansvarligOrganisation: 'Vej & Park',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: false,
+        retfaerdigFordelingRelevant: false,
+      },
+
+      // --- Indsats 3: Landbrug (5 tiltag) ---
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io3.id,
+        titel: 'Udtagning af lavbundsarealer (450 ha)',
+        type: 'reduction' as const,
+        status: 'in_progress' as const,
+        beskrivelse:
+          'Frivillig udtagning af 450 ha lavbundsjord fra omdrift for at reducere metan- og lattergas-udledning fra drænet tørv.',
+        forventetEffektCo2Ton: 112500,
+        tidsrammeStart: '2023-01-01',
+        tidsrammeSlut: '2030-12-31',
+        ansvarligOrganisation: 'Natur & Landbrug',
+        barrierer:
+          'Lodsejeraftaler tager tid. Kompensationsniveau opfattes for lavt af mange landmænd.',
+        prioriteretTiltag: true,
+        udfaserFossileBraendsler: false,
+        retfaerdigFordelingRelevant: false,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io3.id,
+        titel: 'Klimaskov — skovrejsning 120 ha',
+        type: 'reduction' as const,
+        status: 'planned' as const,
+        beskrivelse:
+          'Skovrejsning på 120 ha landbrugsjord. Øger CO₂-optag og styrker biodiversiteten.',
+        forventetEffektCo2Ton: 18000,
+        tidsrammeStart: '2025-01-01',
+        tidsrammeSlut: '2035-12-31',
+        ansvarligOrganisation: 'Natur & Landbrug',
+        barrierer:
+          'Svært at finde egnede arealer — landbrugsjord efterspurgt. Statsstøtteansøgning under behandling.',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: false,
+        retfaerdigFordelingRelevant: false,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io3.id,
+        titel: 'Biogasfacilitet til husdyrgødning',
+        type: 'reduction' as const,
+        status: 'in_progress' as const,
+        beskrivelse:
+          'Fælles biogasanlæg for 8 kvægbrug. Reducerer metan fra gødningshåndtering og erstatter naturgas i fjernvarmen.',
+        forventetEffektCo2Ton: 21000,
+        tidsrammeStart: '2024-01-01',
+        tidsrammeSlut: '2026-06-30',
+        ansvarligOrganisation: 'Natur & Landbrug',
+        barrierer: 'Byggetilladelse forsinket 4 måneder. En deltager trukket sig.',
+        prioriteretTiltag: true,
+        udfaserFossileBraendsler: true,
+        retfaerdigFordelingRelevant: false,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io3.id,
+        titel: 'Frivillig omlægning til vedvarende vegetation',
+        type: 'reduction' as const,
+        status: 'planned' as const,
+        beskrivelse:
+          'Rådgivningsforløb og tilskud til landmænd der omlægger marginale dyrkningsarealer til vedvarende vegetation.',
+        forventetEffektCo2Ton: 8000,
+        tidsrammeStart: '2025-01-01',
+        tidsrammeSlut: '2030-12-31',
+        ansvarligOrganisation: 'Natur & Landbrug',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: false,
+        retfaerdigFordelingRelevant: false,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io3.id,
+        titel: 'Partnerskab med landboforening om klimavenlig drift',
+        type: 'reduction' as const,
+        status: 'in_progress' as const,
+        beskrivelse:
+          'Forpligtende partnerskab med Østjyllands Landboforening om klimarådgivning til 200 lokale landmænd.',
+        forventetEffektCo2Ton: 5000,
+        tidsrammeStart: '2024-01-01',
+        tidsrammeSlut: '2030-12-31',
+        ansvarligOrganisation: 'Natur & Landbrug',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: false,
+        retfaerdigFordelingRelevant: false,
+      },
+
+      // --- Indsats 4: Bygninger (4 tiltag) ---
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io4.id,
+        titel: 'Renoveringspulje til private boliger (5 mio. kr.)',
+        type: 'reduction' as const,
+        status: 'in_progress' as const,
+        beskrivelse:
+          'Kommunal medfinansieringspulje til energirenovering. Støtter op til 30% af renoveringsomkostninger for lavindkomstboliger.',
+        forventetEffektCo2Ton: 4200,
+        tidsrammeStart: '2024-01-01',
+        tidsrammeSlut: '2026-12-31',
+        ansvarligOrganisation: 'Ejendomsservice',
+        barrierer:
+          'Ansøgningsprocessen opfattes som besværlig. Mange ansøgninger udenfor målgruppen.',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: false,
+        retfaerdigFordelingRelevant: true,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io4.id,
+        titel: 'ESCO-renovering af 8 kommunale skoler',
+        type: 'reduction' as const,
+        status: 'completed' as const,
+        beskrivelse:
+          'Energioptimering af 8 skoler via ESCO-kontrakt. Opnået 38% energibesparelse i gennemsnit.',
+        forventetEffektCo2Ton: 2100,
+        tidsrammeStart: '2021-01-01',
+        tidsrammeSlut: '2023-12-31',
+        ansvarligOrganisation: 'Ejendomsservice',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: false,
+        retfaerdigFordelingRelevant: false,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io4.id,
+        titel: 'Grønne indkøbskrav i kommunens udbud',
+        type: 'reduction' as const,
+        status: 'in_progress' as const,
+        beskrivelse:
+          'Integration af klimakrav i alle kommunale udbud over 500.000 kr. Mål: 80% af udbud har klimakriterier inden 2026.',
+        forventetEffektCo2Ton: 3500,
+        tidsrammeStart: '2024-01-01',
+        tidsrammeSlut: '2026-12-31',
+        ansvarligOrganisation: 'Ejendomsservice',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: false,
+        retfaerdigFordelingRelevant: false,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io4.id,
+        titel: 'Vejledning til borgere om varmepumper',
+        type: 'reduction' as const,
+        status: 'planned' as const,
+        beskrivelse:
+          'Opsøgende rådgivning og informationskampagne til 3.000 naturgasbrugere om overgang til varmepumpe.',
+        forventetEffektCo2Ton: 6800,
+        tidsrammeStart: '2025-01-01',
+        tidsrammeSlut: '2028-12-31',
+        ansvarligOrganisation: 'Teknik & Miljø',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: true,
+        retfaerdigFordelingRelevant: false,
+      },
+
+      // --- Indsats 5: Klimatilpasning (3 tiltag) ---
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io5.id,
+        titel: 'Klimasikring af Østerby Å (oversvømmelse)',
+        type: 'adaptation' as const,
+        status: 'in_progress' as const,
+        beskrivelse:
+          'Forhøjelse og forstærkning af ådiger ved Østerby Å. Sikrer 2.200 boliger mod 100-årsflod.',
+        tidsrammeStart: '2024-06-01',
+        tidsrammeSlut: '2027-12-31',
+        ansvarligOrganisation: 'Energi Østerby A/S',
+        barrierer:
+          'Koordinering med Kystdirektoratet tager tid. Statslig medfinansiering ikke frigivet endnu.',
+        prioriteretTiltag: true,
+        udfaserFossileBraendsler: false,
+        retfaerdigFordelingRelevant: false,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io5.id,
+        titel: 'Varmeplan for udsatte boligområder',
+        type: 'adaptation' as const,
+        status: 'planned' as const,
+        beskrivelse:
+          'Kortlægning og forebyggende indsats i 4 boligområder med høj risiko for hedebølgepåvirkning.',
+        tidsrammeStart: '2025-01-01',
+        tidsrammeSlut: '2027-12-31',
+        ansvarligOrganisation: 'Teknik & Miljø',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: false,
+        retfaerdigFordelingRelevant: true,
+      },
+      {
+        kommuneId: oesterby.id,
+        indsatsOmraadeId: io5.id,
+        titel: 'Skybrudsplan for bymidten',
+        type: 'adaptation' as const,
+        status: 'in_progress' as const,
+        beskrivelse:
+          'Anlæg af forsinkelsesbassin og grønne friarealer til håndtering af ekstremregn i bymidten.',
+        tidsrammeStart: '2024-01-01',
+        tidsrammeSlut: '2026-12-31',
+        ansvarligOrganisation: 'Energi Østerby A/S',
+        barrierer: 'Ekspropriering af 2 ejendomme nødvendig — klagesag verserer.',
+        prioriteretTiltag: false,
+        udfaserFossileBraendsler: false,
+        retfaerdigFordelingRelevant: false,
+      },
+    ]).returning();
+
+    // 5. Mål (3 stk. — linket til relevante indsatsområder)
+    await db.insert(maal).values([
+      {
+        indsatsOmraadeId: io1.id,
+        type: 'smart' as const,
+        tidsramme: 'short' as const,
+        maalAar: 2030,
+        maalVaerdi: 154800,
+        enhed: 'ton CO₂e/år',
+        baselineVaerdi: 516000,
+        baselineAar: 2018,
+        beskrivelse:
+          '70% reduktion af kommunens samlede CO₂e-udledning ift. 2018-niveau inden 2030 (fra 516.000 til 154.800 ton CO₂e/år). Baseret på Herning-profil skaleret til 51.200 indb.',
+        kategori: 'reduction' as const,
+      },
+      {
+        indsatsOmraadeId: io5.id,
+        type: 'smart' as const,
+        tidsramme: 'medium' as const,
+        maalAar: 2035,
+        maalVaerdi: 60,
+        enhed: '% reduktion i klimaskadeomkostninger',
+        baselineVaerdi: 100,
+        baselineAar: 2020,
+        beskrivelse:
+          'Reducere de samlede skadeomkostninger fra klimahændelser (oversvømmelse, hedebølge, tørke) med 60% inden 2035 ift. 2020-niveau.',
+        kategori: 'adaptation' as const,
+      },
+      {
+        indsatsOmraadeId: io4.id,
+        type: 'qualitative' as const,
+        tidsramme: 'long' as const,
+        beskrivelse:
+          'Sikre at klimaomstillingen er retfærdig — ingen borgere, virksomheder eller lokalsamfund lades uforholdsmæssigt tilbage. Særlig opmærksomhed på lavindkomstgrupper og periferområder.',
+        kategori: 'co_benefits' as const,
+      },
+    ]);
+
+    // 6. Tovholdere (5 stk.)
+    const [th1, th2, th3, th4, th5] = await db.insert(tovholder).values([
+      {
+        kommuneId: oesterby.id,
+        navn: 'Søren Kjeldgaard',
+        forvaltning: 'Teknik & Miljø',
+        email: 'skj@oesterby.dk',
+        aktiv: true,
+      },
+      {
+        kommuneId: oesterby.id,
+        navn: 'Birgitte Møller',
+        forvaltning: 'Vej & Park',
+        email: 'bmo@oesterby.dk',
+        aktiv: true,
+      },
+      {
+        kommuneId: oesterby.id,
+        navn: 'Hans Erik Christensen',
+        forvaltning: 'Natur & Landbrug',
+        email: 'hec@oesterby.dk',
+        aktiv: true,
+      },
+      {
+        kommuneId: oesterby.id,
+        navn: 'Lene Stubkjær',
+        forvaltning: 'Ejendomsservice',
+        email: 'lst@oesterby.dk',
+        aktiv: true,
+      },
+      {
+        kommuneId: oesterby.id,
+        navn: 'Energi Østerby A/S',
+        forvaltning: 'Forsyning (ekstern)',
+        email: 'klima@energioesterby.dk',
+        aktiv: true,
+      },
+    ]).returning();
+
+    // Link tovholdere til deres indsatsområdes tiltag
+    const tovholderLinks = [
+      ...insertedTiltag.filter(t => t.indsatsOmraadeId === io1.id).map(t => ({ tovholderId: th1.id, tiltagId: t.id })),
+      ...insertedTiltag.filter(t => t.indsatsOmraadeId === io2.id).map(t => ({ tovholderId: th2.id, tiltagId: t.id })),
+      ...insertedTiltag.filter(t => t.indsatsOmraadeId === io3.id).map(t => ({ tovholderId: th3.id, tiltagId: t.id })),
+      ...insertedTiltag.filter(t => t.indsatsOmraadeId === io4.id).map(t => ({ tovholderId: th4.id, tiltagId: t.id })),
+      ...insertedTiltag.filter(t => t.indsatsOmraadeId === io5.id).map(t => ({ tovholderId: th5.id, tiltagId: t.id })),
+    ];
+    await db.insert(tovholderTiltag).values(tovholderLinks);
+
+    // 7. Manuelle indikatorer (4 stk.) med historiske målinger
+    const [iCoFjernvarme, iElbiler, iLavbund, iHaendelser] = await db.insert(indikator).values([
+      {
+        niveau: 'outcome' as const,
+        beskrivelse: 'Andel af boliger tilsluttet fjernvarme',
+        enhed: '%',
+        datakildeType: 'manual' as const,
+      },
+      {
+        niveau: 'output' as const,
+        beskrivelse: 'Antal registrerede elbiler i kommunen',
+        enhed: 'antal',
+        datakildeType: 'manual' as const,
+      },
+      {
+        niveau: 'output' as const,
+        beskrivelse: 'Lavbundsarealer udtaget fra omdrift',
+        enhed: 'ha',
+        datakildeType: 'manual' as const,
+      },
+      {
+        niveau: 'outcome' as const,
+        beskrivelse: 'Registrerede klimahændelser (oversvømmelse, ekstremvarme, tørke)',
+        enhed: 'antal/år',
+        datakildeType: 'manual' as const,
+      },
+    ]).returning();
+
+    await db.insert(indikatorMaaling).values([
+      { indikatorId: iCoFjernvarme.id, aar: 2021, vaerdi: 58, kilde: 'Energi Østerby A/S årsrapport' },
+      { indikatorId: iCoFjernvarme.id, aar: 2022, vaerdi: 61, kilde: 'Energi Østerby A/S årsrapport' },
+      { indikatorId: iCoFjernvarme.id, aar: 2023, vaerdi: 64, kilde: 'Energi Østerby A/S årsrapport' },
+      { indikatorId: iCoFjernvarme.id, aar: 2024, vaerdi: 67, kilde: 'Energi Østerby A/S årsrapport' },
+      { indikatorId: iElbiler.id, aar: 2021, vaerdi: 312, kilde: 'Motorregistret via DST' },
+      { indikatorId: iElbiler.id, aar: 2022, vaerdi: 589, kilde: 'Motorregistret via DST' },
+      { indikatorId: iElbiler.id, aar: 2023, vaerdi: 1124, kilde: 'Motorregistret via DST' },
+      { indikatorId: iElbiler.id, aar: 2024, vaerdi: 1897, kilde: 'Motorregistret via DST' },
+      { indikatorId: iLavbund.id, aar: 2023, vaerdi: 85, kilde: 'Natur & Landbrug intern opgørelse' },
+      { indikatorId: iLavbund.id, aar: 2024, vaerdi: 210, kilde: 'Natur & Landbrug intern opgørelse' },
+      { indikatorId: iHaendelser.id, aar: 2021, vaerdi: 3, kilde: 'Beredskabsrapport' },
+      { indikatorId: iHaendelser.id, aar: 2022, vaerdi: 5, kilde: 'Beredskabsrapport' },
+      { indikatorId: iHaendelser.id, aar: 2023, vaerdi: 7, kilde: 'Beredskabsrapport' },
+      { indikatorId: iHaendelser.id, aar: 2024, vaerdi: 4, kilde: 'Beredskabsrapport' },
+    ]).onConflictDoNothing();
+
+    // Link manuelle indikatorer til indsatsområder
+    await db.insert(indikatorIndsatsOmraade).values([
+      { indikatorId: iCoFjernvarme.id, indsatsOmraadeId: io1.id },
+      { indikatorId: iElbiler.id, indsatsOmraadeId: io2.id },
+      { indikatorId: iLavbund.id, indsatsOmraadeId: io3.id },
+      { indikatorId: iHaendelser.id, indsatsOmraadeId: io5.id },
+    ]);
+
+    // Link lavbunds-indikator til det konkrete tiltag
+    const tiltagLavbund = insertedTiltag.find(t => t.titel.includes('Udtagning af lavbundsarealer'));
+    if (tiltagLavbund) {
+      await db.insert(indikatorTiltag).values({ indikatorId: iLavbund.id, tiltagId: tiltagLavbund.id });
+    }
+
+    // 8. Automatiske indikatorer via kommuneIndikator (linker til eksisterende templates)
+    const templates = await db.select().from(indikatorTemplate).where(eq(indikatorTemplate.aktiv, true));
+
+    for (const template of templates) {
+      const [autoInd] = await db.insert(indikator).values({
+        niveau: 'impact' as const,
+        beskrivelse: template.titel,
+        enhed: template.enhed,
+        datakildeType: 'api' as const,
+        apiKilde: template.kilde,
+        apiQuery: template.apiQuery,
+      }).returning();
+
+      // Link til io1 (energi) for klimaregnskab og energidataservice, intet link for DST/befolkning
+      if (template.kilde === 'klimaregnskab' || template.kilde === 'energidataservice') {
+        await db.insert(indikatorIndsatsOmraade).values({
+          indikatorId: autoInd.id,
+          indsatsOmraadeId: io1.id,
+        });
+      }
+
+      await db.insert(kommuneIndikator).values({
+        kommuneId: oesterby.id,
+        templateId: template.id,
+        indikatorId: autoInd.id,
+        aktiv: true,
+      }).onConflictDoNothing();
+    }
+
+    console.log(
+      `✓ Østerby Kommune seeded: 5 indsatsområder, 22 tiltag, 3 mål, 5 tovholdere, ${4 + templates.length} indikatorer`,
+    );
+  } finally {
+    await client.end();
+  }
+}
+```
+
+- [ ] **Kør TypeScript-tjek**
+
+```bash
+cd /Users/augustseptimiuskrogh/Documents/Klimastatus.dk && npx tsc --noEmit
+```
+
+Expected: Ingen fejl i `db/seeds/oesterby.ts`. Pre-eksisterende test-fejl er OK.
+
+- [ ] **Commit**
+
+```bash
+git add db/seeds/oesterby.ts
+git commit -m "feat: Østerby Kommune seed-data (22 tiltag, 5 indsatsområder)"
+```
+
+---
+
+## Task 2: Integrer i `db/seed.ts` og kør scriptet
+
+**Files:**
+- Modify: `db/seed.ts`
+
+- [ ] **Tilføj import og kald i `db/seed.ts`**
+
+Åbn `db/seed.ts`. Tilføj øverst i filen (efter de eksisterende imports):
+
+```ts
+import { seedOesterby } from './seeds/oesterby';
+```
+
+Tilføj som det sidste kald i `seed()`-funktionen, lige inden `process.exit(0)`:
+
+```ts
+  console.log('Seeding Østerby Kommune...');
+  await seedOesterby();
+  console.log('Østerby Kommune done.');
+```
+
+Den afsluttende del af `seed.ts` skal se sådan ud:
+
+```ts
+  console.log('Seeded 3 indicator templates.');
+
+  console.log('Seeding Østerby Kommune...');
+  await seedOesterby();
+  console.log('Østerby Kommune done.');
+
+  process.exit(0);
+}
+```
+
+- [ ] **Kør seed-scriptet første gang**
+
+```bash
+cd /Users/augustseptimiuskrogh/Documents/Klimastatus.dk && npx tsx db/seed.ts
+```
+
+Expected output (i denne rækkefølge):
+```
+Seeding CCTF v2.5 criteria...
+Seeded 16 criteria.
+Seeding admin user...
+Admin user seeded (email: augustseptimius@gmail.com).
+Seeding indicator templates...
+Seeded 3 indicator templates.
+Seeding Østerby Kommune...
+✓ Østerby Kommune seeded: 5 indsatsområder, 22 tiltag, 3 mål, 5 tovholdere, 7 indikatorer
+Østerby Kommune done.
+```
+
+Hvis der er fejl: læs fejlbeskeden og ret det i `db/seeds/oesterby.ts`.
+
+- [ ] **Kør seed-scriptet anden gang (idempotency-test)**
+
+```bash
+npx tsx db/seed.ts
+```
+
+Expected: Samme output som ovenfor, men med `Østerby Kommune allerede seeded — springer over.` i stedet for det lange output. Ingen fejl.
+
+- [ ] **Verificér i databasen**
+
+```bash
+npx tsx -e "
+import postgres from 'postgres';
+const sql = postgres(process.env.DATABASE_URL!);
+const k = await sql\`SELECT navn, kommunekode, befolkningstal FROM kommune WHERE kommunekode = '0999'\`;
+const io = await sql\`SELECT COUNT(*) as antal FROM indsats_omraade WHERE kommune_id = (SELECT id FROM kommune WHERE kommunekode = '0999')\`;
+const t = await sql\`SELECT COUNT(*) as antal FROM tiltag WHERE kommune_id = (SELECT id FROM kommune WHERE kommunekode = '0999')\`;
+console.log('Kommune:', k[0]);
+console.log('Indsatsområder:', io[0].antal);
+console.log('Tiltag:', t[0].antal);
+await sql.end();
+"
+```
+
+Expected:
+```
+Kommune: { navn: 'Østerby Kommune', kommunekode: '0999', befolkningstal: 51200 }
+Indsatsområder: 5
+Tiltag: 22
+```
+
+- [ ] **Test login i browseren**
+
+Start dev-serveren hvis den ikke kører:
+```bash
+npm run dev
+```
+
+Åbn `http://localhost:3000`. Log ind med:
+- Email: `koordinator@oesterby.dk`
+- Password: `oesterby2026!`
+
+Expected: Redirect til dashboard med Østerby Kommunes data — 5 indsatsområder og tiltag synlige.
+
+- [ ] **Commit**
+
+```bash
+git add db/seed.ts
+git commit -m "feat: integrer Østerby seed i hovedscript"
+```
+
+- [ ] **Push**
+
+```bash
+git push origin main
+```
