@@ -8,3 +8,4 @@ export * from './rapport';
 export * from './indikator-template';
 export * from './kommune-indikator';
 export * from './selvevaluering';
+export * from './cctf';
