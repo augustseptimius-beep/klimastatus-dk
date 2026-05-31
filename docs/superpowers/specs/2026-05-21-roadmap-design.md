@@ -96,7 +96,27 @@ Auto-generering af selvevalueringsskema baseret på mappings fra Fase 2.
 
 ---
 
-### Fase 4 — Dashboard-polish (1-2 sessioner)
+### Fase 4 — MERL-lag: Læringspost og monitoreringscyklus (2-3 sessioner)
+
+Gør platformen til et reelt MERL-system der bruges *hele året* — ikke kun ved rapporteringstid. Dækker det sværeste CCTF-krav (kriterie 15 — læring) og den del selvevalueringen ikke kan auto-generere.
+
+**Prioritet 1 — ingen schema-konflikter (session 1):**
+- `Læringspost`-tabel: observation, fortolkning, beslutning (videreføres/justeres/udgår/tilføres_ressourcer/eskaleres), beslutningstager, dato; koblet til monitoreringscyklus og optionelt tovholder_rapport
+- UI: koordinator kan oprette en læringspost direkte fra en tovholder-rapport der melder barrierer
+- `cctf_kriterie_mapping`-rækker for læringsposter mod kriterie 15
+- Beslutningsport: forældreløse indikatorer (ikke knyttet til mål eller prioriterede tiltag) flages i data-oversigten
+
+**Prioritet 2 — kræver schema-migration (session 2):**
+- `Monitoreringscyklus`-tabel: navn, periode_start, periode_slut, type (aarlig/kvartal/ad_hoc), status
+- `monitoreringscyklus_id` tilføjes `Tovholder_rapport` og `Indikator_måling`
+- Unique constraint på `Indikator_måling` ændres fra `(indikator_id, aar)` til `(indikator_id, monitoreringscyklus_id)`
+- UI: koordinator opretter en ny cyklus, alle tovholder-rapporter og målinger i perioden knyttes hertil
+
+**Afgrænsning:** Ingen interventionslogik-kobling i denne fase (kræver dataimport fra Klimaalliance). Ingen automatisk 5-årig evaluering.
+
+---
+
+### Fase 5 — Dashboard-polish (1-2 sessioner)
 
 Gør "alt samlet ét sted"-narrativet tydeligt og overbevisende.
 
@@ -109,7 +129,7 @@ Gør "alt samlet ét sted"-narrativet tydeligt og overbevisende.
 
 ---
 
-### Fase 5 — Resterende dataindhentning (løbende)
+### Fase 6 — Resterende dataindhentning (løbende)
 
 BBR, DMI Klimaatlas og KAMP integreres når de øvrige faser er stabile.
 

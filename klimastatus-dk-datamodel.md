@@ -42,15 +42,33 @@ Udvidede felter for prioriterede tiltag (kriterie 14): `understøttende_tiltag`,
 
 Måler fremdrift på tiltag, mål eller indsatsområder (kriterie 15). Skal kunne tagges som output, outcome eller impact.
 
-Felter: `id`, `niveau` (output / outcome / impact), `beskrivelse`, `enhed`, `datakilde_type` (manuel / api), `api_kilde` (hvis api: klimaregnskab / energidataservice / bbr / dst / klimaatlas / kamp / hip), `api_query` (hvis relevant), `aggregeringsformel` (hvis sammensat).
+Opdeles i to lag:
+
+**Indikatordefinition (katalog, delt på tværs af kommuner)** — implementeret som `indikator_template`. Bærer `beskrivelse`, `enhed`, `datakilde_type`, `api_kilde`, `api_query`, `aggregeringsformel` og CCTF-mapping. Det er definitionen af fx "andel fjernvarmedækning" eller "antal elbiler pr. 1000 indbyggere". Fælles og kan auto-hentes. Bør også bære `niveau` og `cctf_kriterier`-array (delvist implementeret).
+
+**Indikatorinstans (per kommune)** — implementeret som `kommune_indikator`. Knytter en katalogdefinition til kommunen, bærer fetch-status og kan tilpasses med `visningsnavn`.
+
+Bemærk: Det nuværende katalog (`indikator_template`) kræver `api_kilde` som notNull og dækker kun auto-hentede indikatorer. Manuelle indikatorer oprettes direkte i `indikator`-tabellen uden template. For fuld benchmarking (V3) bør `indikator_template` udvides til også at rumme manuelle katalogdefinitioner.
+
+Felter på `indikator` (instansdatapunktet): `id`, `niveau` (output / outcome / impact), `beskrivelse`, `enhed`, `datakilde_type` (manuel / api), `api_kilde` (hvis api: klimaregnskab / energidataservice / bbr / dst / klimaatlas / kamp / hip), `api_query` (hvis relevant), `aggregeringsformel` (hvis sammensat).
 
 Indikatorer knyttes til tiltag, mål eller indsatsområder via separate junction-tabeller (M:M).
+
+### Interventionslogik_kobling
+
+Binder output-indikatorer til outcome-indikatorer og outcome til impact, så systemet kan pege på hvilken effekt der er i fare når en output-indikator skrider (kriterie 14, 15). Uden denne kobling kan systemet vise at noget skrider, men ikke hvad det betyder for målopfyldelsen.
+
+Felter: `id`, `fra_indikator_id`, `til_indikator_id`, `indsatsomraade_id` (kontekst), `beskrivelse`.
+
+Importér default-kæder fra Klimaalliancens monitoreringssystem frem for at bede hver kommune bygge dem fra bunden.
 
 ### Indikator_måling
 
 Tidsserietabel der bærer faktiske målinger over tid. Det er her data lander når de hentes fra eksterne API'er.
 
-Felter: `id`, `indikator_id`, `dato`, `år`, `værdi`, `kilde`, `bemærkning`, `auto_hentet` (boolean).
+Felter: `id`, `indikator_id`, `monitoreringscyklus_id` (FK til Monitoreringscyklus), `dato`, `år`, `værdi`, `kilde`, `bemærkning`, `auto_hentet` (boolean).
+
+Bemærk: Den nuværende implementering har unique constraint `(indikator_id, aar)` — én måling pr. år. Indførelse af `Monitoreringscyklus` kræver at denne ændres til `(indikator_id, monitoreringscyklus_id)`, som giver mulighed for kvartalsvis kadence.
 
 ### Tovholder
 
@@ -62,7 +80,25 @@ Felter: `id`, `kommune_id`, `navn`, `forvaltning`, `email`, `unikt_link_token`, 
 
 Den strukturerede statusindberetning fra tovholder, gennemført fx kvartalsvist eller ad hoc.
 
-Felter: `id`, `tovholder_id`, `tiltag_id`, `dato`, `status_implementering` (procent eller kategori), `status_beskrivelse`, `barrierer`, `næste_skridt`, `effekt_realiseret` (hvis relevant).
+Felter: `id`, `tovholder_id`, `tiltag_id`, `monitoreringscyklus_id` (FK til Monitoreringscyklus), `dato`, `status_implementering` (procent eller kategori), `status_beskrivelse`, `barrierer`, `næste_skridt`, `effekt_realiseret` (hvis relevant).
+
+### Monitoreringscyklus
+
+Grupperer en runde af monitorering og giver et rent snapshot til sammenligning over tid. Understøtter to rytmer: den lette årlige monitorering og den tunge 5-årlige evaluering (CCTF kriterie 15, 16).
+
+Felter: `id`, `kommune_id`, `navn` (fx "Årsstatus 2025", "Q1 2026"), `periode_start`, `periode_slut`, `type` (aarlig / kvartal / ad_hoc), `status` (aaben / lukket / rapporteret).
+
+Både `Tovholder_rapport` og `Indikator_måling` knyttes til en `Monitoreringscyklus` via `monitoreringscyklus_id`. Det giver en konfigurerbar kadence (kommunen sætter selv om de kører årligt eller kvartalsvist) og et naturligt ophæng for den årlige Klimastatus-generering.
+
+### Læringspost
+
+Det manglende "L" i MERL. Fanger kæden fra observation til beslutning og binder monitoreringen til den næste planrevision. Uden den er platformen et MER-værktøj der monitorerer og rapporterer, men ikke lærer (kriterie 15).
+
+Felter: `id`, `kommune_id`, `monitoreringscyklus_id`, `knyttet_til_type` (tiltag / indsatsomraade / maal), `knyttet_til_id`, `observation` (hvad blev set), `fortolkning` (hvad betyder det), `beslutning` (viderefoeres / justeres / udgaar / tilfoeres_ressourcer / eskaleres), `beslutningstager`, `dato`, `tovholder_rapport_id` (reference til det der udløste læringen, nullable).
+
+Posten genereres løbende ud fra monitoreringen — når en tovholder melder en barriere, kan koordinatoren omsætte den til en dokumenteret justeringsbeslutning på stedet. Den konsumeres af den 5-årlige CCTF-evaluering og af den næste planrevision.
+
+CCTF-mapping: en `Læringspost` mappes til kriterie 15 via `cctf_kriterie_mapping` på samme måde som tiltag og indikatorer.
 
 ### Aktør
 
@@ -117,6 +153,14 @@ Felter: `id`, `entitet_type` (tiltag / mål / indikator / aktør / klimafare / s
 Den genererede selvevalueringsskabelon. Versioneres så historik kan ses.
 
 Felter: `id`, `kommune_id`, `version`, `genereret_dato`, `godkendt_af`, `godkendelsesdato`, `kriterie_1_status` (komplet / delvis / manglende), `kriterie_1_dokumentation_tekst`, `kriterie_1_supplerende_argumentation`, ... og så videre for alle 16 kriterier.
+
+## Beslutningsport
+
+En valideringsregel, ikke en ny entitet. Enhver aktiv `kommune_indikator`-instans skal være knyttet til mindst ét `Mål` eller ét prioriteret `Tiltag` via junction-tabelerne `indikator_maal` eller `indikator_tiltag`. Instanser uden kobling flages i UI'et som "forældreløse" og tæller ikke med i dækningsgraden for kriterie 15.
+
+Dette er den mekanisme der holder indikatorsættet skarpt over tid og forhindrer at systemet vokser sig ubrugeligt (jf. kriterie 14's krav om indikatorer for prioriterede tiltag).
+
+Implementeres som en query der returnerer forældreløse instanser — ingen schema-ændring.
 
 ## Cross-cutting tags på tværs af entiteter
 
@@ -197,19 +241,35 @@ Auto-evaluering for de "lette" kriterier hvor data primært ligger struktureret:
 
 PDF-eksport af Klimastatus i kommunens skabelon.
 
+**MERL-lag (V1.5 — efter MVP, før V2)**
+
+MERL-entiteterne placeres her fordi de er afgørende for at platformen bruges *hele året* (ikke kun ved rapporteringstid) og for at dække det sværeste CCTF-krav (kriterie 15 — læring).
+
+Prioritet 1 — høj værdi, ingen schema-konflikter:
+- `Læringspost` som ny tabel (kobles til `cctf_kriterie_mapping` kriterie 15)
+- Beslutningsport som UI-validering (forældreløse indikatorer flages)
+
+Prioritet 2 — kræver schema-migrering:
+- `Monitoreringscyklus` som ny tabel
+- `monitoreringscyklus_id` på `Tovholder_rapport` og `Indikator_måling`
+- Unique constraint på `Indikator_måling` ændres fra `(indikator_id, aar)` til `(indikator_id, monitoreringscyklus_id)`
+
+Prioritet 3 — kræver dataimport fra Klimaalliance:
+- `Interventionslogik_kobling` som ny tabel med default-kæder fra Klimaalliancens monitoreringssystem
+
 **V2 (måned 5-9)**
 
 Tilføjede entiteter: Klimafare, Konsekvensvurdering, Sårbar_gruppe, Beføjelses_vurdering, Aktør (fuld), Scenarie_post.
 
-Tilføjede integrationer: DMI Klimaatlas, KAMP, HIP, Klimaalliancens monitoreringssystem (eksport af spørgeskemadata).
+Tilføjede integrationer: DMI Klimaatlas, KAMP, HIP, Klimaalliancens monitoreringssystem (eksport af spørgeskemadata og interventionslogik-kæder).
 
-Auto-evaluering for de tungere kriterier: 5, 7, 8, 9 (fuld), 10, 11, 13, 14, 15 (fuld).
+Auto-evaluering for de tungere kriterier: 5, 7, 8, 9 (fuld), 10, 11, 13, 14, 15 (fuld inkl. Læringspost).
 
 Eksterne aktørers input (kriterie 3 og 4) via separat input-flow.
 
 **V3 (måned 10-15)**
 
-Peer benchmarking på tværs af kommuner.
+Peer benchmarking på tværs af kommuner (forudsætter fuld katalog/instans-split for manuelle indikatorer).
 
 Offentlig dashboard genereret fra samme datasæt (kriterie 16).
 
