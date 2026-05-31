@@ -22,7 +22,7 @@ export function AppSidebar({ kommuneNavn }: { kommuneNavn: string }) {
   return (
     <aside className="ks-sidebar">
       <div className="ks-nav-section">
-        <div className="heading">Klimastatus</div>
+        <div className="heading">{kommuneNavn}</div>
         {mainNav.map(({ href, label }) => (
           <Link
             key={href}

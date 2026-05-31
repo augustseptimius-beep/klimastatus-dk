@@ -87,7 +87,7 @@ export default async function SelvevalueringPage() {
           color: '#8B6914',
           marginBottom: 32,
         }}>
-          Klik "Generér skema" for at oprette selvevalueringen og auto-udfylde dokumentationshenvisninger.
+          Klik &ldquo;Generér skema&rdquo; for at oprette selvevalueringen og auto-udfylde dokumentationshenvisninger.
         </div>
       )}
 

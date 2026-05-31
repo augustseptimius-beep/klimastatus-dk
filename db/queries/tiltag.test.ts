@@ -39,8 +39,8 @@ describe('getTiltagById', () => {
     const { getTiltagById } = await import('./tiltag');
     const result = await getTiltagById('t1');
     expect(result).toBeDefined();
-    expect(result.id).toBe('t1');
-    expect(result.titel).toBe('Solceller');
+    expect(result!.id).toBe('t1');
+    expect(result!.titel).toBe('Solceller');
   });
 });
 

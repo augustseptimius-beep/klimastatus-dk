@@ -49,7 +49,7 @@ export default async function IndsatserPage() {
           <div>
             <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--forest-900)', marginBottom: 6 }}>Hvad er et indsatsområde?</div>
             <p style={{ fontSize: 13, color: 'var(--ink-700)', lineHeight: 1.6, margin: 0 }}>
-              Et indsatsområde samler beslægtede handlinger under ét tema — f.eks. "Energirenovering af kommunale bygninger" eller "Klimatilpasning af bycentrum". Det svarer til CCTF-begreberne sektorstrategi og handlingsklynge.
+              Et indsatsområde samler beslægtede handlinger under ét tema — f.eks. &ldquo;Energirenovering af kommunale bygninger&rdquo; eller &ldquo;Klimatilpasning af bycentrum&rdquo;. Det svarer til CCTF-begreberne sektorstrategi og handlingsklynge.
             </p>
           </div>
           <div>

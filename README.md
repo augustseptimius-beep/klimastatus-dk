@@ -64,7 +64,7 @@ Login med `koordinator@oesterby.dk` / `oesterby2026!` (seed-data).
 app/
   (app)/          Koordinator-app (beskyttet)
   (auth)/         Login
-  (admin)/        Admin (kommuner, indikatorer)
+  admin/          Admin (kommuner, indikatorer)
   rapport/        Tovholder-flow (tokenlink, ingen login)
 components/
   cctf/           CCTF-dækningsgrad-komponenter
@@ -75,7 +75,6 @@ db/
   seeds/          Seed-data (Østerby Kommune)
 lib/
   cctf/           Coverage-engine, selvevaluerings-typer
-  merl/           Læringspost-typer (Fase 4)
 docs/
   superpowers/    Planer og design-specs pr. fase
 ```

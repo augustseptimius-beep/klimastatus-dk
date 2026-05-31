@@ -49,8 +49,8 @@ describe('getTemplateById', () => {
     const { getTemplateById } = await import('./indikator-template');
     const result = await getTemplateById('tmpl1');
     expect(result).toBeDefined();
-    expect(result.id).toBe('tmpl1');
-    expect(result.titel).toBe('Samlet CO₂e pr. capita');
+    expect(result!.id).toBe('tmpl1');
+    expect(result!.titel).toBe('Samlet CO₂e pr. capita');
   });
 });
 

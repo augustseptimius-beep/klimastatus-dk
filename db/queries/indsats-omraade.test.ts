@@ -44,8 +44,8 @@ describe('getIndsatsOmraadeById', () => {
     const { getIndsatsOmraadeById } = await import('./indsats-omraade');
     const result = await getIndsatsOmraadeById('io1');
     expect(result).toBeDefined();
-    expect(result.id).toBe('io1');
-    expect(result.navn).toBe('Energi');
+    expect(result!.id).toBe('io1');
+    expect(result!.navn).toBe('Energi');
   });
 });
 

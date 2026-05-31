@@ -97,9 +97,6 @@ export function TiltagTable({ tiltag, indsatser }: { tiltag: Tiltag[]; indsatser
     });
   }, []);
 
-  const sortIndicator = (key: SortKey) =>
-    sortKey === key ? (sortDir === 'asc' ? ' ↑' : ' ↓') : '';
-
   const clearFilters = () => {
     setSearch('');
     setStatusFilter('');

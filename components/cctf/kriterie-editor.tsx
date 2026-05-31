@@ -27,17 +27,18 @@ export function KriterieEditor({ kriterie, besvarelse, daekning, liveDokRefs }: 
   const [godkending, setGodkending] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Sync localStatus when besvarelse.status changes from the server (godkend m.fl.)
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLocalStatus(besvarelse.status);
+  }, [besvarelse.status]);
+
   // Cleanup: clear save timer on unmount
   useEffect(() => {
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
     };
   }, []);
-
-  // Sync localStatus when besvarelse.status changes
-  useEffect(() => {
-    setLocalStatus(besvarelse.status);
-  }, [besvarelse.status]);
 
   const [fields, setFields] = useState({
     hvadStaarPaa: besvarelse.hvadStaarPaa,

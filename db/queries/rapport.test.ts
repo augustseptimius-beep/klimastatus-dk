@@ -5,7 +5,7 @@ vi.mock('@/db', () => ({
   db: {
     query: {
       tovholderRapport: {
-        findMany: vi.fn().mockResolvedValue([{ id: 'r1', tiltagId: 't1', tovholderId: 'th1', dato: '2026-05-11' }]),
+        findMany: vi.fn().mockResolvedValue([{ id: 'r1', tiltagId: 't1', tovholderId: 'th1', dato: '2026-05-11', createdAt: new Date(), barrierer: null, statusImplementering: null, statusBeskrivelse: null, naesteSkrid: null, effektRealiseret: null }]),
         findFirst: vi.fn().mockResolvedValue(null),
       },
     },
@@ -41,7 +41,7 @@ describe('upsertRapport', () => {
 
   it('updates existing rapport when findFirst returns one', async () => {
     const { db } = await import('@/db');
-    vi.mocked(db.query.tovholderRapport.findFirst).mockResolvedValueOnce({ id: 'r1', tiltagId: 't1', tovholderId: 'th1', dato: '2026-05-11' });
+    vi.mocked(db.query.tovholderRapport.findFirst).mockResolvedValueOnce({ id: 'r1', tiltagId: 't1', tovholderId: 'th1', dato: '2026-05-11', createdAt: new Date(), barrierer: null, statusImplementering: null, statusBeskrivelse: null, naesteSkrid: null, effektRealiseret: null });
 
     const { upsertRapport } = await import('./rapport');
     const result = await upsertRapport('th1', 't1', '2026-05-11', { statusImplementering: 'Afsluttet' });
@@ -50,7 +50,7 @@ describe('upsertRapport', () => {
 
   it('passes data fields through to update', async () => {
     const { db } = await import('@/db');
-    vi.mocked(db.query.tovholderRapport.findFirst).mockResolvedValueOnce({ id: 'r1', tiltagId: 't1', tovholderId: 'th1', dato: '2026-05-11' });
+    vi.mocked(db.query.tovholderRapport.findFirst).mockResolvedValueOnce({ id: 'r1', tiltagId: 't1', tovholderId: 'th1', dato: '2026-05-11', createdAt: new Date(), barrierer: null, statusImplementering: null, statusBeskrivelse: null, naesteSkrid: null, effektRealiseret: null });
 
     const { upsertRapport } = await import('./rapport');
     const rapportData = { statusImplementering: 'Afsluttet', barrierer: 'Ingen' };

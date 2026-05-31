@@ -65,6 +65,7 @@ export default async function DashboardPage() {
   const aktiveTiltag = tiltag.filter((t) => t.status !== 'discontinued');
   const igangvaerende = tiltag.filter((t) => t.status === 'in_progress').length;
   const aktiveTovholdere = tovholdere.filter((t) => t.aktiv);
+  // eslint-disable-next-line react-hooks/purity
   const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const rapporter = await Promise.all(
     aktiveTovholdere.map((t) => getLatestRapporterForTovholder(t.id)),

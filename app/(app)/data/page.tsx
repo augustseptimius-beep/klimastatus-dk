@@ -30,6 +30,7 @@ function StalenessStatus({ sidstHentet, sidsteFejl, sidsteFejlBesked }: {
   if (!sidstHentet) {
     return <span className="text-xs text-gray-400">Afventer første hentning</span>;
   }
+  // eslint-disable-next-line react-hooks/purity
   const daysSince = Math.floor((Date.now() - new Date(sidstHentet).getTime()) / (1000 * 60 * 60 * 24));
   if (daysSince > 35) {
     return <span className="text-xs text-yellow-600">⚠ Senest hentet: {daysSince} dage siden</span>;
