@@ -9,6 +9,7 @@ const mainNav = [
   { href: '/tiltag',      label: 'Handlingsoverblik' },
   { href: '/tovholdere',  label: 'Tovholdere' },
   { href: '/data',        label: 'Datastyring' },
+  { href: '/laering',     label: 'Læring' },
 ];
 
 const secondaryNav = [
