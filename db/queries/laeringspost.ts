@@ -57,7 +57,7 @@ export async function deleteLaeringspost(id: string, kommuneId: string): Promise
         eq(cctfKriterieMapping.entitetId, id),
       ),
     );
-    await tx.delete(laeringspost).where(eq(laeringspost.id, id));
+    await tx.delete(laeringspost).where(and(eq(laeringspost.id, id), eq(laeringspost.kommuneId, kommuneId)));
   });
 }
 
@@ -117,13 +117,11 @@ export async function getBarriereInbox(kommuneId: string): Promise<BarriereRappo
         ne(tovholderRapport.barrierer, ''),
       )));
 
-  return rows
-    .filter((r): r is typeof r & { barrierer: string } => r.barrierer !== null)
-    .map((r) => ({
-      rapportId: r.rapportId,
-      tiltagId: r.tiltagId,
-      tiltagTitel: r.tiltagTitel,
-      barrierer: r.barrierer,
-      dato: r.dato,
-    }));
+  return (rows as (typeof rows[number] & { barrierer: string })[]).map((r) => ({
+    rapportId: r.rapportId,
+    tiltagId: r.tiltagId,
+    tiltagTitel: r.tiltagTitel,
+    barrierer: r.barrierer,
+    dato: r.dato,
+  }));
 }
