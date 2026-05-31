@@ -6,6 +6,7 @@ import { kommuneIndikator, indikatorTemplate, indikatorMaaling } from '@/db/sche
 import { eq, and, desc } from 'drizzle-orm';
 import Link from 'next/link';
 import { activateTemplateFormAction, deactivateKommuneIndikatorAction, hentNuFormAction } from './actions';
+import { getForaeldreloeseIndikatorer } from '@/db/queries/beslutningsport';
 
 export const metadata = { title: 'Data — Klimastatus.dk' };
 
@@ -78,11 +79,22 @@ export default async function DataPage({
     }),
   );
 
+  const foraeldreloese = await getForaeldreloeseIndikatorer(session.kommuneId ?? '');
+
   const allTemplates = await getActiveTemplates();
   const aktiveredeTemplateIds = new Set(aktiveKI.map((ki) => ki.templateId));
 
   return (
     <div>
+      {foraeldreloese.length > 0 && (
+        <div className="mb-4 rounded-lg border border-yellow-300 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+          <strong>{foraeldreloese.length} indikator{foraeldreloese.length === 1 ? '' : 'er'} uden kobling.</strong>{' '}
+          Følgende aktive indikatorer er hverken knyttet til et mål eller et prioriteret tiltag og tæller ikke i CCTF-kriterie 15:
+          <ul className="mt-1 list-disc pl-5">
+            {foraeldreloese.map((f) => <li key={f.kommuneIndikatorId}>{f.titel}</li>)}
+          </ul>
+        </div>
+      )}
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-gray-900">Data</h1>
       </div>
