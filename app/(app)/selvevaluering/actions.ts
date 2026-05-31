@@ -79,3 +79,8 @@ export async function godkendKriterie(kriterieNr: number): Promise<{ ok: boolean
   revalidatePath('/selvevaluering');
   return { ok: true };
 }
+
+/** Thin form action wrapper — bruges af <form action={...}> i page.tsx. */
+export async function genererSelvevalueringFormAction(_formData: FormData): Promise<void> {
+  await genererSelvevaluering();
+}

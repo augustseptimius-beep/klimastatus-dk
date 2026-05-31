@@ -7,7 +7,7 @@ import {
   initialiserKriterieData,
 } from '@/db/queries/selvevaluering';
 import { KriterieEditor } from '@/components/cctf/kriterie-editor';
-import { genererSelvevaluering } from './actions';
+import { genererSelvevaluering, genererSelvevalueringFormAction } from './actions';
 import type { KriterieBesvarelse } from '@/lib/cctf/selvevaluering-types';
 import Link from 'next/link';
 
@@ -56,7 +56,7 @@ export default async function SelvevalueringPage() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <form action={genererSelvevaluering}>
+          <form action={genererSelvevalueringFormAction}>
             <button type="submit" style={{
               padding: '8px 16px', borderRadius: 4,
               border: '1px solid var(--sand-300)',
