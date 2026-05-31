@@ -7,6 +7,7 @@ import {
   indikator,
   indsatsOmraade,
   kommuneIndikator,
+  laeringspost,
 } from '@/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import type { SelvevalueringData, KriterieBesvarelse, DokRef } from '@/lib/cctf/selvevaluering-types';
@@ -169,6 +170,14 @@ export async function getDokumentationshenvisninger(
         .where(and(eq(indikator.id, m.entitetId), eq(kommuneIndikator.kommuneId, kommuneId)))
         .limit(1);
       if (row) label = `Indikator: ${row.beskrivelse}`;
+
+    } else if (m.entitetType === 'laeringspost') {
+      const [row] = await db
+        .select({ observation: laeringspost.observation })
+        .from(laeringspost)
+        .where(and(eq(laeringspost.id, m.entitetId), eq(laeringspost.kommuneId, kommuneId)))
+        .limit(1);
+      if (row) label = `Læringspost: ${row.observation.slice(0, 60)}`;
     }
 
     if (label !== null) {
