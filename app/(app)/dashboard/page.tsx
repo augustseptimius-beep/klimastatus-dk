@@ -1,11 +1,13 @@
 import { verifySession } from '@/lib/dal';
 import { getKommuneById, getAllTovholdere, getAllTiltag, getAllIndsatsOmraader } from '@/db/queries';
 import { getLatestRapporterForTovholder } from '@/db/queries/rapport';
+import { getCctfDaekning } from '@/db/queries/cctf';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/db';
 import { kommuneIndikator, indikatorTemplate, indikatorMaaling } from '@/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
+import { CctfDashboardWidget } from '@/components/cctf/cctf-dashboard-widget';
 
 export const metadata = { title: 'Dashboard — Klimastatus.dk' };
 
@@ -71,7 +73,9 @@ export default async function DashboardPage() {
     (rs) => rs.some((r) => new Date(r.createdAt) > cutoff),
   ).length;
 
-  const statCols = 2 + (co2eKI.length > 0 ? 1 : 0) + (veKI.length > 0 ? 1 : 0);
+  const cctfDaekning = await getCctfDaekning(session.kommuneId);
+
+  const statCols = 2 + (co2eKI.length > 0 ? 1 : 0) + (veKI.length > 0 ? 1 : 0) + 1; // +1 for CCTF
 
   return (
     <>
@@ -118,6 +122,7 @@ export default async function DashboardPage() {
             </div>
           </div>
         )}
+        <CctfDashboardWidget daekning={cctfDaekning} />
       </div>
 
       {/* Quick links */}

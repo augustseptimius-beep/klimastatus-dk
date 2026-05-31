@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# klimastatus.dk
 
-## Getting Started
+Et digitalt MERL-system til danske kommuners klimaplaner — designet til CCTF-certificering (Climate Change Task Force, Klimaalliancen).
 
-First, run the development server:
+**Status:** Under aktiv udvikling. Demo-deadline: 1. september 2026.
+
+---
+
+## Hvad det er
+
+klimastatus.dk samler klimaplanens monitorering, evaluering, rapportering og læring (MERL) ét sted:
+
+- **Koordinatoren** administrerer indsatsområder, tiltag og mål, tilknytter tovholdere og følger CCTF-dækning live
+- **Tovholdere** indberetter status via et unikt tokenlink — ingen login nødvendig
+- **Auto-evaluering** beregner dækningsgrad pr. CCTF-kriterie (1-16) ud fra kommunens data
+- **Selvevaluering** genereres direkte i systemet og kan eksporteres som PDF
+- **Dataindhentning** trækker CO₂-regnskab, VE-kapacitet og demografidata automatisk fra offentlige API'er
+
+Licens: **AGPL-3.0** — open core/hosted SaaS-model (samme model som Kausal, GitLab, Sentry).
+
+---
+
+## Tech stack
+
+| Lag | Teknologi |
+|-----|-----------|
+| Framework | Next.js 16 (App Router, Server Components, Server Actions) |
+| Database | PostgreSQL via Neon Serverless |
+| ORM | Drizzle ORM |
+| Jobs | pg-boss (asynkrone dataindhentningsjobs) |
+| Auth | JWT-cookies, argon2 password-hashing |
+| Tests | Vitest |
+| Deployment | Docker + Caddy på Hetzner VPS |
+
+---
+
+## Kom i gang (lokal udvikling)
 
 ```bash
+# 1. Klon og installér
+npm install
+
+# 2. Kopiér og udfyld miljøvariabler
+cp .env.example .env.local
+# Sæt DATABASE_URL (Neon eller lokal Postgres)
+
+# 3. Kør migrationer
+npx drizzle-kit migrate
+
+# 4. Seed demo-data (Østerby Kommune)
+npx tsx db/seed.ts
+
+# 5. Start udviklingsserver
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Login med `koordinator@oesterby.dk` / `oesterby2026!` (seed-data).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Projektstruktur
 
-## Learn More
+```
+app/
+  (app)/          Koordinator-app (beskyttet)
+  (auth)/         Login
+  (admin)/        Admin (kommuner, indikatorer)
+  rapport/        Tovholder-flow (tokenlink, ingen login)
+components/
+  cctf/           CCTF-dækningsgrad-komponenter
+db/
+  schema/         Drizzle-skema (alle tabeller)
+  migrations/     SQL-migrationer
+  queries/        DB-queries pr. domæne
+  seeds/          Seed-data (Østerby Kommune)
+lib/
+  cctf/           Coverage-engine, selvevaluerings-typer
+  merl/           Læringspost-typer (Fase 4)
+docs/
+  superpowers/    Planer og design-specs pr. fase
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Faser (roadmap)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Fase | Indhold | Status |
+|------|---------|--------|
+| 0 | AI-import via pg-boss | Færdig |
+| 1 | Seed Østerby Kommune | Færdig |
+| 2 | CCTF-lag (16 kriterier, dækningsgrad, mapping-UI) | Færdig |
+| 3 | Selvevaluering (redigér, godkend, eksportér) | Færdig |
+| 4 | MERL-lag (Læringspost, Beslutningsport) | Næste |
+| 5 | Dashboard-polish | Planlagt |
+| 6 | Resterende dataindhentning (BBR, DMI, KAMP) | Planlagt |
 
-## Deploy on Vercel
+Se [docs/superpowers/specs/2026-05-21-roadmap-design.md](docs/superpowers/specs/2026-05-21-roadmap-design.md) for detaljer.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Datamodel og MERL-arkitektur
+
+- [klimastatus-dk-datamodel.md](klimastatus-dk-datamodel.md) — kerneentiteter, CCTF-mapping, MERL-lag
+- [app-logik.mermaid](app-logik.mermaid) — flowdiagram over app-arkitektur
+
+---
+
+## CCTF-version
+
+Systemet understøtter CCTF v2.5. Kriterier gemmes som versionstagget DB-records og kan opdateres via admin-UI uden kodeændring.
