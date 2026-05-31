@@ -52,6 +52,7 @@ async function setupJobs() {
 }
 
 setupJobs().catch((err) => {
-  console.error('[jobs] Failed to start job system:', err);
-  process.exit(1);
+  // Log fejlen men lad serveren fortsætte — job-systemet er ikke kritisk for web-UI'et.
+  // I preview/CI-miljøer uden databaseadgang er dette forventet opførsel.
+  console.warn('[jobs] Job-system kunne ikke starte (non-fatal):', (err as Error)?.message ?? err);
 });
