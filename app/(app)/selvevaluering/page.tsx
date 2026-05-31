@@ -7,7 +7,7 @@ import {
   initialiserKriterieData,
 } from '@/db/queries/selvevaluering';
 import { KriterieEditor } from '@/components/cctf/kriterie-editor';
-import { genererSelvevaluering, genererSelvevalueringFormAction } from './actions';
+import { genererSelvevalueringFormAction } from './actions';
 import type { KriterieBesvarelse } from '@/lib/cctf/selvevaluering-types';
 import Link from 'next/link';
 

@@ -61,7 +61,7 @@ export default async function SelvevalueringPreviewPage() {
           Selvevalueringsskema — CCTF v{data.cctfVersion}
         </h1>
         <p style={{ fontSize: 13, color: '#666', marginBottom: 24 }}>
-          Genereret: {new Date().toLocaleDateString('da-DK')}
+          Genereret: {saved.genereretDato.toLocaleDateString('da-DK')}
         </p>
 
         <table className="cctf-skema">
@@ -129,8 +129,8 @@ export default async function SelvevalueringPreviewPage() {
                       )}
                     </td>
                     <td>
-                      {b?.dokumentationshenvisninger?.map((ref, i) => (
-                        <div key={i} style={{ marginBottom: 4, fontSize: 12 }}>
+                      {b?.dokumentationshenvisninger?.map((ref) => (
+                        <div key={`${ref.entitetType}:${ref.entitetId}`} style={{ marginBottom: 4, fontSize: 12 }}>
                           • {ref.label}
                           {ref.bemaerkning && <div style={{ color: '#888', paddingLeft: 8 }}>{ref.bemaerkning}</div>}
                         </div>

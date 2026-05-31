@@ -65,6 +65,7 @@ export type SelvevalueringRow = {
   kommuneId: string;
   cctfVersion: string;
   version: number;
+  genereretDato: Date;
   kriterieData: SelvevalueringData;
 };
 
@@ -82,6 +83,7 @@ export async function getSelvevaluering(kommuneId: string): Promise<Selvevalueri
     kommuneId: rows[0].kommuneId,
     cctfVersion: rows[0].cctfVersion,
     version: rows[0].version,
+    genereretDato: rows[0].genereretDato,
     kriterieData: rows[0].kriterieData as SelvevalueringData,
   };
 }
@@ -110,6 +112,7 @@ export async function upsertSelvevaluering(
     kommuneId: created.kommuneId,
     cctfVersion: created.cctfVersion,
     version: created.version,
+    genereretDato: created.genereretDato,
     kriterieData: data,
   };
 }
