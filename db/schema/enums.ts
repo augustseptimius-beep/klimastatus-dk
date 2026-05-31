@@ -58,3 +58,9 @@ export const auditActionEnum = pgEnum('audit_action', ['create', 'update', 'dele
 export const importJobStatusEnum = pgEnum('import_job_status', [
   'pending', 'processing', 'complete', 'failed',
 ]);
+export const laeringsBeslutningEnum = pgEnum('laerings_beslutning', [
+  'viderefoeres', 'justeres', 'udgaar', 'tilfoeres_ressourcer', 'eskaleres',
+]);
+export const laeringsKnytningEnum = pgEnum('laerings_knytning', [
+  'tiltag', 'indsatsomraade', 'maal',
+]);
