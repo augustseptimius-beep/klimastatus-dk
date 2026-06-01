@@ -5,10 +5,23 @@ const publicRoutes = ['/', '/login'];
 const publicPrefixes = ['/rapport'];
 const adminRoutes = ['/admin'];
 
+const reservedSegments = new Set([
+  'login', 'admin', 'rapport', 'dashboard', 'tiltag',
+  'indsatser', 'tovholdere', 'data', 'selvevaluering',
+  'indstillinger', 'laering', 'api', '_next', 'favicon.ico',
+]);
+
+function isPublicSlug(path: string): boolean {
+  const match = path.match(/^\/([a-z][a-z0-9-]*)$/);
+  return match !== null && !reservedSegments.has(match[1]);
+}
+
 export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const isPublic =
-    publicRoutes.includes(path) || publicPrefixes.some((p) => path.startsWith(p));
+    publicRoutes.includes(path) ||
+    publicPrefixes.some((p) => path.startsWith(p)) ||
+    isPublicSlug(path);
   const isAdmin = adminRoutes.some((r) => path.startsWith(r));
 
   const token = req.cookies.get('session')?.value;
