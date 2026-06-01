@@ -1,6 +1,8 @@
 import { verifySession } from '@/lib/dal';
 import { getKommuneById } from '@/db/queries';
+import { getAktiveKommuneIndikatorer } from '@/db/queries/public-dashboard';
 import { redirect } from 'next/navigation';
+import { PublicConfigForm } from './_public-config-form';
 
 export const metadata = { title: 'Indstillinger — Klimastatus.dk' };
 
@@ -10,6 +12,8 @@ export default async function IndstillingerPage() {
 
   const kommune = await getKommuneById(session.kommuneId);
   if (!kommune) redirect('/login');
+
+  const indikatorer = await getAktiveKommuneIndikatorer(session.kommuneId);
 
   return (
     <div>
@@ -37,8 +41,19 @@ export default async function IndstillingerPage() {
         </dl>
       </div>
 
-      <div className="mt-4 rounded-xl border border-dashed border-gray-300 px-6 py-8 text-center text-sm text-gray-400">
-        Redigering af indstillinger tilføjes i en senere fase.
+      <div className="mt-4 rounded-xl border border-gray-200 bg-white p-6">
+        <h2 className="mb-1 text-base font-semibold text-gray-900">Offentlig klimaside</h2>
+        <p className="mb-6 text-sm text-gray-500">
+          Konfigurér den borgervendte side på{' '}
+          <span className="font-mono text-gray-700">klimastatus.dk/{kommune.subdomain}</span>.
+        </p>
+        <PublicConfigForm
+          subdomain={kommune.subdomain}
+          initialEnabled={kommune.publicEnabled}
+          initialStaleDays={kommune.publicStaleDays ?? 90}
+          initialHighlights={kommune.publicHighlights ?? []}
+          indikatorer={indikatorer}
+        />
       </div>
     </div>
   );
