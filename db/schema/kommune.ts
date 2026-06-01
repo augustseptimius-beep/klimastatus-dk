@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, integer, real, date, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, integer, real, date, timestamp, boolean } from 'drizzle-orm/pg-core';
 
 export const kommune = pgTable('kommune', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -14,6 +14,9 @@ export const kommune = pgTable('kommune', {
   secondaryColor: text('secondary_color'),
   fontFamily: text('font_family'),
   subdomain: text('subdomain').notNull().unique(),
+  publicEnabled: boolean('public_enabled').notNull().default(false),
+  publicStaleDays: integer('public_stale_days'),
+  publicHighlights: text('public_highlights').array(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
