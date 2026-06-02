@@ -379,7 +379,10 @@ export default function Home() {
               <a href="#faq">FAQ</a>
               <a href="#hvem">Hvem står bag</a>
             </nav>
-            <a className="btn primary" href="#demo">Book demo</a>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <a className="btn ghost" href="/login">Log ind</a>
+              <a className="btn primary" href="#demo">Book demo</a>
+            </div>
           </div>
         </header>
 
