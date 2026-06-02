@@ -1,7 +1,7 @@
 import { hash } from '@node-rs/argon2';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import {
   kommune,
   user,
@@ -607,7 +607,9 @@ export async function seedOesterby() {
       },
     ]).returning();
 
-    // Årlige monitoreringscyklusser for de historiske år
+    // Årlige monitoreringscyklusser for de historiske år.
+    // onConflictDoNothing + efterfølgende opslag gør seed'en robust mod gen-kørsel
+    // efter en delvis fejl (hvor kommunen blev committet men cyklusserne ikke).
     const cyklusRows = await db.insert(monitoreringscyklus).values(
       [2021, 2022, 2023, 2024].map((aar) => ({
         kommuneId: oesterby.id,
@@ -616,8 +618,13 @@ export async function seedOesterby() {
         navn: `Årsstatus ${aar}`,
         status: 'rapporteret' as const,
       })),
-    ).returning();
-    const cyklusByAar = Object.fromEntries(cyklusRows.map((c) => [c.aar, c.id]));
+    ).onConflictDoNothing().returning();
+    const alleCyklusser = cyklusRows.length < 4
+      ? await db.select().from(monitoreringscyklus).where(
+          and(eq(monitoreringscyklus.kommuneId, oesterby.id), eq(monitoreringscyklus.type, 'aarlig')),
+        )
+      : cyklusRows;
+    const cyklusByAar = Object.fromEntries(alleCyklusser.map((c) => [c.aar, c.id]));
 
     await db.insert(indikatorMaaling).values([
       { indikatorId: iCoFjernvarme.id, monitoreringscyklusId: cyklusByAar[2021], aar: 2021, vaerdi: 58, kilde: 'Energi Østerby A/S årsrapport' },
