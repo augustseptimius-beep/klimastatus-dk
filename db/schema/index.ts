@@ -12,3 +12,4 @@ export * from './audit';
 export * from './indikator-template';
 export * from './import-job';
 export * from './laeringspost';
+export * from './monitorering';
