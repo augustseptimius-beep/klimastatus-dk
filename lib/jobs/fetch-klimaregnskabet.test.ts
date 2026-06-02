@@ -51,6 +51,10 @@ vi.mock('./fetch-utils', () => ({
   withRetry: vi.fn((fn: () => Promise<unknown>) => fn()),
 }));
 
+vi.mock('@/db/queries/monitorering', () => ({
+  ensureAarligCyklus: vi.fn().mockResolvedValue({ id: 'cyklus-test', kommuneId: 'k1', aar: 2024 }),
+}));
+
 describe('parseSamletCo2e', () => {
   it('extracts max Samlet value per year and ignores other sectors', async () => {
     const { parseSamletCo2e } = await import('./fetch-klimaregnskabet');

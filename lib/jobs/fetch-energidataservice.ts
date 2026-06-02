@@ -6,6 +6,7 @@ import {
   updateSidsteFejl,
   type ActiveKommuneIndikator,
 } from '@/db/queries/kommune-indikator';
+import { ensureAarligCyklus } from '@/db/queries/monitorering';
 import { withRetry } from './fetch-utils';
 
 const API_URL =
@@ -72,14 +73,16 @@ export async function handleFetchEnergidataservice(options?: {
     const totalMW = latest.OnshoreWindMW + latest.SolarPowerMW;
 
     try {
+      const cyklus = await ensureAarligCyklus(ki.kommuneId, aar);
       await db.insert(indikatorMaaling).values({
         indikatorId: ki.indikatorId,
+        monitoreringscyklusId: cyklus.id,
         aar,
         vaerdi: totalMW,
         kilde: 'energidataservice',
         autoHentet: true,
       }).onConflictDoUpdate({
-        target: [indikatorMaaling.indikatorId, indikatorMaaling.aar],
+        target: [indikatorMaaling.indikatorId, indikatorMaaling.monitoreringscyklusId],
         set: { vaerdi: totalMW, kilde: 'energidataservice' },
       });
       await updateSidstHentet(ki.id, new Date());

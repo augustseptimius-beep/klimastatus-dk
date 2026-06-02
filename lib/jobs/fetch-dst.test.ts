@@ -47,6 +47,10 @@ vi.mock('./fetch-utils', () => ({
   withRetry: vi.fn((fn: () => Promise<unknown>) => fn()),
 }));
 
+vi.mock('@/db/queries/monitorering', () => ({
+  ensureAarligCyklus: vi.fn().mockResolvedValue({ id: 'cyklus-test', kommuneId: 'k1', aar: 2024 }),
+}));
+
 describe('parseDstCsv', () => {
   it('parses normal CSV correctly', async () => {
     const { parseDstCsv } = await import('./fetch-dst');
@@ -107,10 +111,10 @@ describe('handleFetchDst', () => {
 
     // Should insert non-null values (2023→44814, 2022→45100)
     expect(mockValues).toHaveBeenCalledWith(
-      expect.objectContaining({ aar: 2023, vaerdi: 44814, kilde: 'dst', autoHentet: true }),
+      expect.objectContaining({ monitoreringscyklusId: 'cyklus-test', aar: 2023, vaerdi: 44814, kilde: 'dst', autoHentet: true }),
     );
     expect(mockValues).toHaveBeenCalledWith(
-      expect.objectContaining({ aar: 2022, vaerdi: 45100, kilde: 'dst', autoHentet: true }),
+      expect.objectContaining({ monitoreringscyklusId: 'cyklus-test', aar: 2022, vaerdi: 45100, kilde: 'dst', autoHentet: true }),
     );
 
     // Null values must NOT be inserted — use missing CSV to verify skipping

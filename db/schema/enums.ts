@@ -64,3 +64,10 @@ export const laeringsBeslutningEnum = pgEnum('laerings_beslutning', [
 export const laeringsKnytningEnum = pgEnum('laerings_knytning', [
   'tiltag', 'indsatsomraade', 'maal',
 ]);
+
+export const monitoreringsTypeEnum = pgEnum('monitorerings_type', [
+  'aarlig', 'kvartal', 'ad_hoc',
+]);
+export const monitoreringsStatusEnum = pgEnum('monitorerings_status', [
+  'aaben', 'lukket', 'rapporteret',
+]);

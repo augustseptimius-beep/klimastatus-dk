@@ -48,6 +48,10 @@ vi.mock('./fetch-utils', () => ({
   withRetry: vi.fn((fn: () => Promise<unknown>) => fn()),
 }));
 
+vi.mock('@/db/queries/monitorering', () => ({
+  ensureAarligCyklus: vi.fn().mockResolvedValue({ id: 'cyklus-test', kommuneId: 'k1', aar: 2024 }),
+}));
+
 describe('getLatestByMunicipality', () => {
   it('returns most recent record per municipality', async () => {
     const { getLatestByMunicipality } = await import('./fetch-energidataservice');
@@ -104,6 +108,7 @@ describe('handleFetchEnergidataservice', () => {
     // Should insert with totalMW = 150.5 + 45.2 = 195.7 for 2024
     expect(mockValues).toHaveBeenCalledWith({
       indikatorId: 'ind2',
+      monitoreringscyklusId: 'cyklus-test',
       aar: 2024,
       vaerdi: 150.5 + 45.2,
       kilde: 'energidataservice',

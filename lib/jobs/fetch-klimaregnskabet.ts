@@ -6,6 +6,7 @@ import {
   updateSidsteFejl,
   type ActiveKommuneIndikator,
 } from '@/db/queries/kommune-indikator';
+import { ensureAarligCyklus } from '@/db/queries/monitorering';
 import { sleep, withRetry } from './fetch-utils';
 
 const API_URL = 'https://klimaregnskabet.dk/api/municipality-data';
@@ -62,14 +63,16 @@ async function processKommuneIndikator(ki: ActiveKommuneIndikator, fromYear?: nu
   const co2eByYear = parseSamletCo2e(allRecords);
   for (const [yearStr, vaerdi] of Object.entries(co2eByYear)) {
     const aar = Number(yearStr);
+    const cyklus = await ensureAarligCyklus(ki.kommuneId, aar);
     await db.insert(indikatorMaaling).values({
       indikatorId: ki.indikatorId,
+      monitoreringscyklusId: cyklus.id,
       aar,
       vaerdi,
       kilde: 'klimaregnskab',
       autoHentet: true,
     }).onConflictDoUpdate({
-      target: [indikatorMaaling.indikatorId, indikatorMaaling.aar],
+      target: [indikatorMaaling.indikatorId, indikatorMaaling.monitoreringscyklusId],
       set: { vaerdi, kilde: 'klimaregnskab' },
     });
   }
