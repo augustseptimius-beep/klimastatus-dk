@@ -9,8 +9,8 @@ const findFirst = vi.fn();
 
 vi.mock('@/db', () => ({
   db: {
-    insert: (...a) => insert(...a),
-    query: { monitoreringscyklus: { findFirst: (...a) => findFirst(...a) } },
+    insert: (...a: unknown[]) => insert(...a),
+    query: { monitoreringscyklus: { findFirst: (...a: unknown[]) => findFirst(...a) } },
   },
 }));
 
