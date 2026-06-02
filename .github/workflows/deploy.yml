@@ -77,11 +77,14 @@ jobs:
     # repository-variabel DEPLOY_ENABLED=true (Settings → Secrets and
     # variables → Actions → Variables) og tilføje VPS_HOST, VPS_USER,
     # VPS_SSH_KEY som secrets.
+    # BEMÆRK: Serveren er en Infomaniak VPS, og deploy sker via Coolify.
+    # Dette SSH/docker-compose-job er forældet og bliver erstattet af et
+    # kald til Coolifys redeploy-webhook (build sker i build-and-push ovenfor).
     if: ${{ vars.DEPLOY_ENABLED == 'true' }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy to Hetzner VPS
+      - name: Deploy to Infomaniak VPS
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}

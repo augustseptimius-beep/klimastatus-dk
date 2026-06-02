@@ -43,6 +43,13 @@
       "when": 1780253490486,
       "tag": "0005_puzzling_franklin_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1780288075593,
+      "tag": "0006_sturdy_purple_man",
+      "breakpoints": true
     }
   ]
 }
