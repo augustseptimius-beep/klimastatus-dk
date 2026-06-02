@@ -24,10 +24,16 @@ export async function seedGroenkobing() {
   const db = drizzle(client);
 
   try {
-    // Idempotency: spring over hvis allerede seeded
+    // Idempotency: spring over alt pånær konfigurations-felter der kan ændres
     const existing = await db.select().from(kommune).where(eq(kommune.kommunekode, '0999')).limit(1);
     if (existing.length > 0) {
-      console.log('Grønkøbing Kommune allerede seeded — springer over.');
+      // Opdatér konfigurations-felter der kan ændre sig uden at genseede alt
+      await db.update(kommune).set({
+        publicEnabled: true,
+        publicStaleDays: 365,
+        publicHighlights: ['Lavbundsarealer udtaget fra omdrift (450 ha)', 'Solpark Nordmark under etablering (85 MW)', 'Alle kommunale oliefyr udfaset'],
+      }).where(eq(kommune.kommunekode, '0999'));
+      console.log('Grønkøbing Kommune: konfiguration opdateret.');
       return;
     }
 

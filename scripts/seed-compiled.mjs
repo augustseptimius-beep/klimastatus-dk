@@ -782,7 +782,12 @@ async function seedGroenkobing() {
   try {
     const existing = await db2.select().from(kommune).where(eq(kommune.kommunekode, "0999")).limit(1);
     if (existing.length > 0) {
-      console.log("Gr\xF8nk\xF8bing Kommune allerede seeded \u2014 springer over.");
+      await db2.update(kommune).set({
+        publicEnabled: true,
+        publicStaleDays: 365,
+        publicHighlights: ["Lavbundsarealer udtaget fra omdrift (450 ha)", "Solpark Nordmark under etablering (85 MW)", "Alle kommunale oliefyr udfaset"]
+      }).where(eq(kommune.kommunekode, "0999"));
+      console.log("Gr\xF8nk\xF8bing Kommune: konfiguration opdateret.");
       return;
     }
     console.log("Seeder Gr\xF8nk\xF8bing Kommune...");
