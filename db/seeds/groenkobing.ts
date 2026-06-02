@@ -45,6 +45,9 @@ export async function seedGroenkobing() {
       primaryColor: '#1a5c38',
       secondaryColor: '#e8f5e9',
       subdomain: 'groenkobing',
+      publicEnabled: true,
+      publicStaleDays: 365,
+      publicHighlights: ['Lavbundsarealer udtaget fra omdrift (450 ha)', 'Solpark Nordmark under etablering (85 MW)', 'Alle kommunale oliefyr udfaset'],
     }).returning();
 
     // 2. Koordinator-bruger

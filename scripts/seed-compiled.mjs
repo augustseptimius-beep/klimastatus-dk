@@ -795,7 +795,10 @@ async function seedGroenkobing() {
       klimakommitmentTekst: "Gr\xF8nk\xF8bing Kommune forpligter sig til at opn\xE5 70% CO\u2082e-reduktion inden 2030 og klimaneutralitet inden 2045 i overensstemmelse med Parisaftalens 1,5\xB0C-ambition.",
       primaryColor: "#1a5c38",
       secondaryColor: "#e8f5e9",
-      subdomain: "groenkobing"
+      subdomain: "groenkobing",
+      publicEnabled: true,
+      publicStaleDays: 365,
+      publicHighlights: ["Lavbundsarealer udtaget fra omdrift (450 ha)", "Solpark Nordmark under etablering (85 MW)", "Alle kommunale oliefyr udfaset"]
     }).returning();
     const passwordHash = await hash(process.env.SEED_PASSWORD ?? "klimastatus2026!");
     await db2.insert(user).values({
