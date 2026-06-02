@@ -3,6 +3,13 @@ name: Deploy to Production
 on:
   push:
     branches: [main]
+    # Byg/deploy IKKE når kun dokumentation ændres — sparer en unødig
+    # Docker-build + redeploy. Hvis en commit rører både docs OG kode,
+    # kører workflowen alligevel (paths-ignore springer kun over når ALLE
+    # ændrede filer matcher).
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
 
 env:
   REGISTRY: ghcr.io
