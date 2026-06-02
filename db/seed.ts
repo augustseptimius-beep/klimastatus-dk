@@ -2,6 +2,7 @@ import { hash } from '@node-rs/argon2';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { cctfKriterie, user } from './schema';
+import { seedOesterby } from './seeds/oesterby';
 
 const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client);
@@ -172,6 +173,10 @@ async function seed() {
     },
   ] as const).onConflictDoNothing();
   console.log('Seeded 3 indicator templates.');
+
+  console.log('Seeding Østerby Kommune...');
+  await seedOesterby();
+
   process.exit(0);
 }
 

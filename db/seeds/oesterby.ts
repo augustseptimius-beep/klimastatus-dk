@@ -16,6 +16,7 @@ import {
   indikatorIndsatsOmraade,
   kommuneIndikator,
   indikatorTemplate,
+  monitoreringscyklus,
 } from '../schema';
 
 export async function seedOesterby() {
@@ -606,21 +607,33 @@ export async function seedOesterby() {
       },
     ]).returning();
 
+    // Årlige monitoreringscyklusser for de historiske år
+    const cyklusRows = await db.insert(monitoreringscyklus).values(
+      [2021, 2022, 2023, 2024].map((aar) => ({
+        kommuneId: oesterby.id,
+        aar,
+        type: 'aarlig' as const,
+        navn: `Årsstatus ${aar}`,
+        status: 'rapporteret' as const,
+      })),
+    ).returning();
+    const cyklusByAar = Object.fromEntries(cyklusRows.map((c) => [c.aar, c.id]));
+
     await db.insert(indikatorMaaling).values([
-      { indikatorId: iCoFjernvarme.id, aar: 2021, vaerdi: 58, kilde: 'Energi Østerby A/S årsrapport' },
-      { indikatorId: iCoFjernvarme.id, aar: 2022, vaerdi: 61, kilde: 'Energi Østerby A/S årsrapport' },
-      { indikatorId: iCoFjernvarme.id, aar: 2023, vaerdi: 64, kilde: 'Energi Østerby A/S årsrapport' },
-      { indikatorId: iCoFjernvarme.id, aar: 2024, vaerdi: 67, kilde: 'Energi Østerby A/S årsrapport' },
-      { indikatorId: iElbiler.id, aar: 2021, vaerdi: 312, kilde: 'Motorregistret via DST' },
-      { indikatorId: iElbiler.id, aar: 2022, vaerdi: 589, kilde: 'Motorregistret via DST' },
-      { indikatorId: iElbiler.id, aar: 2023, vaerdi: 1124, kilde: 'Motorregistret via DST' },
-      { indikatorId: iElbiler.id, aar: 2024, vaerdi: 1897, kilde: 'Motorregistret via DST' },
-      { indikatorId: iLavbund.id, aar: 2023, vaerdi: 85, kilde: 'Natur & Landbrug intern opgørelse' },
-      { indikatorId: iLavbund.id, aar: 2024, vaerdi: 210, kilde: 'Natur & Landbrug intern opgørelse' },
-      { indikatorId: iHaendelser.id, aar: 2021, vaerdi: 3, kilde: 'Beredskabsrapport' },
-      { indikatorId: iHaendelser.id, aar: 2022, vaerdi: 5, kilde: 'Beredskabsrapport' },
-      { indikatorId: iHaendelser.id, aar: 2023, vaerdi: 7, kilde: 'Beredskabsrapport' },
-      { indikatorId: iHaendelser.id, aar: 2024, vaerdi: 4, kilde: 'Beredskabsrapport' },
+      { indikatorId: iCoFjernvarme.id, monitoreringscyklusId: cyklusByAar[2021], aar: 2021, vaerdi: 58, kilde: 'Energi Østerby A/S årsrapport' },
+      { indikatorId: iCoFjernvarme.id, monitoreringscyklusId: cyklusByAar[2022], aar: 2022, vaerdi: 61, kilde: 'Energi Østerby A/S årsrapport' },
+      { indikatorId: iCoFjernvarme.id, monitoreringscyklusId: cyklusByAar[2023], aar: 2023, vaerdi: 64, kilde: 'Energi Østerby A/S årsrapport' },
+      { indikatorId: iCoFjernvarme.id, monitoreringscyklusId: cyklusByAar[2024], aar: 2024, vaerdi: 67, kilde: 'Energi Østerby A/S årsrapport' },
+      { indikatorId: iElbiler.id, monitoreringscyklusId: cyklusByAar[2021], aar: 2021, vaerdi: 312, kilde: 'Motorregistret via DST' },
+      { indikatorId: iElbiler.id, monitoreringscyklusId: cyklusByAar[2022], aar: 2022, vaerdi: 589, kilde: 'Motorregistret via DST' },
+      { indikatorId: iElbiler.id, monitoreringscyklusId: cyklusByAar[2023], aar: 2023, vaerdi: 1124, kilde: 'Motorregistret via DST' },
+      { indikatorId: iElbiler.id, monitoreringscyklusId: cyklusByAar[2024], aar: 2024, vaerdi: 1897, kilde: 'Motorregistret via DST' },
+      { indikatorId: iLavbund.id, monitoreringscyklusId: cyklusByAar[2023], aar: 2023, vaerdi: 85, kilde: 'Natur & Landbrug intern opgørelse' },
+      { indikatorId: iLavbund.id, monitoreringscyklusId: cyklusByAar[2024], aar: 2024, vaerdi: 210, kilde: 'Natur & Landbrug intern opgørelse' },
+      { indikatorId: iHaendelser.id, monitoreringscyklusId: cyklusByAar[2021], aar: 2021, vaerdi: 3, kilde: 'Beredskabsrapport' },
+      { indikatorId: iHaendelser.id, monitoreringscyklusId: cyklusByAar[2022], aar: 2022, vaerdi: 5, kilde: 'Beredskabsrapport' },
+      { indikatorId: iHaendelser.id, monitoreringscyklusId: cyklusByAar[2023], aar: 2023, vaerdi: 7, kilde: 'Beredskabsrapport' },
+      { indikatorId: iHaendelser.id, monitoreringscyklusId: cyklusByAar[2024], aar: 2024, vaerdi: 4, kilde: 'Beredskabsrapport' },
     ]).onConflictDoNothing();
 
     // Link manuelle indikatorer til indsatsområder
