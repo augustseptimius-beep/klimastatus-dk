@@ -6,6 +6,7 @@ import {
   updateSidsteFejl,
   type ActiveKommuneIndikator,
 } from '@/db/queries/kommune-indikator';
+import { ensureAarligCyklus } from '@/db/queries/monitorering';
 import { sleep, withRetry } from './fetch-utils';
 
 const DST_API_URL = 'https://api.statbank.dk/v1/data';
@@ -97,14 +98,16 @@ export async function handleFetchDst(options?: {
       for (const [yearStr, vaerdi] of Object.entries(byYear)) {
         if (vaerdi === null) continue;
         const aar = Number(yearStr);
+        const cyklus = await ensureAarligCyklus(ki.kommuneId, aar);
         await db.insert(indikatorMaaling).values({
           indikatorId: ki.indikatorId,
+          monitoreringscyklusId: cyklus.id,
           aar,
           vaerdi,
           kilde: 'dst',
           autoHentet: true,
         }).onConflictDoUpdate({
-          target: [indikatorMaaling.indikatorId, indikatorMaaling.aar],
+          target: [indikatorMaaling.indikatorId, indikatorMaaling.monitoreringscyklusId],
           set: { vaerdi, kilde: 'dst' },
         });
       }
