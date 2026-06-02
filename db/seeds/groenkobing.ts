@@ -19,7 +19,7 @@ import {
   monitoreringscyklus,
 } from '../schema';
 
-export async function seedOesterby() {
+export async function seedGroenkobing() {
   const client = postgres(process.env.DATABASE_URL!);
   const db = drizzle(client);
 
@@ -27,31 +27,31 @@ export async function seedOesterby() {
     // Idempotency: spring over hvis allerede seeded
     const existing = await db.select().from(kommune).where(eq(kommune.kommunekode, '0999')).limit(1);
     if (existing.length > 0) {
-      console.log('Østerby Kommune allerede seeded — springer over.');
+      console.log('Grønkøbing Kommune allerede seeded — springer over.');
       return;
     }
 
-    console.log('Seeder Østerby Kommune...');
+    console.log('Seeder Grønkøbing Kommune...');
 
     // 1. Kommune
-    const [oesterby] = await db.insert(kommune).values({
+    const [groenkobing] = await db.insert(kommune).values({
       kommunekode: '0999',
-      navn: 'Østerby Kommune',
+      navn: 'Grønkøbing Kommune',
       befolkningstal: 51200,
       arealKm2: 1085,
       klimakommitmentDato: '2021-06-01',
       klimakommitmentTekst:
-        'Østerby Kommune forpligter sig til at opnå 70% CO₂e-reduktion inden 2030 og klimaneutralitet inden 2045 i overensstemmelse med Parisaftalens 1,5°C-ambition.',
+        'Grønkøbing Kommune forpligter sig til at opnå 70% CO₂e-reduktion inden 2030 og klimaneutralitet inden 2045 i overensstemmelse med Parisaftalens 1,5°C-ambition.',
       primaryColor: '#1a5c38',
       secondaryColor: '#e8f5e9',
-      subdomain: 'oesterby',
+      subdomain: 'groenkobing',
     }).returning();
 
     // 2. Koordinator-bruger
-    const passwordHash = await hash('oesterby2026!');
+    const passwordHash = await hash(process.env.SEED_PASSWORD ?? 'klimastatus2026!');
     await db.insert(user).values({
-      kommuneId: oesterby.id,
-      email: 'koordinator@oesterby.dk',
+      kommuneId: groenkobing.id,
+      email: 'koordinator@groenkobing.dk',
       passwordHash,
       navn: 'Maja Vestergaard',
       role: 'koordinator',
@@ -60,7 +60,7 @@ export async function seedOesterby() {
     // 3. Indsatsområder
     const [io1, io2, io3, io4, io5] = await db.insert(indsatsOmraade).values([
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         navn: 'Vedvarende energi og udfasning af fossiler',
         type: 'ghg_reduction' as const,
         sektor: 'energy' as const,
@@ -70,7 +70,7 @@ export async function seedOesterby() {
         aktiv: true,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         navn: 'Transport og mobilitet',
         type: 'ghg_reduction' as const,
         sektor: 'transport' as const,
@@ -80,7 +80,7 @@ export async function seedOesterby() {
         aktiv: true,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         navn: 'Landbrug, natur og lavbundsarealer',
         type: 'ghg_reduction' as const,
         sektor: 'agriculture' as const,
@@ -90,7 +90,7 @@ export async function seedOesterby() {
         aktiv: true,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         navn: 'Bygninger og bæredygtigt forbrug',
         type: 'cross_cutting' as const,
         sektor: 'buildings' as const,
@@ -100,7 +100,7 @@ export async function seedOesterby() {
         aktiv: true,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         navn: 'Klimatilpasning',
         type: 'adaptation' as const,
         sektor: 'adaptation' as const,
@@ -115,17 +115,17 @@ export async function seedOesterby() {
     const insertedTiltag = await db.insert(tiltag).values([
       // --- Indsats 1: Vedvarende energi (5 tiltag) ---
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io1.id,
         titel: 'Etablering af solpark Nordmark (85 ha)',
         type: 'reduction' as const,
         status: 'in_progress' as const,
         beskrivelse:
-          'Anlæg af 85 ha solcellepark nord for Østerby by. Forventet kapacitet: 85 MW. Samarbejde med lokalt energiselskab.',
+          'Anlæg af 85 ha solcellepark nord for Grønkøbing by. Forventet kapacitet: 85 MW. Samarbejde med lokalt energiselskab.',
         forventetEffektCo2Ton: 42000,
         tidsrammeStart: '2024-01-01',
         tidsrammeSlut: '2026-12-31',
-        ansvarligOrganisation: 'Energi Østerby A/S',
+        ansvarligOrganisation: 'Grønkøbing Energi A/S',
         barrierer:
           'Naboklager om landskabspåvirkning. Netkapacitet begrænset — afventer Energinet-opgradering.',
         prioriteretTiltag: true,
@@ -133,7 +133,7 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: false,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io1.id,
         titel: 'Repowering af ældre vindmøller',
         type: 'reduction' as const,
@@ -150,7 +150,7 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: false,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io1.id,
         titel: 'Udfasning af oliefyr i kommunale bygninger',
         type: 'reduction' as const,
@@ -166,17 +166,17 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: false,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io1.id,
-        titel: 'Fjernvarmeudvidelse til Østerby Vest',
+        titel: 'Fjernvarmeudvidelse til Grønkøbing Vest',
         type: 'reduction' as const,
         status: 'in_progress' as const,
         beskrivelse:
-          'Udvidelse af fjernvarmenettet til 1.200 boliger i Østerby Vest der i dag opvarmes med naturgas.',
+          'Udvidelse af fjernvarmenettet til 1.200 boliger i Grønkøbing Vest der i dag opvarmes med naturgas.',
         forventetEffektCo2Ton: 8500,
         tidsrammeStart: '2024-06-01',
         tidsrammeSlut: '2027-06-30',
-        ansvarligOrganisation: 'Energi Østerby A/S',
+        ansvarligOrganisation: 'Grønkøbing Energi A/S',
         barrierer:
           'Gravearbejde forsinket pga. ledningsanlæg. Tilslutningsprocent lavere end forventet.',
         prioriteretTiltag: false,
@@ -184,7 +184,7 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: false,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io1.id,
         titel: 'Power-to-X forundersøgelse med lokalt energiselskab',
         type: 'reduction' as const,
@@ -201,7 +201,7 @@ export async function seedOesterby() {
 
       // --- Indsats 2: Transport (5 tiltag) ---
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io2.id,
         titel: 'El-busser på 3 kommunale ruter',
         type: 'reduction' as const,
@@ -218,7 +218,7 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: false,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io2.id,
         titel: 'Pendlercykelstier (15 km ny infrastruktur)',
         type: 'reduction' as const,
@@ -236,7 +236,7 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: false,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io2.id,
         titel: 'Kommunal køretøjsflåde 100% el inden 2027',
         type: 'reduction' as const,
@@ -254,7 +254,7 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: false,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io2.id,
         titel: 'Samkørselsprogram for virksomheder',
         type: 'reduction' as const,
@@ -270,7 +270,7 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: false,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io2.id,
         titel: 'Ladestandere på kommunale p-pladser (40 stk.)',
         type: 'reduction' as const,
@@ -288,7 +288,7 @@ export async function seedOesterby() {
 
       // --- Indsats 3: Landbrug (5 tiltag) ---
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io3.id,
         titel: 'Udtagning af lavbundsarealer (450 ha)',
         type: 'reduction' as const,
@@ -306,7 +306,7 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: false,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io3.id,
         titel: 'Klimaskov — skovrejsning 120 ha',
         type: 'reduction' as const,
@@ -324,7 +324,7 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: false,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io3.id,
         titel: 'Biogasfacilitet til husdyrgødning',
         type: 'reduction' as const,
@@ -341,7 +341,7 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: false,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io3.id,
         titel: 'Frivillig omlægning til vedvarende vegetation',
         type: 'reduction' as const,
@@ -357,7 +357,7 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: false,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io3.id,
         titel: 'Partnerskab med landboforening om klimavenlig drift',
         type: 'reduction' as const,
@@ -375,7 +375,7 @@ export async function seedOesterby() {
 
       // --- Indsats 4: Bygninger (4 tiltag) ---
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io4.id,
         titel: 'Renoveringspulje til private boliger (5 mio. kr.)',
         type: 'reduction' as const,
@@ -393,7 +393,7 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: true,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io4.id,
         titel: 'ESCO-renovering af 8 kommunale skoler',
         type: 'reduction' as const,
@@ -409,7 +409,7 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: false,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io4.id,
         titel: 'Grønne indkøbskrav i kommunens udbud',
         type: 'reduction' as const,
@@ -425,7 +425,7 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: false,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io4.id,
         titel: 'Vejledning til borgere om varmepumper',
         type: 'reduction' as const,
@@ -443,16 +443,16 @@ export async function seedOesterby() {
 
       // --- Indsats 5: Klimatilpasning (3 tiltag) ---
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io5.id,
-        titel: 'Klimasikring af Østerby Å (oversvømmelse)',
+        titel: 'Klimasikring af Grønkøbing Å (oversvømmelse)',
         type: 'adaptation' as const,
         status: 'in_progress' as const,
         beskrivelse:
-          'Forhøjelse og forstærkning af ådiger ved Østerby Å. Sikrer 2.200 boliger mod 100-årsflod.',
+          'Forhøjelse og forstærkning af ådiger ved Grønkøbing Å. Sikrer 2.200 boliger mod 100-årsflod.',
         tidsrammeStart: '2024-06-01',
         tidsrammeSlut: '2027-12-31',
-        ansvarligOrganisation: 'Energi Østerby A/S',
+        ansvarligOrganisation: 'Grønkøbing Energi A/S',
         barrierer:
           'Koordinering med Kystdirektoratet tager tid. Statslig medfinansiering ikke frigivet endnu.',
         prioriteretTiltag: true,
@@ -460,7 +460,7 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: false,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io5.id,
         titel: 'Varmeplan for udsatte boligområder',
         type: 'adaptation' as const,
@@ -475,7 +475,7 @@ export async function seedOesterby() {
         retfaerdigFordelingRelevant: true,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         indsatsOmraadeId: io5.id,
         titel: 'Skybrudsplan for bymidten',
         type: 'adaptation' as const,
@@ -484,7 +484,7 @@ export async function seedOesterby() {
           'Anlæg af forsinkelsesbassin og grønne friarealer til håndtering af ekstremregn i bymidten.',
         tidsrammeStart: '2024-01-01',
         tidsrammeSlut: '2026-12-31',
-        ansvarligOrganisation: 'Energi Østerby A/S',
+        ansvarligOrganisation: 'Grønkøbing Energi A/S',
         barrierer: 'Ekspropriering af 2 ejendomme nødvendig — klagesag verserer.',
         prioriteretTiltag: false,
         udfaserFossileBraendsler: false,
@@ -533,38 +533,38 @@ export async function seedOesterby() {
     // 6. Tovholdere (5 stk.)
     const [th1, th2, th3, th4, th5] = await db.insert(tovholder).values([
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         navn: 'Søren Kjeldgaard',
         forvaltning: 'Teknik & Miljø',
-        email: 'skj@oesterby.dk',
+        email: 'skj@groenkobing.dk',
         aktiv: true,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         navn: 'Birgitte Møller',
         forvaltning: 'Vej & Park',
-        email: 'bmo@oesterby.dk',
+        email: 'bmo@groenkobing.dk',
         aktiv: true,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         navn: 'Hans Erik Christensen',
         forvaltning: 'Natur & Landbrug',
-        email: 'hec@oesterby.dk',
+        email: 'hec@groenkobing.dk',
         aktiv: true,
       },
       {
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         navn: 'Lene Stubkjær',
         forvaltning: 'Ejendomsservice',
-        email: 'lst@oesterby.dk',
+        email: 'lst@groenkobing.dk',
         aktiv: true,
       },
       {
-        kommuneId: oesterby.id,
-        navn: 'Energi Østerby A/S',
+        kommuneId: groenkobing.id,
+        navn: 'Grønkøbing Energi A/S',
         forvaltning: 'Forsyning (ekstern)',
-        email: 'klima@energioesterby.dk',
+        email: 'klima@energigroenkobing.dk',
         aktiv: true,
       },
     ]).returning();
@@ -612,7 +612,7 @@ export async function seedOesterby() {
     // efter en delvis fejl (hvor kommunen blev committet men cyklusserne ikke).
     const cyklusRows = await db.insert(monitoreringscyklus).values(
       [2021, 2022, 2023, 2024].map((aar) => ({
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         aar,
         type: 'aarlig' as const,
         navn: `Årsstatus ${aar}`,
@@ -621,16 +621,16 @@ export async function seedOesterby() {
     ).onConflictDoNothing().returning();
     const alleCyklusser = cyklusRows.length < 4
       ? await db.select().from(monitoreringscyklus).where(
-          and(eq(monitoreringscyklus.kommuneId, oesterby.id), eq(monitoreringscyklus.type, 'aarlig')),
+          and(eq(monitoreringscyklus.kommuneId, groenkobing.id), eq(monitoreringscyklus.type, 'aarlig')),
         )
       : cyklusRows;
     const cyklusByAar = Object.fromEntries(alleCyklusser.map((c) => [c.aar, c.id]));
 
     await db.insert(indikatorMaaling).values([
-      { indikatorId: iCoFjernvarme.id, monitoreringscyklusId: cyklusByAar[2021], aar: 2021, vaerdi: 58, kilde: 'Energi Østerby A/S årsrapport' },
-      { indikatorId: iCoFjernvarme.id, monitoreringscyklusId: cyklusByAar[2022], aar: 2022, vaerdi: 61, kilde: 'Energi Østerby A/S årsrapport' },
-      { indikatorId: iCoFjernvarme.id, monitoreringscyklusId: cyklusByAar[2023], aar: 2023, vaerdi: 64, kilde: 'Energi Østerby A/S årsrapport' },
-      { indikatorId: iCoFjernvarme.id, monitoreringscyklusId: cyklusByAar[2024], aar: 2024, vaerdi: 67, kilde: 'Energi Østerby A/S årsrapport' },
+      { indikatorId: iCoFjernvarme.id, monitoreringscyklusId: cyklusByAar[2021], aar: 2021, vaerdi: 58, kilde: 'Grønkøbing Energi A/S årsrapport' },
+      { indikatorId: iCoFjernvarme.id, monitoreringscyklusId: cyklusByAar[2022], aar: 2022, vaerdi: 61, kilde: 'Grønkøbing Energi A/S årsrapport' },
+      { indikatorId: iCoFjernvarme.id, monitoreringscyklusId: cyklusByAar[2023], aar: 2023, vaerdi: 64, kilde: 'Grønkøbing Energi A/S årsrapport' },
+      { indikatorId: iCoFjernvarme.id, monitoreringscyklusId: cyklusByAar[2024], aar: 2024, vaerdi: 67, kilde: 'Grønkøbing Energi A/S årsrapport' },
       { indikatorId: iElbiler.id, monitoreringscyklusId: cyklusByAar[2021], aar: 2021, vaerdi: 312, kilde: 'Motorregistret via DST' },
       { indikatorId: iElbiler.id, monitoreringscyklusId: cyklusByAar[2022], aar: 2022, vaerdi: 589, kilde: 'Motorregistret via DST' },
       { indikatorId: iElbiler.id, monitoreringscyklusId: cyklusByAar[2023], aar: 2023, vaerdi: 1124, kilde: 'Motorregistret via DST' },
@@ -679,7 +679,7 @@ export async function seedOesterby() {
       }
 
       await db.insert(kommuneIndikator).values({
-        kommuneId: oesterby.id,
+        kommuneId: groenkobing.id,
         templateId: template.id,
         indikatorId: autoInd.id,
         aktiv: true,
@@ -687,7 +687,7 @@ export async function seedOesterby() {
     }
 
     console.log(
-      `✓ Østerby Kommune seeded: 5 indsatsområder, 22 tiltag, 3 mål, 5 tovholdere, ${4 + templates.length} indikatorer`,
+      `✓ Grønkøbing Kommune seeded: 5 indsatsområder, 22 tiltag, 3 mål, 5 tovholdere, ${4 + templates.length} indikatorer`,
     );
   } finally {
     await client.end();

@@ -11,6 +11,11 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
+# Kompilér seed til standalone JS så den kan køres i runner-stadiet uden tsx
+RUN node_modules/.bin/esbuild db/seed.ts \
+  --bundle --platform=node --format=esm \
+  --external:@node-rs/argon2 --external:postgres --external:drizzle-orm --external:"drizzle-orm/*" \
+  --outfile=scripts/seed-compiled.mjs
 
 FROM base AS runner
 WORKDIR /app
@@ -26,11 +31,14 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # migrator-undermodulet med, så vi kopierer hele drizzle-orm + postgres ind.
 COPY --from=builder --chown=nextjs:nodejs /app/db/migrations ./db/migrations
 COPY --from=builder --chown=nextjs:nodejs /app/scripts/migrate.mjs ./scripts/migrate.mjs
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/seed-compiled.mjs ./scripts/seed-compiled.mjs
 COPY --from=builder /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
 COPY --from=builder /app/node_modules/postgres ./node_modules/postgres
+# @node-rs/argon2 er native addon — bruges af seed til password-hashing
+COPY --from=builder /app/node_modules/@node-rs ./node_modules/@node-rs
 
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-CMD ["sh", "-c", "node scripts/migrate.mjs && node server.js"]
+CMD ["sh", "-c", "node scripts/migrate.mjs && node scripts/seed-compiled.mjs && node server.js"]
