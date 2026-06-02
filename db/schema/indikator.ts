@@ -2,6 +2,7 @@ import { pgTable, uuid, text, real, integer, boolean, date, timestamp, unique } 
 import { indikatorNiveauEnum, datakildeTypeEnum, apiKildeEnum } from './enums';
 import { tiltag } from './tiltag';
 import { maal, indsatsOmraade } from './klimaplan';
+import { monitoreringscyklus } from './monitorering';
 
 export const indikator = pgTable('indikator', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -19,6 +20,8 @@ export const indikator = pgTable('indikator', {
 export const indikatorMaaling = pgTable('indikator_maaling', {
   id: uuid('id').primaryKey().defaultRandom(),
   indikatorId: uuid('indikator_id').references(() => indikator.id, { onDelete: 'cascade' }).notNull(),
+  monitoreringscyklusId: uuid('monitoreringscyklus_id')
+    .references(() => monitoreringscyklus.id, { onDelete: 'cascade' }).notNull(),
   dato: date('dato'),
   aar: integer('aar'),
   vaerdi: real('vaerdi').notNull(),
@@ -27,7 +30,7 @@ export const indikatorMaaling = pgTable('indikator_maaling', {
   autoHentet: boolean('auto_hentet').notNull().default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
-  unique('indikator_maaling_indikator_aar_unique').on(t.indikatorId, t.aar),
+  unique('indikator_maaling_indikator_cyklus_unique').on(t.indikatorId, t.monitoreringscyklusId),
 ]);
 
 export const indikatorTiltag = pgTable('indikator_tiltag', {
