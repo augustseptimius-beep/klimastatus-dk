@@ -780,7 +780,8 @@ async function seedGroenkobing() {
   const client2 = postgres(process.env.DATABASE_URL);
   const db2 = drizzle(client2);
   try {
-    const existing = await db2.select().from(kommune).where(eq(kommune.kommunekode, "0999")).limit(1);
+    await db2.update(kommune).set({ kommunekode: "0657", befolkningstal: 89e3, arealKm2: 1329 }).where(eq(kommune.kommunekode, "0999"));
+    const existing = await db2.select().from(kommune).where(eq(kommune.kommunekode, "0657")).limit(1);
     if (existing.length > 0) {
       const existingKI = await db2.select({ id: kommuneIndikator.id, kilde: indikatorTemplate.kilde }).from(kommuneIndikator).innerJoin(indikatorTemplate, eq(kommuneIndikator.templateId, indikatorTemplate.id)).where(eq(kommuneIndikator.kommuneId, existing[0].id));
       const highlightKiIds2 = existingKI.filter((r) => r.kilde === "klimaregnskab" || r.kilde === "energidataservice").map((r) => r.id);
@@ -790,16 +791,16 @@ async function seedGroenkobing() {
         publicEnabled: true,
         publicStaleDays: 365,
         publicHighlights: highlightKiIds2
-      }).where(eq(kommune.kommunekode, "0999"));
+      }).where(eq(kommune.kommunekode, "0657"));
       console.log("Gr\xF8nk\xF8bing Kommune: konfiguration opdateret.");
       return;
     }
     console.log("Seeder Gr\xF8nk\xF8bing Kommune...");
     const [groenkobing] = await db2.insert(kommune).values({
-      kommunekode: "0999",
+      kommunekode: "0657",
       navn: "Gr\xF8nk\xF8bing",
-      befolkningstal: 51200,
-      arealKm2: 1085,
+      befolkningstal: 89e3,
+      arealKm2: 1329,
       klimakommitmentDato: "2021-06-01",
       klimakommitmentTekst: "Gr\xF8nk\xF8bing Kommune forpligter sig til at opn\xE5 70% CO\u2082e-reduktion inden 2030 og klimaneutralitet inden 2045 i overensstemmelse med Parisaftalens 1,5\xB0C-ambition.",
       primaryColor: "#1a5c38",
@@ -1379,7 +1380,7 @@ async function seedGroenkobing() {
         highlightKiIds.push(ki.id);
       }
     }
-    await db2.update(kommune).set({ publicHighlights: highlightKiIds }).where(eq(kommune.kommunekode, "0999"));
+    await db2.update(kommune).set({ publicHighlights: highlightKiIds }).where(eq(kommune.kommunekode, "0657"));
     console.log(
       `\u2713 Gr\xF8nk\xF8bing Kommune seeded: 5 indsatsomr\xE5der, 22 tiltag, 3 m\xE5l, 5 tovholdere, ${4 + templates.length} indikatorer`
     );

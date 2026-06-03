@@ -24,8 +24,12 @@ export async function seedGroenkobing() {
   const db = drizzle(client);
 
   try {
+    // Migrer gammel kommunekode 0999 → 0657 hvis den stadig sidder i DB
+    await db.update(kommune).set({ kommunekode: '0657', befolkningstal: 89000, arealKm2: 1329 })
+      .where(eq(kommune.kommunekode, '0999'));
+
     // Idempotency: spring over alt pånær konfigurations-felter der kan ændres
-    const existing = await db.select().from(kommune).where(eq(kommune.kommunekode, '0999')).limit(1);
+    const existing = await db.select().from(kommune).where(eq(kommune.kommunekode, '0657')).limit(1);
     if (existing.length > 0) {
       // Slå highlights op fra eksisterende kommune_indikator-rækker
       const existingKI = await db
@@ -43,7 +47,7 @@ export async function seedGroenkobing() {
         publicEnabled: true,
         publicStaleDays: 365,
         publicHighlights: highlightKiIds,
-      }).where(eq(kommune.kommunekode, '0999'));
+      }).where(eq(kommune.kommunekode, '0657'));
       console.log('Grønkøbing Kommune: konfiguration opdateret.');
       return;
     }
@@ -52,10 +56,10 @@ export async function seedGroenkobing() {
 
     // 1. Kommune
     const [groenkobing] = await db.insert(kommune).values({
-      kommunekode: '0999',
+      kommunekode: '0657',
       navn: 'Grønkøbing',
-      befolkningstal: 51200,
-      arealKm2: 1085,
+      befolkningstal: 89000,
+      arealKm2: 1329,
       klimakommitmentDato: '2021-06-01',
       klimakommitmentTekst:
         'Grønkøbing Kommune forpligter sig til at opnå 70% CO₂e-reduktion inden 2030 og klimaneutralitet inden 2045 i overensstemmelse med Parisaftalens 1,5°C-ambition.',
@@ -713,7 +717,7 @@ export async function seedGroenkobing() {
     }
 
     // Sæt highlights til de automatiske indikator-ID'er
-    await db.update(kommune).set({ publicHighlights: highlightKiIds }).where(eq(kommune.kommunekode, '0999'));
+    await db.update(kommune).set({ publicHighlights: highlightKiIds }).where(eq(kommune.kommunekode, '0657'));
 
     console.log(
       `✓ Grønkøbing Kommune seeded: 5 indsatsområder, 22 tiltag, 3 mål, 5 tovholdere, ${4 + templates.length} indikatorer`,
