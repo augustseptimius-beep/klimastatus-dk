@@ -27,11 +27,22 @@ export async function seedGroenkobing() {
     // Idempotency: spring over alt pånær konfigurations-felter der kan ændres
     const existing = await db.select().from(kommune).where(eq(kommune.kommunekode, '0999')).limit(1);
     if (existing.length > 0) {
-      // Opdatér konfigurations-felter der kan ændre sig uden at genseede alt
+      // Slå highlights op fra eksisterende kommune_indikator-rækker
+      const existingKI = await db
+        .select({ id: kommuneIndikator.id, kilde: indikatorTemplate.kilde })
+        .from(kommuneIndikator)
+        .innerJoin(indikatorTemplate, eq(kommuneIndikator.templateId, indikatorTemplate.id))
+        .where(eq(kommuneIndikator.kommuneId, existing[0].id));
+      const highlightKiIds = existingKI
+        .filter(r => r.kilde === 'klimaregnskab' || r.kilde === 'energidataservice')
+        .map(r => r.id);
+      // Opdatér alle redigerbare felter (navn, subdomain og konfiguration)
       await db.update(kommune).set({
+        navn: 'Grønkøbing',
+        subdomain: 'groenkobing',
         publicEnabled: true,
         publicStaleDays: 365,
-        publicHighlights: ['Lavbundsarealer udtaget fra omdrift (450 ha)', 'Solpark Nordmark under etablering (85 MW)', 'Alle kommunale oliefyr udfaset'],
+        publicHighlights: highlightKiIds,
       }).where(eq(kommune.kommunekode, '0999'));
       console.log('Grønkøbing Kommune: konfiguration opdateret.');
       return;
@@ -42,7 +53,7 @@ export async function seedGroenkobing() {
     // 1. Kommune
     const [groenkobing] = await db.insert(kommune).values({
       kommunekode: '0999',
-      navn: 'Grønkøbing Kommune',
+      navn: 'Grønkøbing',
       befolkningstal: 51200,
       arealKm2: 1085,
       klimakommitmentDato: '2021-06-01',
@@ -669,6 +680,7 @@ export async function seedGroenkobing() {
     // 8. Automatiske indikatorer via kommuneIndikator (linker til eksisterende templates)
     const templates = await db.select().from(indikatorTemplate).where(eq(indikatorTemplate.aktiv, true));
 
+    const highlightKiIds: string[] = [];
     for (const template of templates) {
       const [autoInd] = await db.insert(indikator).values({
         niveau: 'impact' as const,
@@ -687,13 +699,21 @@ export async function seedGroenkobing() {
         });
       }
 
-      await db.insert(kommuneIndikator).values({
+      const [ki] = await db.insert(kommuneIndikator).values({
         kommuneId: groenkobing.id,
         templateId: template.id,
         indikatorId: autoInd.id,
         aktiv: true,
-      }).onConflictDoNothing();
+      }).onConflictDoNothing().returning();
+
+      // Brug klimaregnskab og VE-kapacitet som highlights på det offentlige dashboard
+      if (ki && (template.kilde === 'klimaregnskab' || template.kilde === 'energidataservice')) {
+        highlightKiIds.push(ki.id);
+      }
     }
+
+    // Sæt highlights til de automatiske indikator-ID'er
+    await db.update(kommune).set({ publicHighlights: highlightKiIds }).where(eq(kommune.kommunekode, '0999'));
 
     console.log(
       `✓ Grønkøbing Kommune seeded: 5 indsatsområder, 22 tiltag, 3 mål, 5 tovholdere, ${4 + templates.length} indikatorer`,

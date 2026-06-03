@@ -782,10 +782,14 @@ async function seedGroenkobing() {
   try {
     const existing = await db2.select().from(kommune).where(eq(kommune.kommunekode, "0999")).limit(1);
     if (existing.length > 0) {
+      const existingKI = await db2.select({ id: kommuneIndikator.id, kilde: indikatorTemplate.kilde }).from(kommuneIndikator).innerJoin(indikatorTemplate, eq(kommuneIndikator.templateId, indikatorTemplate.id)).where(eq(kommuneIndikator.kommuneId, existing[0].id));
+      const highlightKiIds2 = existingKI.filter((r) => r.kilde === "klimaregnskab" || r.kilde === "energidataservice").map((r) => r.id);
       await db2.update(kommune).set({
+        navn: "Gr\xF8nk\xF8bing",
+        subdomain: "groenkobing",
         publicEnabled: true,
         publicStaleDays: 365,
-        publicHighlights: ["Lavbundsarealer udtaget fra omdrift (450 ha)", "Solpark Nordmark under etablering (85 MW)", "Alle kommunale oliefyr udfaset"]
+        publicHighlights: highlightKiIds2
       }).where(eq(kommune.kommunekode, "0999"));
       console.log("Gr\xF8nk\xF8bing Kommune: konfiguration opdateret.");
       return;
@@ -793,7 +797,7 @@ async function seedGroenkobing() {
     console.log("Seeder Gr\xF8nk\xF8bing Kommune...");
     const [groenkobing] = await db2.insert(kommune).values({
       kommunekode: "0999",
-      navn: "Gr\xF8nk\xF8bing Kommune",
+      navn: "Gr\xF8nk\xF8bing",
       befolkningstal: 51200,
       arealKm2: 1085,
       klimakommitmentDato: "2021-06-01",
@@ -1349,6 +1353,7 @@ async function seedGroenkobing() {
       await db2.insert(indikatorTiltag).values({ indikatorId: iLavbund.id, tiltagId: tiltagLavbund.id });
     }
     const templates = await db2.select().from(indikatorTemplate).where(eq(indikatorTemplate.aktiv, true));
+    const highlightKiIds = [];
     for (const template of templates) {
       const [autoInd] = await db2.insert(indikator).values({
         niveau: "impact",
@@ -1364,13 +1369,17 @@ async function seedGroenkobing() {
           indsatsOmraadeId: io1.id
         });
       }
-      await db2.insert(kommuneIndikator).values({
+      const [ki] = await db2.insert(kommuneIndikator).values({
         kommuneId: groenkobing.id,
         templateId: template.id,
         indikatorId: autoInd.id,
         aktiv: true
-      }).onConflictDoNothing();
+      }).onConflictDoNothing().returning();
+      if (ki && (template.kilde === "klimaregnskab" || template.kilde === "energidataservice")) {
+        highlightKiIds.push(ki.id);
+      }
     }
+    await db2.update(kommune).set({ publicHighlights: highlightKiIds }).where(eq(kommune.kommunekode, "0999"));
     console.log(
       `\u2713 Gr\xF8nk\xF8bing Kommune seeded: 5 indsatsomr\xE5der, 22 tiltag, 3 m\xE5l, 5 tovholdere, ${4 + templates.length} indikatorer`
     );
