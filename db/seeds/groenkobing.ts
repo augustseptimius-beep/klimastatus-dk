@@ -44,6 +44,7 @@ export async function seedGroenkobing() {
       await db.update(kommune).set({
         navn: 'Grønkøbing',
         subdomain: 'groenkobing',
+        klimakommitmentTekst: 'Grønkøbing Kommune forpligter sig til at opnå 70% CO₂e-reduktion inden 2030 og klimaneutralitet inden 2040 i overensstemmelse med Parisaftalens 1,5°C-ambition.',
         publicEnabled: true,
         publicStaleDays: 365,
         publicHighlights: highlightKiIds,
@@ -62,7 +63,7 @@ export async function seedGroenkobing() {
       arealKm2: 1329,
       klimakommitmentDato: '2021-06-01',
       klimakommitmentTekst:
-        'Grønkøbing Kommune forpligter sig til at opnå 70% CO₂e-reduktion inden 2030 og klimaneutralitet inden 2045 i overensstemmelse med Parisaftalens 1,5°C-ambition.',
+        'Grønkøbing Kommune forpligter sig til at opnå 70% CO₂e-reduktion inden 2030 og klimaneutralitet inden 2040 i overensstemmelse med Parisaftalens 1,5°C-ambition.',
       primaryColor: '#1a5c38',
       secondaryColor: '#e8f5e9',
       subdomain: 'groenkobing',

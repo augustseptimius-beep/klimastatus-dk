@@ -789,6 +789,7 @@ async function seedGroenkobing() {
       await db3.update(kommune).set({
         navn: "Gr\xF8nk\xF8bing",
         subdomain: "groenkobing",
+        klimakommitmentTekst: "Gr\xF8nk\xF8bing Kommune forpligter sig til at opn\xE5 70% CO\u2082e-reduktion inden 2030 og klimaneutralitet inden 2040 i overensstemmelse med Parisaftalens 1,5\xB0C-ambition.",
         publicEnabled: true,
         publicStaleDays: 365,
         publicHighlights: highlightKiIds2
@@ -803,7 +804,7 @@ async function seedGroenkobing() {
       befolkningstal: 89e3,
       arealKm2: 1329,
       klimakommitmentDato: "2021-06-01",
-      klimakommitmentTekst: "Gr\xF8nk\xF8bing Kommune forpligter sig til at opn\xE5 70% CO\u2082e-reduktion inden 2030 og klimaneutralitet inden 2045 i overensstemmelse med Parisaftalens 1,5\xB0C-ambition.",
+      klimakommitmentTekst: "Gr\xF8nk\xF8bing Kommune forpligter sig til at opn\xE5 70% CO\u2082e-reduktion inden 2030 og klimaneutralitet inden 2040 i overensstemmelse med Parisaftalens 1,5\xB0C-ambition.",
       primaryColor: "#1a5c38",
       secondaryColor: "#e8f5e9",
       subdomain: "groenkobing",
