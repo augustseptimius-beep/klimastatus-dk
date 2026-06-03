@@ -14,6 +14,7 @@ RUN npm run build
 # Kompilér seed til standalone JS så den kan køres i runner-stadiet uden tsx
 RUN node_modules/.bin/esbuild db/seed.ts \
   --bundle --platform=node --format=esm \
+  --alias:@=. \
   --external:@node-rs/argon2 --external:postgres --external:drizzle-orm --external:"drizzle-orm/*" \
   --outfile=scripts/seed-compiled.mjs
 

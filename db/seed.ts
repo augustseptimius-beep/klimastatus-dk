@@ -1,8 +1,12 @@
 import { hash } from '@node-rs/argon2';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { cctfKriterie, user } from './schema';
+import { eq, count } from 'drizzle-orm';
+import { cctfKriterie, user, indikatorMaaling, kommuneIndikator, kommune } from './schema';
 import { seedGroenkobing } from './seeds/groenkobing';
+import { handleFetchKlimaregnskabet } from '../lib/jobs/fetch-klimaregnskabet';
+import { handleFetchEnergidataservice } from '../lib/jobs/fetch-energidataservice';
+import { handleFetchDst } from '../lib/jobs/fetch-dst';
 
 const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client);
@@ -176,6 +180,25 @@ async function seed() {
 
   console.log('Seeding Grønkøbing Kommune...');
   await seedGroenkobing();
+
+  // Hent API-data hvis der endnu ingen målinger er for API-indikatorer.
+  // Kører kun ved første opstart (eller efter DB-reset) — idempotent.
+  const [groenkobing] = await db.select().from(kommune).where(eq(kommune.kommunekode, '0657')).limit(1);
+  if (groenkobing) {
+    const [{ value: apiMaalingCount }] = await db
+      .select({ value: count() })
+      .from(indikatorMaaling)
+      .innerJoin(kommuneIndikator, eq(indikatorMaaling.indikatorId, kommuneIndikator.indikatorId))
+      .where(eq(kommuneIndikator.kommuneId, groenkobing.id));
+
+    if (Number(apiMaalingCount) === 0) {
+      console.log('[seed] Ingen API-målinger endnu — henter data fra externe kilder...');
+      await handleFetchKlimaregnskabet({});
+      await handleFetchEnergidataservice({});
+      await handleFetchDst({});
+      console.log('[seed] API-datahentning færdig.');
+    }
+  }
 
   process.exit(0);
 }

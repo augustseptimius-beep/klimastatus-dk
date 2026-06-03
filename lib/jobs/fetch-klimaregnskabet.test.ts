@@ -12,9 +12,9 @@ const mockKI = {
 
 const mockApiResponse = {
   data: [
-    { year: 2023, sector: 'Samlet', value: 4.2, unit: 'ton CO2e/indb' },
-    { year: 2022, sector: 'Samlet', value: 4.5, unit: 'ton CO2e/indb' },
-    { year: 2023, sector: 'Energi', value: 1.2, unit: 'ton CO2e/indb' },
+    { year: 2023, sector: 'Samlet', value: 4.2, unit: 'Ton CO2e' },
+    { year: 2022, sector: 'Samlet', value: 4.5, unit: 'Ton CO2e' },
+    { year: 2023, sector: 'Energi', value: 1.2, unit: 'Ton CO2e' },
   ],
 };
 
@@ -68,8 +68,8 @@ describe('parseSamletCo2e', () => {
   it('takes max when multiple Samlet rows exist for same year', async () => {
     const { parseSamletCo2e } = await import('./fetch-klimaregnskabet');
     const data = [
-      { year: 2023, sector: 'Samlet', value: 3.0, unit: 'ton CO2e/indb' },
-      { year: 2023, sector: 'Samlet', value: 4.2, unit: 'ton CO2e/indb' },
+      { year: 2023, sector: 'Samlet', value: 3.0, unit: 'Ton CO2e' },
+      { year: 2023, sector: 'Samlet', value: 4.2, unit: 'Ton CO2e' },
     ];
     const result = parseSamletCo2e(data);
     expect(result[2023]).toBe(4.2);

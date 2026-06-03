@@ -55,7 +55,8 @@ async function fetchDstTable(
         code,
         values: [values],
       })),
-      { code: 'OMRÅDE', values: [kommunekode] },
+      // DST bruger kommunekoden uden ledende nul (f.eks. 657, ikke 0657)
+      { code: 'OMRÅDE', values: [String(Number(kommunekode))] },
     ],
   };
 

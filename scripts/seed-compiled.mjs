@@ -767,8 +767,9 @@ var init_schema = __esm({
 // db/seed.ts
 init_schema();
 import { hash as hash2 } from "@node-rs/argon2";
-import { drizzle as drizzle2 } from "drizzle-orm/postgres-js";
-import postgres2 from "postgres";
+import { drizzle as drizzle3 } from "drizzle-orm/postgres-js";
+import postgres3 from "postgres";
+import { eq as eq4, count } from "drizzle-orm";
 
 // db/seeds/groenkobing.ts
 init_schema();
@@ -777,15 +778,15 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { eq, and } from "drizzle-orm";
 async function seedGroenkobing() {
-  const client2 = postgres(process.env.DATABASE_URL);
-  const db2 = drizzle(client2);
+  const client3 = postgres(process.env.DATABASE_URL);
+  const db3 = drizzle(client3);
   try {
-    await db2.update(kommune).set({ kommunekode: "0657", befolkningstal: 89e3, arealKm2: 1329 }).where(eq(kommune.kommunekode, "0999"));
-    const existing = await db2.select().from(kommune).where(eq(kommune.kommunekode, "0657")).limit(1);
+    await db3.update(kommune).set({ kommunekode: "0657", befolkningstal: 89e3, arealKm2: 1329 }).where(eq(kommune.kommunekode, "0999"));
+    const existing = await db3.select().from(kommune).where(eq(kommune.kommunekode, "0657")).limit(1);
     if (existing.length > 0) {
-      const existingKI = await db2.select({ id: kommuneIndikator.id, kilde: indikatorTemplate.kilde }).from(kommuneIndikator).innerJoin(indikatorTemplate, eq(kommuneIndikator.templateId, indikatorTemplate.id)).where(eq(kommuneIndikator.kommuneId, existing[0].id));
+      const existingKI = await db3.select({ id: kommuneIndikator.id, kilde: indikatorTemplate.kilde }).from(kommuneIndikator).innerJoin(indikatorTemplate, eq(kommuneIndikator.templateId, indikatorTemplate.id)).where(eq(kommuneIndikator.kommuneId, existing[0].id));
       const highlightKiIds2 = existingKI.filter((r) => r.kilde === "klimaregnskab" || r.kilde === "energidataservice").map((r) => r.id);
-      await db2.update(kommune).set({
+      await db3.update(kommune).set({
         navn: "Gr\xF8nk\xF8bing",
         subdomain: "groenkobing",
         publicEnabled: true,
@@ -796,7 +797,7 @@ async function seedGroenkobing() {
       return;
     }
     console.log("Seeder Gr\xF8nk\xF8bing Kommune...");
-    const [groenkobing] = await db2.insert(kommune).values({
+    const [groenkobing] = await db3.insert(kommune).values({
       kommunekode: "0657",
       navn: "Gr\xF8nk\xF8bing",
       befolkningstal: 89e3,
@@ -811,14 +812,14 @@ async function seedGroenkobing() {
       publicHighlights: ["Lavbundsarealer udtaget fra omdrift (450 ha)", "Solpark Nordmark under etablering (85 MW)", "Alle kommunale oliefyr udfaset"]
     }).returning();
     const passwordHash = await hash(process.env.SEED_PASSWORD ?? "klimastatus2026!");
-    await db2.insert(user).values({
+    await db3.insert(user).values({
       kommuneId: groenkobing.id,
       email: "koordinator@groenkobing.dk",
       passwordHash,
       navn: "Maja Vestergaard",
       role: "koordinator"
     }).onConflictDoNothing();
-    const [io1, io2, io3, io4, io5] = await db2.insert(indsatsOmraade).values([
+    const [io1, io2, io3, io4, io5] = await db3.insert(indsatsOmraade).values([
       {
         kommuneId: groenkobing.id,
         navn: "Vedvarende energi og udfasning af fossiler",
@@ -865,7 +866,7 @@ async function seedGroenkobing() {
         aktiv: true
       }
     ]).returning();
-    const insertedTiltag = await db2.insert(tiltag).values([
+    const insertedTiltag = await db3.insert(tiltag).values([
       // --- Indsats 1: Vedvarende energi (5 tiltag) ---
       {
         kommuneId: groenkobing.id,
@@ -1210,7 +1211,7 @@ async function seedGroenkobing() {
         retfaerdigFordelingRelevant: false
       }
     ]).returning();
-    await db2.insert(maal).values([
+    await db3.insert(maal).values([
       {
         indsatsOmraadeId: io1.id,
         type: "smart",
@@ -1243,7 +1244,7 @@ async function seedGroenkobing() {
         kategori: "co_benefits"
       }
     ]);
-    const [th1, th2, th3, th4, th5] = await db2.insert(tovholder).values([
+    const [th1, th2, th3, th4, th5] = await db3.insert(tovholder).values([
       {
         kommuneId: groenkobing.id,
         navn: "S\xF8ren Kjeldgaard",
@@ -1287,8 +1288,8 @@ async function seedGroenkobing() {
       ...insertedTiltag.filter((t) => t.indsatsOmraadeId === io4.id).map((t) => ({ tovholderId: th4.id, tiltagId: t.id })),
       ...insertedTiltag.filter((t) => t.indsatsOmraadeId === io5.id).map((t) => ({ tovholderId: th5.id, tiltagId: t.id }))
     ];
-    await db2.insert(tovholderTiltag).values(tovholderLinks);
-    const [iCoFjernvarme, iElbiler, iLavbund, iHaendelser] = await db2.insert(indikator).values([
+    await db3.insert(tovholderTiltag).values(tovholderLinks);
+    const [iCoFjernvarme, iElbiler, iLavbund, iHaendelser] = await db3.insert(indikator).values([
       {
         niveau: "outcome",
         beskrivelse: "Andel af boliger tilsluttet fjernvarme",
@@ -1314,7 +1315,7 @@ async function seedGroenkobing() {
         datakildeType: "manual"
       }
     ]).returning();
-    const cyklusRows = await db2.insert(monitoreringscyklus).values(
+    const cyklusRows = await db3.insert(monitoreringscyklus).values(
       [2021, 2022, 2023, 2024].map((aar) => ({
         kommuneId: groenkobing.id,
         aar,
@@ -1323,11 +1324,11 @@ async function seedGroenkobing() {
         status: "rapporteret"
       }))
     ).onConflictDoNothing().returning();
-    const alleCyklusser = cyklusRows.length < 4 ? await db2.select().from(monitoreringscyklus).where(
+    const alleCyklusser = cyklusRows.length < 4 ? await db3.select().from(monitoreringscyklus).where(
       and(eq(monitoreringscyklus.kommuneId, groenkobing.id), eq(monitoreringscyklus.type, "aarlig"))
     ) : cyklusRows;
     const cyklusByAar = Object.fromEntries(alleCyklusser.map((c) => [c.aar, c.id]));
-    await db2.insert(indikatorMaaling).values([
+    await db3.insert(indikatorMaaling).values([
       { indikatorId: iCoFjernvarme.id, monitoreringscyklusId: cyklusByAar[2021], aar: 2021, vaerdi: 58, kilde: "Gr\xF8nk\xF8bing Energi A/S \xE5rsrapport" },
       { indikatorId: iCoFjernvarme.id, monitoreringscyklusId: cyklusByAar[2022], aar: 2022, vaerdi: 61, kilde: "Gr\xF8nk\xF8bing Energi A/S \xE5rsrapport" },
       { indikatorId: iCoFjernvarme.id, monitoreringscyklusId: cyklusByAar[2023], aar: 2023, vaerdi: 64, kilde: "Gr\xF8nk\xF8bing Energi A/S \xE5rsrapport" },
@@ -1343,7 +1344,7 @@ async function seedGroenkobing() {
       { indikatorId: iHaendelser.id, monitoreringscyklusId: cyklusByAar[2023], aar: 2023, vaerdi: 7, kilde: "Beredskabsrapport" },
       { indikatorId: iHaendelser.id, monitoreringscyklusId: cyklusByAar[2024], aar: 2024, vaerdi: 4, kilde: "Beredskabsrapport" }
     ]).onConflictDoNothing();
-    await db2.insert(indikatorIndsatsOmraade).values([
+    await db3.insert(indikatorIndsatsOmraade).values([
       { indikatorId: iCoFjernvarme.id, indsatsOmraadeId: io1.id },
       { indikatorId: iElbiler.id, indsatsOmraadeId: io2.id },
       { indikatorId: iLavbund.id, indsatsOmraadeId: io3.id },
@@ -1351,12 +1352,12 @@ async function seedGroenkobing() {
     ]);
     const tiltagLavbund = insertedTiltag.find((t) => t.titel.includes("Udtagning af lavbundsarealer"));
     if (tiltagLavbund) {
-      await db2.insert(indikatorTiltag).values({ indikatorId: iLavbund.id, tiltagId: tiltagLavbund.id });
+      await db3.insert(indikatorTiltag).values({ indikatorId: iLavbund.id, tiltagId: tiltagLavbund.id });
     }
-    const templates = await db2.select().from(indikatorTemplate).where(eq(indikatorTemplate.aktiv, true));
+    const templates = await db3.select().from(indikatorTemplate).where(eq(indikatorTemplate.aktiv, true));
     const highlightKiIds = [];
     for (const template of templates) {
-      const [autoInd] = await db2.insert(indikator).values({
+      const [autoInd] = await db3.insert(indikator).values({
         niveau: "impact",
         beskrivelse: template.titel,
         enhed: template.enhed,
@@ -1365,12 +1366,12 @@ async function seedGroenkobing() {
         apiQuery: template.apiQuery
       }).returning();
       if (template.kilde === "klimaregnskab" || template.kilde === "energidataservice") {
-        await db2.insert(indikatorIndsatsOmraade).values({
+        await db3.insert(indikatorIndsatsOmraade).values({
           indikatorId: autoInd.id,
           indsatsOmraadeId: io1.id
         });
       }
-      const [ki] = await db2.insert(kommuneIndikator).values({
+      const [ki] = await db3.insert(kommuneIndikator).values({
         kommuneId: groenkobing.id,
         templateId: template.id,
         indikatorId: autoInd.id,
@@ -1380,18 +1381,367 @@ async function seedGroenkobing() {
         highlightKiIds.push(ki.id);
       }
     }
-    await db2.update(kommune).set({ publicHighlights: highlightKiIds }).where(eq(kommune.kommunekode, "0657"));
+    await db3.update(kommune).set({ publicHighlights: highlightKiIds }).where(eq(kommune.kommunekode, "0657"));
     console.log(
       `\u2713 Gr\xF8nk\xF8bing Kommune seeded: 5 indsatsomr\xE5der, 22 tiltag, 3 m\xE5l, 5 tovholdere, ${4 + templates.length} indikatorer`
     );
   } finally {
-    await client2.end();
+    await client3.end();
+  }
+}
+
+// db/index.ts
+init_schema();
+import { drizzle as drizzle2 } from "drizzle-orm/postgres-js";
+import postgres2 from "postgres";
+var connectionString = process.env.DATABASE_URL;
+var client = postgres2(connectionString);
+var db = drizzle2(client, { schema: schema_exports });
+
+// lib/jobs/fetch-klimaregnskabet.ts
+init_schema();
+
+// db/queries/kommune-indikator.ts
+init_schema();
+import { eq as eq2, and as and2 } from "drizzle-orm";
+async function getActiveKommuneIndikatorer(kilde) {
+  return db.select({
+    id: kommuneIndikator.id,
+    kommuneId: kommuneIndikator.kommuneId,
+    indikatorId: kommuneIndikator.indikatorId,
+    templateId: kommuneIndikator.templateId,
+    sidstHentet: kommuneIndikator.sidstHentet,
+    template: {
+      kilde: indikatorTemplate.kilde,
+      apiQuery: indikatorTemplate.apiQuery
+    },
+    kommune: {
+      kommunekode: kommune.kommunekode
+    }
+  }).from(kommuneIndikator).innerJoin(indikatorTemplate, eq2(kommuneIndikator.templateId, indikatorTemplate.id)).innerJoin(kommune, eq2(kommuneIndikator.kommuneId, kommune.id)).where(and2(eq2(kommuneIndikator.aktiv, true), eq2(indikatorTemplate.kilde, kilde)));
+}
+async function updateSidstHentet(id, tidspunkt) {
+  await db.update(kommuneIndikator).set({ sidstHentet: tidspunkt, sidsteFejl: null, sidsteFejlBesked: null }).where(eq2(kommuneIndikator.id, id));
+}
+async function updateSidsteFejl(id, besked) {
+  await db.update(kommuneIndikator).set({ sidsteFejl: /* @__PURE__ */ new Date(), sidsteFejlBesked: besked }).where(eq2(kommuneIndikator.id, id));
+}
+
+// db/queries/monitorering.ts
+init_schema();
+import { and as and3, eq as eq3 } from "drizzle-orm";
+async function ensureAarligCyklus(kommuneId, aar) {
+  const eksisterende = await db.query.monitoreringscyklus.findFirst({
+    where: and3(
+      eq3(monitoreringscyklus.kommuneId, kommuneId),
+      eq3(monitoreringscyklus.type, "aarlig"),
+      eq3(monitoreringscyklus.aar, aar)
+    )
+  });
+  if (eksisterende) return eksisterende;
+  const [oprettet] = await db.insert(monitoreringscyklus).values({
+    kommuneId,
+    aar,
+    type: "aarlig",
+    navn: `\xC5rsstatus ${aar}`,
+    status: "aaben"
+  }).onConflictDoNothing().returning();
+  if (oprettet) return oprettet;
+  const efterKonflikt = await db.query.monitoreringscyklus.findFirst({
+    where: and3(
+      eq3(monitoreringscyklus.kommuneId, kommuneId),
+      eq3(monitoreringscyklus.type, "aarlig"),
+      eq3(monitoreringscyklus.aar, aar)
+    )
+  });
+  if (!efterKonflikt) throw new Error(`Kunne ikke oprette eller finde \xE5rlig cyklus for kommune ${kommuneId}, \xE5r ${aar}`);
+  return efterKonflikt;
+}
+
+// lib/jobs/fetch-utils.ts
+async function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+async function withRetry(fn, retries = 3, delayMs = 1e3) {
+  let lastError;
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err;
+      if (attempt < retries - 1) {
+        await sleep(delayMs * Math.pow(2, attempt));
+      }
+    }
+  }
+  throw lastError;
+}
+
+// lib/jobs/fetch-klimaregnskabet.ts
+var API_URL = "https://klimaregnskabet.dk/api/municipality-data";
+var RATE_LIMIT_MS = 200;
+function parseSamletCo2e(data) {
+  const byYear = {};
+  for (const row of data) {
+    if (row.sector === "Samlet" && row.unit === "Ton CO2e") {
+      byYear[row.year] = Math.max(byYear[row.year] ?? 0, row.value);
+    }
+  }
+  return byYear;
+}
+async function fetchKlimaregnskabetForKommune(kommunekode, year) {
+  const url = `${API_URL}?municipality=${Number(kommunekode)}&year=${year}&type=N\xF8gletal`;
+  const res = await withRetry(
+    () => fetch(url, {
+      headers: { "x-api-key": process.env.KLIMAREGNSKABET_API_KEY }
+    }).then(async (r) => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r;
+    })
+  );
+  const json = await res.json();
+  return (json.data ?? []).map((r) => ({
+    year,
+    sector: r["sektor"],
+    value: r["v\xE6rdi"] ?? 0,
+    unit: r["enhed"] ?? ""
+  }));
+}
+async function processKommuneIndikator(ki, fromYear) {
+  const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
+  const isFirstFetch = !ki.sidstHentet;
+  const startYear = fromYear ?? (isFirstFetch ? currentYear - 4 : currentYear - 1);
+  const years = [];
+  for (let y = startYear; y <= currentYear - 1; y++) years.push(y);
+  const allRecords = [];
+  for (const year of years) {
+    const records = await fetchKlimaregnskabetForKommune(ki.kommune.kommunekode, year);
+    allRecords.push(...records);
+    await sleep(RATE_LIMIT_MS);
+  }
+  const co2eByYear = parseSamletCo2e(allRecords);
+  for (const [yearStr, vaerdi] of Object.entries(co2eByYear)) {
+    const aar = Number(yearStr);
+    const cyklus = await ensureAarligCyklus(ki.kommuneId, aar);
+    await db.insert(indikatorMaaling).values({
+      indikatorId: ki.indikatorId,
+      monitoreringscyklusId: cyklus.id,
+      aar,
+      vaerdi,
+      kilde: "klimaregnskab",
+      autoHentet: true
+    }).onConflictDoUpdate({
+      target: [indikatorMaaling.indikatorId, indikatorMaaling.monitoreringscyklusId],
+      set: { vaerdi, kilde: "klimaregnskab" }
+    });
+  }
+  const sectorByYear = {};
+  for (const row of allRecords) {
+    if (!sectorByYear[row.year]) sectorByYear[row.year] = [];
+    sectorByYear[row.year].push(row);
+  }
+  for (const [yearStr, rows] of Object.entries(sectorByYear)) {
+    const aar = Number(yearStr);
+    for (const row of rows) {
+      await db.insert(drivhusgasregnskabPost).values({
+        kommuneId: ki.kommuneId,
+        aar,
+        gpcSektor: row.sector,
+        udledningTonCo2e: row.value,
+        datakilde: "klimaregnskab",
+        gpcKompatibel: true
+      }).onConflictDoNothing();
+    }
+  }
+  await updateSidstHentet(ki.id, /* @__PURE__ */ new Date());
+}
+async function handleFetchKlimaregnskabet(options) {
+  let targets;
+  if (options?.kommuneIndikatorId) {
+    const all = await getActiveKommuneIndikatorer("klimaregnskab");
+    targets = all.filter((k) => k.id === options.kommuneIndikatorId);
+    if (targets.length === 0) {
+      console.error(`[fetch-klimaregnskabet] kommuneIndikator not active: ${options.kommuneIndikatorId}`);
+      return;
+    }
+  } else {
+    targets = await getActiveKommuneIndikatorer("klimaregnskab");
+  }
+  for (const ki of targets) {
+    try {
+      await processKommuneIndikator(ki, options?.fromYear);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[fetch-klimaregnskabet] Error for ${ki.kommune.kommunekode}: ${msg}`);
+      await updateSidsteFejl(ki.id, msg);
+    }
+    if (targets.length > 1) await sleep(RATE_LIMIT_MS);
+  }
+}
+
+// lib/jobs/fetch-energidataservice.ts
+init_schema();
+var API_URL2 = "https://api.energidataservice.dk/dataset/CapacityPerMunicipality?limit=0&sort=Month%20desc";
+function getLatestByMunicipality(records) {
+  const latest = {};
+  for (const row of records) {
+    const existing = latest[row.MunicipalityNo];
+    if (!existing || row.Month > existing.Month) {
+      latest[row.MunicipalityNo] = row;
+    }
+  }
+  return latest;
+}
+async function handleFetchEnergidataservice(options) {
+  const targets = await getActiveKommuneIndikatorer("energidataservice");
+  if (targets.length === 0) return;
+  const filtered = options?.kommuneIndikatorId ? targets.filter((ki) => ki.id === options.kommuneIndikatorId) : targets;
+  if (filtered.length === 0) return;
+  let records;
+  try {
+    const res = await withRetry(
+      () => fetch(API_URL2).then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r;
+      })
+    );
+    const json = await res.json();
+    records = json.records ?? [];
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[fetch-energidataservice] Failed to fetch: ${msg}`);
+    for (const ki of filtered) await updateSidsteFejl(ki.id, msg);
+    return;
+  }
+  const latestByMunicipalityNo = getLatestByMunicipality(records);
+  for (const ki of filtered) {
+    const kommunekode = Number(ki.kommune.kommunekode);
+    const latest = latestByMunicipalityNo[kommunekode];
+    if (!latest) {
+      console.warn(`[fetch-energidataservice] No data for kommunekode ${kommunekode}`);
+      continue;
+    }
+    const aar = Number(latest.Month.slice(0, 4));
+    const totalMW = latest.OnshoreWindMW + latest.SolarPowerMW;
+    try {
+      const cyklus = await ensureAarligCyklus(ki.kommuneId, aar);
+      await db.insert(indikatorMaaling).values({
+        indikatorId: ki.indikatorId,
+        monitoreringscyklusId: cyklus.id,
+        aar,
+        vaerdi: totalMW,
+        kilde: "energidataservice",
+        autoHentet: true
+      }).onConflictDoUpdate({
+        target: [indikatorMaaling.indikatorId, indikatorMaaling.monitoreringscyklusId],
+        set: { vaerdi: totalMW, kilde: "energidataservice" }
+      });
+      await updateSidstHentet(ki.id, /* @__PURE__ */ new Date());
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[fetch-energidataservice] Error for ${kommunekode}: ${msg}`);
+      await updateSidsteFejl(ki.id, msg);
+    }
+  }
+}
+
+// lib/jobs/fetch-dst.ts
+init_schema();
+var DST_API_URL = "https://api.statbank.dk/v1/data";
+var RATE_LIMIT_MS2 = 600;
+var MISSING_CODES = /* @__PURE__ */ new Set(["", "..", "-", "x"]);
+function parseDstCsv(csv, felt) {
+  const lines = csv.split(/\r?\n/).filter(Boolean);
+  if (lines.length < 2) return {};
+  const headers = lines[0].split(";").map((h) => h.trim().replace(/"/g, ""));
+  const feltIdx = headers.indexOf(felt);
+  const tidIdx = headers.indexOf("TID");
+  if (feltIdx === -1 || tidIdx === -1) return {};
+  const result = {};
+  for (const line of lines.slice(1)) {
+    const cols = line.split(";").map((c) => c.trim().replace(/"/g, ""));
+    const tidRaw = cols[tidIdx];
+    const vaerdiRaw = cols[feltIdx];
+    const aar = Number(tidRaw?.slice(0, 4));
+    if (!aar) continue;
+    if (MISSING_CODES.has(vaerdiRaw)) {
+      result[aar] = null;
+    } else {
+      result[aar] = Number(vaerdiRaw.replace(",", "."));
+    }
+  }
+  return result;
+}
+async function fetchDstTable(kommunekode, query) {
+  const payload = {
+    table: query.tabel,
+    format: "CSV",
+    variables: [
+      ...Object.entries(query.variabler).map(([code, values]) => ({
+        code,
+        values: [values]
+      })),
+      // DST bruger kommunekoden uden ledende nul (f.eks. 657, ikke 0657)
+      { code: "OMR\xC5DE", values: [String(Number(kommunekode))] }
+    ]
+  };
+  const res = await withRetry(
+    () => fetch(DST_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).then((r) => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r;
+    })
+  );
+  return res.text();
+}
+async function handleFetchDst(options) {
+  const all = await getActiveKommuneIndikatorer("dst");
+  const targets = options?.kommuneIndikatorId ? all.filter((ki) => ki.id === options.kommuneIndikatorId) : all;
+  if (targets.length === 0) return;
+  for (const ki of targets) {
+    let query;
+    try {
+      query = JSON.parse(ki.template.apiQuery);
+    } catch {
+      console.error(`[fetch-dst] Invalid apiQuery for ${ki.id}`);
+      await updateSidsteFejl(ki.id, "Invalid apiQuery JSON");
+      continue;
+    }
+    try {
+      const csv = await fetchDstTable(ki.kommune.kommunekode, query);
+      const byYear = parseDstCsv(csv, query.felt);
+      for (const [yearStr, vaerdi] of Object.entries(byYear)) {
+        if (vaerdi === null) continue;
+        const aar = Number(yearStr);
+        const cyklus = await ensureAarligCyklus(ki.kommuneId, aar);
+        await db.insert(indikatorMaaling).values({
+          indikatorId: ki.indikatorId,
+          monitoreringscyklusId: cyklus.id,
+          aar,
+          vaerdi,
+          kilde: "dst",
+          autoHentet: true
+        }).onConflictDoUpdate({
+          target: [indikatorMaaling.indikatorId, indikatorMaaling.monitoreringscyklusId],
+          set: { vaerdi, kilde: "dst" }
+        });
+      }
+      await updateSidstHentet(ki.id, /* @__PURE__ */ new Date());
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[fetch-dst] Error for ${ki.kommune.kommunekode}: ${msg}`);
+      await updateSidsteFejl(ki.id, msg);
+    }
+    if (targets.length > 1) await sleep(RATE_LIMIT_MS2);
   }
 }
 
 // db/seed.ts
-var client = postgres2(process.env.DATABASE_URL);
-var db = drizzle2(client);
+var client2 = postgres3(process.env.DATABASE_URL);
+var db2 = drizzle3(client2);
 var CCTF_V25_CRITERIA = [
   {
     version: "2.5",
@@ -1508,12 +1858,12 @@ var CCTF_V25_CRITERIA = [
 ];
 async function seed() {
   console.log("Seeding CCTF v2.5 criteria...");
-  await db.insert(cctfKriterie).values(CCTF_V25_CRITERIA).onConflictDoNothing();
+  await db2.insert(cctfKriterie).values(CCTF_V25_CRITERIA).onConflictDoNothing();
   console.log(`Seeded ${CCTF_V25_CRITERIA.length} criteria.`);
   console.log("Seeding admin user...");
   const adminPassword = process.env.ADMIN_PASSWORD ?? "admin123!";
   const passwordHash = await hash2(adminPassword);
-  await db.insert(user).values({
+  await db2.insert(user).values({
     email: "augustseptimius@gmail.com",
     passwordHash,
     navn: "August Septimius",
@@ -1522,7 +1872,7 @@ async function seed() {
   console.log("Admin user seeded (email: augustseptimius@gmail.com).");
   console.log("Seeding indicator templates...");
   const { indikatorTemplate: indikatorTemplate2 } = await Promise.resolve().then(() => (init_schema(), schema_exports));
-  await db.insert(indikatorTemplate2).values([
+  await db2.insert(indikatorTemplate2).values([
     {
       titel: "Samlet CO\u2082e pr. capita",
       kilde: "klimaregnskab",
@@ -1554,6 +1904,17 @@ async function seed() {
   console.log("Seeded 3 indicator templates.");
   console.log("Seeding Gr\xF8nk\xF8bing Kommune...");
   await seedGroenkobing();
+  const [groenkobing] = await db2.select().from(kommune).where(eq4(kommune.kommunekode, "0657")).limit(1);
+  if (groenkobing) {
+    const [{ value: apiMaalingCount }] = await db2.select({ value: count() }).from(indikatorMaaling).innerJoin(kommuneIndikator, eq4(indikatorMaaling.indikatorId, kommuneIndikator.indikatorId)).where(eq4(kommuneIndikator.kommuneId, groenkobing.id));
+    if (Number(apiMaalingCount) === 0) {
+      console.log("[seed] Ingen API-m\xE5linger endnu \u2014 henter data fra externe kilder...");
+      await handleFetchKlimaregnskabet({});
+      await handleFetchEnergidataservice({});
+      await handleFetchDst({});
+      console.log("[seed] API-datahentning f\xE6rdig.");
+    }
+  }
   process.exit(0);
 }
 seed().catch((err) => {

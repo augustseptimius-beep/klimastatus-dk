@@ -22,7 +22,7 @@ type KlimaregnskabRecord = {
 export function parseSamletCo2e(data: KlimaregnskabRecord[]): Record<number, number> {
   const byYear: Record<number, number> = {};
   for (const row of data) {
-    if (row.sector === 'Samlet') {
+    if (row.sector === 'Samlet' && row.unit === 'Ton CO2e') {
       byYear[row.year] = Math.max(byYear[row.year] ?? 0, row.value);
     }
   }
@@ -33,7 +33,8 @@ async function fetchKlimaregnskabetForKommune(
   kommunekode: string,
   year: number,
 ): Promise<KlimaregnskabRecord[]> {
-  const url = `${API_URL}?municipality=${kommunekode}&year=${year}&type=Nøgletal`;
+  // Klimaregnskabet.dk forventer koden uden ledende nul (f.eks. 657, ikke 0657)
+  const url = `${API_URL}?municipality=${Number(kommunekode)}&year=${year}&type=Nøgletal`;
   const res = await withRetry(() =>
     fetch(url, {
       headers: { 'x-api-key': process.env.KLIMAREGNSKABET_API_KEY! },
@@ -43,7 +44,13 @@ async function fetchKlimaregnskabetForKommune(
     }),
   );
   const json = await res.json();
-  return json.data ?? [];
+  // API returnerer danske feltnavne — map til KlimaregnskabRecord-strukturen
+  return (json.data ?? []).map((r: Record<string, unknown>) => ({
+    year,
+    sector: r['sektor'] as string,
+    value: (r['værdi'] as number) ?? 0,
+    unit: (r['enhed'] as string) ?? '',
+  }));
 }
 
 async function processKommuneIndikator(ki: ActiveKommuneIndikator, fromYear?: number) {
