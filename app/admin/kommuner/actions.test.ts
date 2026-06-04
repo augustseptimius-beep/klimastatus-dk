@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 
+vi.mock('server-only', () => ({}));
 vi.mock('@/db/queries', () => ({
   createKommune: vi.fn(),
 }));

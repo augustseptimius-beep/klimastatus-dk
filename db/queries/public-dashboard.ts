@@ -111,7 +111,7 @@ export async function getPublicHighlights(
         label: row.visningsnavn ?? row.titel,
         enhed: row.enhed,
         senesteAar: latest?.aar ?? null,
-        senesteVaerdi: latest?.vaerdi ?? null,
+        senesteVaerdi: latest?.vaerdi != null && Number.isFinite(latest.vaerdi) ? latest.vaerdi : null,
       };
     }),
   );

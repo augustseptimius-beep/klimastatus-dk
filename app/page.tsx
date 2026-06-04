@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Home() {
   return (
     <>
@@ -380,7 +382,7 @@ export default function Home() {
               <a href="#hvem">Hvem står bag</a>
             </nav>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <a className="btn ghost" href="/login">Log ind</a>
+              <Link className="btn ghost" href="/login">Log ind</Link>
               <a className="btn primary" href="#demo">Book demo</a>
             </div>
           </div>
