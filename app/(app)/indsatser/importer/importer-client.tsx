@@ -2,7 +2,7 @@
 
 import { useState, useRef, useTransition } from 'react';
 import Link from 'next/link';
-import { bulkImportAction } from './actions';
+import { bulkImportAction } from '@/app/(app)/k/[kommune]/indsatser/importer/actions';
 
 type Handling = {
   titel: string;
@@ -33,7 +33,7 @@ const STATUS_LABEL: Record<string, string> = {
   planned: 'Planlagt', in_progress: 'Igangværende', completed: 'Gennemført', discontinued: 'Udgået',
 };
 
-export function ImporterClient() {
+export function ImporterClient({ slug }: { slug: string }) {
   const [step, setStep] = useState<Step>('upload');
   const [errorMsg, setErrorMsg] = useState('');
   const [indsatser, setIndsatser] = useState<Indsats[]>([]);
@@ -116,7 +116,7 @@ export function ImporterClient() {
         })),
       }));
     setStep('importing');
-    startTransition(() => { bulkImportAction(payload); });
+    startTransition(() => { bulkImportAction(slug, payload); });
   }
 
   const totalHandlinger = indsatser.filter((io) => io.inkluder).reduce((n, io) => n + io.handlinger.filter((h) => h.inkluder).length, 0);
