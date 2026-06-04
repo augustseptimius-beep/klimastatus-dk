@@ -3,22 +3,29 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/app/actions/auth';
 
-const mainNav = [
-  { href: '/dashboard',   label: 'Dashboard' },
-  { href: '/indsatser',   label: 'Indsatsområder' },
-  { href: '/tiltag',      label: 'Handlingsoverblik' },
-  { href: '/tovholdere',  label: 'Tovholdere' },
-  { href: '/data',        label: 'Datastyring' },
-  { href: '/laering',     label: 'Læring' },
-];
+type Props = {
+  slug: string;
+  kommuneNavn: string;
+  isAdmin: boolean;
+};
 
-const secondaryNav = [
-  { href: '/selvevaluering', label: 'Selvevaluering' },
-  { href: '/indstillinger',  label: 'Indstillinger' },
-];
-
-export function AppSidebar({ kommuneNavn }: { kommuneNavn: string }) {
+export function AppSidebar({ slug, kommuneNavn, isAdmin }: Props) {
   const pathname = usePathname();
+  const base = `/k/${slug}`;
+
+  const mainNav = [
+    { href: `${base}/dashboard`,   label: 'Dashboard' },
+    { href: `${base}/indsatser`,   label: 'Indsatsområder' },
+    { href: `${base}/tiltag`,      label: 'Handlingsoverblik' },
+    { href: `${base}/tovholdere`,  label: 'Tovholdere' },
+    { href: `${base}/data`,        label: 'Datastyring' },
+    { href: `${base}/laering`,     label: 'Læring' },
+  ];
+
+  const secondaryNav = [
+    { href: `${base}/selvevaluering`, label: 'Selvevaluering' },
+    { href: `${base}/indstillinger`,  label: 'Indstillinger' },
+  ];
 
   return (
     <aside className="ks-sidebar">
@@ -41,11 +48,16 @@ export function AppSidebar({ kommuneNavn }: { kommuneNavn: string }) {
           <Link
             key={href}
             href={href}
-            className={`ks-nav-item${pathname === href ? ' active' : ''}`}
+            className={`ks-nav-item${pathname === href || pathname.startsWith(href + '/') ? ' active' : ''}`}
           >
             {label}
           </Link>
         ))}
+        {isAdmin && (
+          <Link href="/admin/kommuner" className="ks-nav-item" style={{ color: 'var(--ink-400, #9A9A8E)', fontSize: 13 }}>
+            ← Alle kommuner
+          </Link>
+        )}
         <form action={logout}>
           <button
             type="submit"
