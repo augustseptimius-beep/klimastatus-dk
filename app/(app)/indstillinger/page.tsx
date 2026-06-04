@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { verifySession } from '@/lib/dal';
 import { getKommuneById } from '@/db/queries';
 import { getAktiveKommuneIndikatorer } from '@/db/queries/public-dashboard';
@@ -59,12 +60,12 @@ export default async function IndstillingerPage() {
       <div className="mt-4 rounded-xl border border-gray-200 bg-white p-6">
         <h2 className="mb-1 text-base font-semibold text-gray-900">Dashboard-opbygning</h2>
         <p className="mb-4 text-sm text-gray-500">Vælg og arrangér widgets på den offentlige side.</p>
-        <a
+        <Link
           href="/indstillinger/dashboard"
           className="inline-block rounded bg-green-700 px-4 py-2 text-sm font-semibold text-white"
         >
           Åbn dashboard-opbygning →
-        </a>
+        </Link>
       </div>
     </div>
   );
