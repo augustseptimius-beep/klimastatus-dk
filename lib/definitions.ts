@@ -1,6 +1,7 @@
 export type SessionPayload = {
   userId: string;
   kommuneId: string | null;
+  kommuneSlug: string | null;
   role: 'admin' | 'koordinator';
   navn: string;
   expiresAt: Date;
