@@ -2,6 +2,7 @@ import { hash } from '@node-rs/argon2';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { eq, and } from 'drizzle-orm';
+import { standardSkabelon } from '../../lib/widgets/standard-skabelon';
 import {
   kommune,
   user,
@@ -48,6 +49,9 @@ export async function seedGroenkobing() {
         publicEnabled: true,
         publicStaleDays: 365,
         publicHighlights: highlightKiIds,
+        publicWidgets: standardSkabelon().map((w) =>
+          w.type === 'noegletal' ? { ...w, config: { indikatorer: highlightKiIds } } : w,
+        ),
       }).where(eq(kommune.kommunekode, '0657'));
       console.log('Grønkøbing Kommune: konfiguration opdateret.');
       return;
@@ -70,6 +74,7 @@ export async function seedGroenkobing() {
       publicEnabled: true,
       publicStaleDays: 365,
       publicHighlights: ['Lavbundsarealer udtaget fra omdrift (450 ha)', 'Solpark Nordmark under etablering (85 MW)', 'Alle kommunale oliefyr udfaset'],
+      publicWidgets: standardSkabelon(),
     }).returning();
 
     // 2. Koordinator-bruger
@@ -524,12 +529,12 @@ export async function seedGroenkobing() {
         type: 'smart' as const,
         tidsramme: 'short' as const,
         maalAar: 2030,
-        maalVaerdi: 154800,
+        maalVaerdi: 225000,
         enhed: 'ton CO₂e/år',
-        baselineVaerdi: 516000,
+        baselineVaerdi: 750000,
         baselineAar: 2018,
         beskrivelse:
-          '70% reduktion af kommunens samlede CO₂e-udledning ift. 2018-niveau inden 2030 (fra 516.000 til 154.800 ton CO₂e/år). Baseret på Herning-profil skaleret til 51.200 indb.',
+          '70% reduktion af kommunens samlede CO₂e-udledning ift. 2018-niveau inden 2030 (fra 750.000 til 225.000 ton CO₂e/år).',
         kategori: 'reduction' as const,
       },
       {

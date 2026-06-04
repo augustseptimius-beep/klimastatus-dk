@@ -145,7 +145,7 @@ var init_enums = __esm({
 });
 
 // db/schema/kommune.ts
-import { pgTable, uuid, text, integer, real, date, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, integer, real, date, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
 var kommune;
 var init_kommune = __esm({
   "db/schema/kommune.ts"() {
@@ -167,6 +167,7 @@ var init_kommune = __esm({
       publicEnabled: boolean("public_enabled").notNull().default(false),
       publicStaleDays: integer("public_stale_days"),
       publicHighlights: text("public_highlights").array(),
+      publicWidgets: jsonb("public_widgets"),
       createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
       updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull()
     });
@@ -248,7 +249,7 @@ var init_klimaplan = __esm({
 });
 
 // db/schema/tiltag.ts
-import { pgTable as pgTable4, uuid as uuid4, text as text4, real as real3, boolean as boolean4, date as date2, timestamp as timestamp4, jsonb } from "drizzle-orm/pg-core";
+import { pgTable as pgTable4, uuid as uuid4, text as text4, real as real3, boolean as boolean4, date as date2, timestamp as timestamp4, jsonb as jsonb2 } from "drizzle-orm/pg-core";
 var tiltag;
 var init_tiltag = __esm({
   "db/schema/tiltag.ts"() {
@@ -277,7 +278,7 @@ var init_tiltag = __esm({
       udfaserFossileBraendsler: boolean4("udfaser_fossile_braendsler").notNull().default(false),
       understoettendeTiltag: text4("understoettende_tiltag"),
       implementeringsplan: text4("implementeringsplan"),
-      milepael: jsonb("milepael"),
+      milepael: jsonb2("milepael"),
       omkostningerDetaljeret: text4("omkostninger_detaljeret"),
       finansieringstilgang: text4("finansieringstilgang"),
       fordelingGevinsterByrder: text4("fordeling_gevinster_byrder"),
@@ -407,7 +408,7 @@ var init_indikator = __esm({
 });
 
 // db/schema/vidensgrundlag.ts
-import { pgTable as pgTable8, uuid as uuid8, text as text8, timestamp as timestamp8, jsonb as jsonb2 } from "drizzle-orm/pg-core";
+import { pgTable as pgTable8, uuid as uuid8, text as text8, timestamp as timestamp8, jsonb as jsonb3 } from "drizzle-orm/pg-core";
 var klimafare, konsekvensvurdering, aktoer, aktoerGruppeTag, saarbarGruppe, saarbarGruppeKlimafare, saarbarGruppeIndsatsOmraade;
 var init_vidensgrundlag = __esm({
   "db/schema/vidensgrundlag.ts"() {
@@ -423,7 +424,7 @@ var init_vidensgrundlag = __esm({
       hyppighed: text8("hyppighed"),
       intensitet: text8("intensitet"),
       tidsskala: text8("tidsskala"),
-      rumligFordelingGeometri: jsonb2("rumlig_fordeling_geometri"),
+      rumligFordelingGeometri: jsonb3("rumlig_fordeling_geometri"),
       datakilde: text8("datakilde"),
       dataDato: text8("data_dato"),
       dataVersion: text8("data_version"),
@@ -526,7 +527,7 @@ var init_regnskab = __esm({
 });
 
 // db/schema/cctf.ts
-import { pgTable as pgTable10, uuid as uuid10, text as text10, integer as integer6, boolean as boolean8, timestamp as timestamp10, jsonb as jsonb3 } from "drizzle-orm/pg-core";
+import { pgTable as pgTable10, uuid as uuid10, text as text10, integer as integer6, boolean as boolean8, timestamp as timestamp10, jsonb as jsonb4 } from "drizzle-orm/pg-core";
 var cctfKriterie, cctfKriterieMapping, selvevaluering;
 var init_cctf = __esm({
   "db/schema/cctf.ts"() {
@@ -540,7 +541,7 @@ var init_cctf = __esm({
       komponent: text10("komponent").notNull(),
       titel: text10("titel").notNull(),
       beskrivelse: text10("beskrivelse").notNull(),
-      krav: jsonb3("krav"),
+      krav: jsonb4("krav"),
       aktiv: boolean8("aktiv").notNull().default(true),
       createdAt: timestamp10("created_at", { withTimezone: true }).defaultNow().notNull(),
       updatedAt: timestamp10("updated_at", { withTimezone: true }).defaultNow().notNull()
@@ -562,7 +563,7 @@ var init_cctf = __esm({
       genereretDato: timestamp10("genereret_dato", { withTimezone: true }).defaultNow().notNull(),
       godkendtAf: uuid10("godkendt_af"),
       godkendelsesdato: timestamp10("godkendelsesdato", { withTimezone: true }),
-      kriterieData: jsonb3("kriterie_data").notNull(),
+      kriterieData: jsonb4("kriterie_data").notNull(),
       createdAt: timestamp10("created_at", { withTimezone: true }).defaultNow().notNull(),
       updatedAt: timestamp10("updated_at", { withTimezone: true }).defaultNow().notNull()
     });
@@ -570,7 +571,7 @@ var init_cctf = __esm({
 });
 
 // db/schema/audit.ts
-import { pgTable as pgTable11, uuid as uuid11, text as text11, timestamp as timestamp11, jsonb as jsonb4 } from "drizzle-orm/pg-core";
+import { pgTable as pgTable11, uuid as uuid11, text as text11, timestamp as timestamp11, jsonb as jsonb5 } from "drizzle-orm/pg-core";
 var auditEvent;
 var init_audit = __esm({
   "db/schema/audit.ts"() {
@@ -582,8 +583,8 @@ var init_audit = __esm({
       entitetType: text11("entitet_type").notNull(),
       entitetId: uuid11("entitet_id").notNull(),
       action: auditActionEnum("action").notNull(),
-      beforeState: jsonb4("before_state"),
-      afterState: jsonb4("after_state"),
+      beforeState: jsonb5("before_state"),
+      afterState: jsonb5("after_state"),
       ipAddress: text11("ip_address"),
       timestamp: timestamp11("timestamp", { withTimezone: true }).defaultNow().notNull()
     });
@@ -629,7 +630,7 @@ var init_indikator_template = __esm({
 });
 
 // db/schema/import-job.ts
-import { pgTable as pgTable13, uuid as uuid13, text as text13, timestamp as timestamp13, jsonb as jsonb5 } from "drizzle-orm/pg-core";
+import { pgTable as pgTable13, uuid as uuid13, text as text13, timestamp as timestamp13, jsonb as jsonb6 } from "drizzle-orm/pg-core";
 var importJob;
 var init_import_job = __esm({
   "db/schema/import-job.ts"() {
@@ -643,7 +644,7 @@ var init_import_job = __esm({
       filtype: text13("filtype").notNull(),
       filindhold: text13("filindhold").notNull(),
       status: importJobStatusEnum("status").notNull().default("pending"),
-      resultat: jsonb5("resultat"),
+      resultat: jsonb6("resultat"),
       fejl: text13("fejl"),
       oprettet: timestamp13("oprettet", { withTimezone: true }).defaultNow().notNull(),
       opdateret: timestamp13("opdateret", { withTimezone: true }).defaultNow().notNull()
@@ -772,11 +773,22 @@ import postgres3 from "postgres";
 import { eq as eq4, count } from "drizzle-orm";
 
 // db/seeds/groenkobing.ts
-init_schema();
 import { hash } from "@node-rs/argon2";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { eq, and } from "drizzle-orm";
+
+// lib/widgets/standard-skabelon.ts
+function standardSkabelon() {
+  return [
+    { id: "std-hero", type: "klimamaal-hero", width: 4, enabled: true, config: { overskrift: "Klimastatus" } },
+    { id: "std-graf", type: "co2e-udvikling", width: 4, enabled: true, config: { titel: "Udvikling i CO\u2082e-udledning", enhed: "total" } },
+    { id: "std-noegletal", type: "noegletal", width: 4, enabled: true, config: { indikatorer: [] } }
+  ];
+}
+
+// db/seeds/groenkobing.ts
+init_schema();
 async function seedGroenkobing() {
   const client3 = postgres(process.env.DATABASE_URL);
   const db3 = drizzle(client3);
@@ -792,7 +804,10 @@ async function seedGroenkobing() {
         klimakommitmentTekst: "Gr\xF8nk\xF8bing Kommune forpligter sig til at opn\xE5 70% CO\u2082e-reduktion inden 2030 og klimaneutralitet inden 2040 i overensstemmelse med Parisaftalens 1,5\xB0C-ambition.",
         publicEnabled: true,
         publicStaleDays: 365,
-        publicHighlights: highlightKiIds2
+        publicHighlights: highlightKiIds2,
+        publicWidgets: standardSkabelon().map(
+          (w) => w.type === "noegletal" ? { ...w, config: { indikatorer: highlightKiIds2 } } : w
+        )
       }).where(eq(kommune.kommunekode, "0657"));
       console.log("Gr\xF8nk\xF8bing Kommune: konfiguration opdateret.");
       return;
@@ -810,7 +825,8 @@ async function seedGroenkobing() {
       subdomain: "groenkobing",
       publicEnabled: true,
       publicStaleDays: 365,
-      publicHighlights: ["Lavbundsarealer udtaget fra omdrift (450 ha)", "Solpark Nordmark under etablering (85 MW)", "Alle kommunale oliefyr udfaset"]
+      publicHighlights: ["Lavbundsarealer udtaget fra omdrift (450 ha)", "Solpark Nordmark under etablering (85 MW)", "Alle kommunale oliefyr udfaset"],
+      publicWidgets: standardSkabelon()
     }).returning();
     const passwordHash = await hash(process.env.SEED_PASSWORD ?? "klimastatus2026!");
     await db3.insert(user).values({
@@ -1218,11 +1234,11 @@ async function seedGroenkobing() {
         type: "smart",
         tidsramme: "short",
         maalAar: 2030,
-        maalVaerdi: 154800,
+        maalVaerdi: 225e3,
         enhed: "ton CO\u2082e/\xE5r",
-        baselineVaerdi: 516e3,
+        baselineVaerdi: 75e4,
         baselineAar: 2018,
-        beskrivelse: "70% reduktion af kommunens samlede CO\u2082e-udledning ift. 2018-niveau inden 2030 (fra 516.000 til 154.800 ton CO\u2082e/\xE5r). Baseret p\xE5 Herning-profil skaleret til 51.200 indb.",
+        beskrivelse: "70% reduktion af kommunens samlede CO\u2082e-udledning ift. 2018-niveau inden 2030 (fra 750.000 til 225.000 ton CO\u2082e/\xE5r).",
         kategori: "reduction"
       },
       {
