@@ -4,6 +4,8 @@ import { createKommune } from '@/db/queries';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import type { FormState } from '@/lib/definitions';
+import { verifySession } from '@/lib/dal';
+import { createSession } from '@/lib/session';
 
 const CreateKommuneSchema = z.object({
   navn: z.string().min(2, 'Navn skal være mindst 2 tegn.').max(100),
@@ -44,4 +46,11 @@ export async function createKommuneAction(
 
   revalidatePath('/admin/kommuner');
   redirect('/admin/kommuner');
+}
+
+export async function switchKommuneAction(kommuneId: string) {
+  const session = await verifySession();
+  if (!session || session.role !== 'admin') redirect('/login');
+  await createSession({ userId: session.userId, kommuneId, role: 'admin', navn: session.navn });
+  redirect('/dashboard');
 }

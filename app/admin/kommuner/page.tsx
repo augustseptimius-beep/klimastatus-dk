@@ -1,6 +1,7 @@
 import { getAllKommuner } from '@/db/queries';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { switchKommuneAction } from './actions';
 
 export const metadata = { title: 'Kommuner — Admin' };
 
@@ -29,6 +30,7 @@ export default async function KommunerPage() {
                 <th className="px-4 py-3 font-medium">Kommunekode</th>
                 <th className="px-4 py-3 font-medium">Subdomæne</th>
                 <th className="px-4 py-3 font-medium">Oprettet</th>
+                <th className="px-4 py-3 font-medium"></th>
               </tr>
             </thead>
             <tbody>
@@ -39,6 +41,11 @@ export default async function KommunerPage() {
                   <td className="px-4 py-3 text-gray-600">{k.subdomain}.klimastatus.dk</td>
                   <td className="px-4 py-3 text-gray-400">
                     {new Date(k.createdAt).toLocaleDateString('da-DK')}
+                  </td>
+                  <td className="px-4 py-3">
+                    <form action={switchKommuneAction.bind(null, k.id)}>
+                      <Button type="submit" variant="outline" size="sm">Åbn dashboard</Button>
+                    </form>
                   </td>
                 </tr>
               ))}
