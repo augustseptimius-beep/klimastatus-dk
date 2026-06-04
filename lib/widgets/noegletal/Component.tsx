@@ -13,7 +13,7 @@ export function Component({ data }: WidgetProps<NoegletalData>) {
           <div key={h.kommuneIndikatorId} style={{ padding: '16px 20px 16px 0', borderRight: i < data.length - 1 ? '1px solid #D9D2C2' : undefined, borderBottom: '1px solid #D9D2C2', paddingLeft: i > 0 ? 20 : 0 }}>
             <div style={{ fontSize: 12, color: '#6B6B63', marginBottom: 6, lineHeight: 1.3 }}>{h.label}</div>
             <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
-              {h.senesteVaerdi !== null ? (
+              {h.senesteVaerdi !== null && Number.isFinite(h.senesteVaerdi) ? (
                 <>
                   {h.senesteVaerdi.toLocaleString('da-DK', { maximumFractionDigits: 1 })}
                   <span style={{ fontSize: 13, fontWeight: 500, color: '#6B6B63', marginLeft: 4 }}>
