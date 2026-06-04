@@ -57,6 +57,13 @@
       "when": 1780419301059,
       "tag": "0007_brave_prowler",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1780555395324,
+      "tag": "0008_neat_gabe_jones",
+      "breakpoints": true
     }
   ]
 }

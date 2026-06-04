@@ -1,0 +1,1 @@
+ALTER TABLE "kommune" ADD COLUMN "public_widgets" jsonb;

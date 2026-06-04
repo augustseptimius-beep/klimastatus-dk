@@ -1,0 +1,3286 @@
+{
+  "id": "b3fe2d52-a9a1-4a7c-977e-fda33ad5554f",
+  "prevId": "4ba3a1a4-5205-4968-a738-e9fc53b2e679",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.kommune": {
+      "name": "kommune",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kommunekode": {
+          "name": "kommunekode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "navn": {
+          "name": "navn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "befolkningstal": {
+          "name": "befolkningstal",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "areal_km2": {
+          "name": "areal_km2",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "klimakommitment_dato": {
+          "name": "klimakommitment_dato",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "klimakommitment_tekst": {
+          "name": "klimakommitment_tekst",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recertificeringsdato": {
+          "name": "recertificeringsdato",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "logo_url": {
+          "name": "logo_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "primary_color": {
+          "name": "primary_color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "secondary_color": {
+          "name": "secondary_color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "font_family": {
+          "name": "font_family",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "subdomain": {
+          "name": "subdomain",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "public_enabled": {
+          "name": "public_enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "public_stale_days": {
+          "name": "public_stale_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "public_highlights": {
+          "name": "public_highlights",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "public_widgets": {
+          "name": "public_widgets",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "kommune_kommunekode_unique": {
+          "name": "kommune_kommunekode_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "kommunekode"
+          ]
+        },
+        "kommune_subdomain_unique": {
+          "name": "kommune_subdomain_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "subdomain"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.magic_link": {
+      "name": "magic_link",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "token_hash": {
+          "name": "token_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tovholder_id": {
+          "name": "tovholder_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "used": {
+          "name": "used",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "magic_link_token_hash_unique": {
+          "name": "magic_link_token_hash_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "token_hash"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.session": {
+      "name": "session",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "session_user_id_user_id_fk": {
+          "name": "session_user_id_user_id_fk",
+          "tableFrom": "session",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "session_token_unique": {
+          "name": "session_token_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "token"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.user": {
+      "name": "user",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kommune_id": {
+          "name": "kommune_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "navn": {
+          "name": "navn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'koordinator'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_kommune_id_kommune_id_fk": {
+          "name": "user_kommune_id_kommune_id_fk",
+          "tableFrom": "user",
+          "tableTo": "kommune",
+          "columnsFrom": [
+            "kommune_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "user_email_unique": {
+          "name": "user_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.indsats_omraade": {
+      "name": "indsats_omraade",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kommune_id": {
+          "name": "kommune_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "navn": {
+          "name": "navn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "indsats_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sektor": {
+          "name": "sektor",
+          "type": "sektor",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "forbrugskategori_tag": {
+          "name": "forbrugskategori_tag",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ansvarlig_forvaltning": {
+          "name": "ansvarlig_forvaltning",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "beskrivelse": {
+          "name": "beskrivelse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aktiv": {
+          "name": "aktiv",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "indsats_omraade_kommune_id_kommune_id_fk": {
+          "name": "indsats_omraade_kommune_id_kommune_id_fk",
+          "tableFrom": "indsats_omraade",
+          "tableTo": "kommune",
+          "columnsFrom": [
+            "kommune_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.maal": {
+      "name": "maal",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "indsats_omraade_id": {
+          "name": "indsats_omraade_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "maal_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tidsramme": {
+          "name": "tidsramme",
+          "type": "tidsramme",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "maal_aar": {
+          "name": "maal_aar",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "maal_vaerdi": {
+          "name": "maal_vaerdi",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "enhed": {
+          "name": "enhed",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "baseline_vaerdi": {
+          "name": "baseline_vaerdi",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "baseline_aar": {
+          "name": "baseline_aar",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "beskrivelse": {
+          "name": "beskrivelse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kategori": {
+          "name": "kategori",
+          "type": "maal_kategori",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "maal_indsats_omraade_id_indsats_omraade_id_fk": {
+          "name": "maal_indsats_omraade_id_indsats_omraade_id_fk",
+          "tableFrom": "maal",
+          "tableTo": "indsats_omraade",
+          "columnsFrom": [
+            "indsats_omraade_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tiltag": {
+      "name": "tiltag",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kommune_id": {
+          "name": "kommune_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indsats_omraade_id": {
+          "name": "indsats_omraade_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titel": {
+          "name": "titel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "beskrivelse": {
+          "name": "beskrivelse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "tiltag_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tidsramme_start": {
+          "name": "tidsramme_start",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tidsramme_slut": {
+          "name": "tidsramme_slut",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ansvarlig_organisation": {
+          "name": "ansvarlig_organisation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "forventet_effekt_co2_ton": {
+          "name": "forventet_effekt_co2_ton",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "forventet_effekt_kvalitativ": {
+          "name": "forventet_effekt_kvalitativ",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "tiltag_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'planned'"
+        },
+        "prioriteret_tiltag": {
+          "name": "prioriteret_tiltag",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "befojelses_kategori": {
+          "name": "befojelses_kategori",
+          "type": "befojelses_kategori",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "avoid_shift_improve": {
+          "name": "avoid_shift_improve",
+          "type": "avoid_shift_improve",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "forbrug_kategori": {
+          "name": "forbrug_kategori",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "retfaerdig_fordeling_relevant": {
+          "name": "retfaerdig_fordeling_relevant",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "udfaser_fossile_braendsler": {
+          "name": "udfaser_fossile_braendsler",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "understoettende_tiltag": {
+          "name": "understoettende_tiltag",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "implementeringsplan": {
+          "name": "implementeringsplan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "milepael": {
+          "name": "milepael",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "omkostninger_detaljeret": {
+          "name": "omkostninger_detaljeret",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "finansieringstilgang": {
+          "name": "finansieringstilgang",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fordeling_gevinster_byrder": {
+          "name": "fordeling_gevinster_byrder",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kommunikationsplan": {
+          "name": "kommunikationsplan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "barrierer": {
+          "name": "barrierer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tiltag_kommune_id_kommune_id_fk": {
+          "name": "tiltag_kommune_id_kommune_id_fk",
+          "tableFrom": "tiltag",
+          "tableTo": "kommune",
+          "columnsFrom": [
+            "kommune_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "tiltag_indsats_omraade_id_indsats_omraade_id_fk": {
+          "name": "tiltag_indsats_omraade_id_indsats_omraade_id_fk",
+          "tableFrom": "tiltag",
+          "tableTo": "indsats_omraade",
+          "columnsFrom": [
+            "indsats_omraade_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tovholder": {
+      "name": "tovholder",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kommune_id": {
+          "name": "kommune_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "navn": {
+          "name": "navn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "forvaltning": {
+          "name": "forvaltning",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aktiv": {
+          "name": "aktiv",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tovholder_kommune_id_kommune_id_fk": {
+          "name": "tovholder_kommune_id_kommune_id_fk",
+          "tableFrom": "tovholder",
+          "tableTo": "kommune",
+          "columnsFrom": [
+            "kommune_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tovholder_rapport": {
+      "name": "tovholder_rapport",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "tovholder_id": {
+          "name": "tovholder_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tiltag_id": {
+          "name": "tiltag_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dato": {
+          "name": "dato",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_implementering": {
+          "name": "status_implementering",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status_beskrivelse": {
+          "name": "status_beskrivelse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "barrierer": {
+          "name": "barrierer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "naeste_skridt": {
+          "name": "naeste_skridt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "effekt_realiseret": {
+          "name": "effekt_realiseret",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tovholder_rapport_tovholder_id_tovholder_id_fk": {
+          "name": "tovholder_rapport_tovholder_id_tovholder_id_fk",
+          "tableFrom": "tovholder_rapport",
+          "tableTo": "tovholder",
+          "columnsFrom": [
+            "tovholder_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "tovholder_rapport_tiltag_id_tiltag_id_fk": {
+          "name": "tovholder_rapport_tiltag_id_tiltag_id_fk",
+          "tableFrom": "tovholder_rapport",
+          "tableTo": "tiltag",
+          "columnsFrom": [
+            "tiltag_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tovholder_tiltag": {
+      "name": "tovholder_tiltag",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "tovholder_id": {
+          "name": "tovholder_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tiltag_id": {
+          "name": "tiltag_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tovholder_tiltag_tovholder_id_tovholder_id_fk": {
+          "name": "tovholder_tiltag_tovholder_id_tovholder_id_fk",
+          "tableFrom": "tovholder_tiltag",
+          "tableTo": "tovholder",
+          "columnsFrom": [
+            "tovholder_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "tovholder_tiltag_tiltag_id_tiltag_id_fk": {
+          "name": "tovholder_tiltag_tiltag_id_tiltag_id_fk",
+          "tableFrom": "tovholder_tiltag",
+          "tableTo": "tiltag",
+          "columnsFrom": [
+            "tiltag_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.indikator": {
+      "name": "indikator",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "niveau": {
+          "name": "niveau",
+          "type": "indikator_niveau",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "beskrivelse": {
+          "name": "beskrivelse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "enhed": {
+          "name": "enhed",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "datakilde_type": {
+          "name": "datakilde_type",
+          "type": "datakilde_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "api_kilde": {
+          "name": "api_kilde",
+          "type": "api_kilde",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "api_query": {
+          "name": "api_query",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aggregeringsformel": {
+          "name": "aggregeringsformel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.indikator_indsats_omraade": {
+      "name": "indikator_indsats_omraade",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "indikator_id": {
+          "name": "indikator_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indsats_omraade_id": {
+          "name": "indsats_omraade_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "indikator_indsats_omraade_indikator_id_indikator_id_fk": {
+          "name": "indikator_indsats_omraade_indikator_id_indikator_id_fk",
+          "tableFrom": "indikator_indsats_omraade",
+          "tableTo": "indikator",
+          "columnsFrom": [
+            "indikator_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "indikator_indsats_omraade_indsats_omraade_id_indsats_omraade_id_fk": {
+          "name": "indikator_indsats_omraade_indsats_omraade_id_indsats_omraade_id_fk",
+          "tableFrom": "indikator_indsats_omraade",
+          "tableTo": "indsats_omraade",
+          "columnsFrom": [
+            "indsats_omraade_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.indikator_maal": {
+      "name": "indikator_maal",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "indikator_id": {
+          "name": "indikator_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "maal_id": {
+          "name": "maal_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "indikator_maal_indikator_id_indikator_id_fk": {
+          "name": "indikator_maal_indikator_id_indikator_id_fk",
+          "tableFrom": "indikator_maal",
+          "tableTo": "indikator",
+          "columnsFrom": [
+            "indikator_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "indikator_maal_maal_id_maal_id_fk": {
+          "name": "indikator_maal_maal_id_maal_id_fk",
+          "tableFrom": "indikator_maal",
+          "tableTo": "maal",
+          "columnsFrom": [
+            "maal_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.indikator_maaling": {
+      "name": "indikator_maaling",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "indikator_id": {
+          "name": "indikator_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "monitoreringscyklus_id": {
+          "name": "monitoreringscyklus_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dato": {
+          "name": "dato",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aar": {
+          "name": "aar",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vaerdi": {
+          "name": "vaerdi",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kilde": {
+          "name": "kilde",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bemaerkning": {
+          "name": "bemaerkning",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "auto_hentet": {
+          "name": "auto_hentet",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "indikator_maaling_indikator_id_indikator_id_fk": {
+          "name": "indikator_maaling_indikator_id_indikator_id_fk",
+          "tableFrom": "indikator_maaling",
+          "tableTo": "indikator",
+          "columnsFrom": [
+            "indikator_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "indikator_maaling_monitoreringscyklus_id_monitoreringscyklus_id_fk": {
+          "name": "indikator_maaling_monitoreringscyklus_id_monitoreringscyklus_id_fk",
+          "tableFrom": "indikator_maaling",
+          "tableTo": "monitoreringscyklus",
+          "columnsFrom": [
+            "monitoreringscyklus_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "indikator_maaling_indikator_cyklus_unique": {
+          "name": "indikator_maaling_indikator_cyklus_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "indikator_id",
+            "monitoreringscyklus_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.indikator_tiltag": {
+      "name": "indikator_tiltag",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "indikator_id": {
+          "name": "indikator_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tiltag_id": {
+          "name": "tiltag_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "indikator_tiltag_indikator_id_indikator_id_fk": {
+          "name": "indikator_tiltag_indikator_id_indikator_id_fk",
+          "tableFrom": "indikator_tiltag",
+          "tableTo": "indikator",
+          "columnsFrom": [
+            "indikator_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "indikator_tiltag_tiltag_id_tiltag_id_fk": {
+          "name": "indikator_tiltag_tiltag_id_tiltag_id_fk",
+          "tableFrom": "indikator_tiltag",
+          "tableTo": "tiltag",
+          "columnsFrom": [
+            "tiltag_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.aktoer": {
+      "name": "aktoer",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kommune_id": {
+          "name": "kommune_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "navn": {
+          "name": "navn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "aktoer_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inddragelsesform": {
+          "name": "inddragelsesform",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "inddragelsesfrekvens": {
+          "name": "inddragelsesfrekvens",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "paavirkning_paa_plan_tekst": {
+          "name": "paavirkning_paa_plan_tekst",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "aktoer_kommune_id_kommune_id_fk": {
+          "name": "aktoer_kommune_id_kommune_id_fk",
+          "tableFrom": "aktoer",
+          "tableTo": "kommune",
+          "columnsFrom": [
+            "kommune_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.aktoer_gruppe_tag": {
+      "name": "aktoer_gruppe_tag",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "aktoer_id": {
+          "name": "aktoer_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gruppe_tag": {
+          "name": "gruppe_tag",
+          "type": "gruppe_tag",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "aktoer_gruppe_tag_aktoer_id_aktoer_id_fk": {
+          "name": "aktoer_gruppe_tag_aktoer_id_aktoer_id_fk",
+          "tableFrom": "aktoer_gruppe_tag",
+          "tableTo": "aktoer",
+          "columnsFrom": [
+            "aktoer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.klimafare": {
+      "name": "klimafare",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kommune_id": {
+          "name": "kommune_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "klimafare_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sandsynlighed": {
+          "name": "sandsynlighed",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hyppighed": {
+          "name": "hyppighed",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "intensitet": {
+          "name": "intensitet",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tidsskala": {
+          "name": "tidsskala",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rumlig_fordeling_geometri": {
+          "name": "rumlig_fordeling_geometri",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "datakilde": {
+          "name": "datakilde",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_dato": {
+          "name": "data_dato",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_version": {
+          "name": "data_version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "klimafare_kommune_id_kommune_id_fk": {
+          "name": "klimafare_kommune_id_kommune_id_fk",
+          "tableFrom": "klimafare",
+          "tableTo": "kommune",
+          "columnsFrom": [
+            "kommune_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.konsekvensvurdering": {
+      "name": "konsekvensvurdering",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "klimafare_id": {
+          "name": "klimafare_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "beroert_kategori": {
+          "name": "beroert_kategori",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "beroert_id": {
+          "name": "beroert_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "konsekvens_beskrivelse": {
+          "name": "konsekvens_beskrivelse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "alvor": {
+          "name": "alvor",
+          "type": "severity",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tilpasningskapacitet": {
+          "name": "tilpasningskapacitet",
+          "type": "severity",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "konsekvensvurdering_klimafare_id_klimafare_id_fk": {
+          "name": "konsekvensvurdering_klimafare_id_klimafare_id_fk",
+          "tableFrom": "konsekvensvurdering",
+          "tableTo": "klimafare",
+          "columnsFrom": [
+            "klimafare_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.saarbar_gruppe": {
+      "name": "saarbar_gruppe",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kommune_id": {
+          "name": "kommune_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gruppe_kategori": {
+          "name": "gruppe_kategori",
+          "type": "saarbar_gruppe_kategori",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "beskrivelse": {
+          "name": "beskrivelse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vidensgrundlag_kilde": {
+          "name": "vidensgrundlag_kilde",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "saarbar_gruppe_kommune_id_kommune_id_fk": {
+          "name": "saarbar_gruppe_kommune_id_kommune_id_fk",
+          "tableFrom": "saarbar_gruppe",
+          "tableTo": "kommune",
+          "columnsFrom": [
+            "kommune_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.saarbar_gruppe_indsats_omraade": {
+      "name": "saarbar_gruppe_indsats_omraade",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "saarbar_gruppe_id": {
+          "name": "saarbar_gruppe_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indsats_omraade_id": {
+          "name": "indsats_omraade_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "saarbar_gruppe_indsats_omraade_saarbar_gruppe_id_saarbar_gruppe_id_fk": {
+          "name": "saarbar_gruppe_indsats_omraade_saarbar_gruppe_id_saarbar_gruppe_id_fk",
+          "tableFrom": "saarbar_gruppe_indsats_omraade",
+          "tableTo": "saarbar_gruppe",
+          "columnsFrom": [
+            "saarbar_gruppe_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "saarbar_gruppe_indsats_omraade_indsats_omraade_id_indsats_omraade_id_fk": {
+          "name": "saarbar_gruppe_indsats_omraade_indsats_omraade_id_indsats_omraade_id_fk",
+          "tableFrom": "saarbar_gruppe_indsats_omraade",
+          "tableTo": "indsats_omraade",
+          "columnsFrom": [
+            "indsats_omraade_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.saarbar_gruppe_klimafare": {
+      "name": "saarbar_gruppe_klimafare",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "saarbar_gruppe_id": {
+          "name": "saarbar_gruppe_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "klimafare_id": {
+          "name": "klimafare_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "saarbar_gruppe_klimafare_saarbar_gruppe_id_saarbar_gruppe_id_fk": {
+          "name": "saarbar_gruppe_klimafare_saarbar_gruppe_id_saarbar_gruppe_id_fk",
+          "tableFrom": "saarbar_gruppe_klimafare",
+          "tableTo": "saarbar_gruppe",
+          "columnsFrom": [
+            "saarbar_gruppe_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "saarbar_gruppe_klimafare_klimafare_id_klimafare_id_fk": {
+          "name": "saarbar_gruppe_klimafare_klimafare_id_klimafare_id_fk",
+          "tableFrom": "saarbar_gruppe_klimafare",
+          "tableTo": "klimafare",
+          "columnsFrom": [
+            "klimafare_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.befojelses_vurdering": {
+      "name": "befojelses_vurdering",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kommune_id": {
+          "name": "kommune_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indsats_omraade_id": {
+          "name": "indsats_omraade_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rolle": {
+          "name": "rolle",
+          "type": "befojelses_kategori",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aktive_tiltag_count": {
+          "name": "aktive_tiltag_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "udnyttelsesvurdering_tekst": {
+          "name": "udnyttelsesvurdering_tekst",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mangler_tekst": {
+          "name": "mangler_tekst",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dato": {
+          "name": "dato",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "befojelses_vurdering_kommune_id_kommune_id_fk": {
+          "name": "befojelses_vurdering_kommune_id_kommune_id_fk",
+          "tableFrom": "befojelses_vurdering",
+          "tableTo": "kommune",
+          "columnsFrom": [
+            "kommune_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "befojelses_vurdering_indsats_omraade_id_indsats_omraade_id_fk": {
+          "name": "befojelses_vurdering_indsats_omraade_id_indsats_omraade_id_fk",
+          "tableFrom": "befojelses_vurdering",
+          "tableTo": "indsats_omraade",
+          "columnsFrom": [
+            "indsats_omraade_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.drivhusgasregnskab_post": {
+      "name": "drivhusgasregnskab_post",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kommune_id": {
+          "name": "kommune_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aar": {
+          "name": "aar",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gpc_sektor": {
+          "name": "gpc_sektor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "udledning_ton_co2e": {
+          "name": "udledning_ton_co2e",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "datakilde": {
+          "name": "datakilde",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gpc_kompatibel": {
+          "name": "gpc_kompatibel",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "metodeversion": {
+          "name": "metodeversion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "drivhusgasregnskab_post_kommune_id_kommune_id_fk": {
+          "name": "drivhusgasregnskab_post_kommune_id_kommune_id_fk",
+          "tableFrom": "drivhusgasregnskab_post",
+          "tableTo": "kommune",
+          "columnsFrom": [
+            "kommune_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.scenarie_post": {
+      "name": "scenarie_post",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kommune_id": {
+          "name": "kommune_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scenarie_type": {
+          "name": "scenarie_type",
+          "type": "scenarie_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aar": {
+          "name": "aar",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sektor": {
+          "name": "sektor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "udledning_ton_co2e": {
+          "name": "udledning_ton_co2e",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "metode_beskrivelse": {
+          "name": "metode_beskrivelse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tiltag_id": {
+          "name": "tiltag_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "scenarie_post_kommune_id_kommune_id_fk": {
+          "name": "scenarie_post_kommune_id_kommune_id_fk",
+          "tableFrom": "scenarie_post",
+          "tableTo": "kommune",
+          "columnsFrom": [
+            "kommune_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "scenarie_post_tiltag_id_tiltag_id_fk": {
+          "name": "scenarie_post_tiltag_id_tiltag_id_fk",
+          "tableFrom": "scenarie_post",
+          "tableTo": "tiltag",
+          "columnsFrom": [
+            "tiltag_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.cctf_kriterie": {
+      "name": "cctf_kriterie",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "version": {
+          "name": "version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kriterie_nr": {
+          "name": "kriterie_nr",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "komponent": {
+          "name": "komponent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titel": {
+          "name": "titel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "beskrivelse": {
+          "name": "beskrivelse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "krav": {
+          "name": "krav",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aktiv": {
+          "name": "aktiv",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.cctf_kriterie_mapping": {
+      "name": "cctf_kriterie_mapping",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "entitet_type": {
+          "name": "entitet_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entitet_id": {
+          "name": "entitet_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kriterie_nr": {
+          "name": "kriterie_nr",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dokumentationsstyrke": {
+          "name": "dokumentationsstyrke",
+          "type": "dokumentationsstyrke",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'primary'"
+        },
+        "bemaerkning": {
+          "name": "bemaerkning",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.selvevaluering": {
+      "name": "selvevaluering",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kommune_id": {
+          "name": "kommune_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cctf_version": {
+          "name": "cctf_version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "genereret_dato": {
+          "name": "genereret_dato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "godkendt_af": {
+          "name": "godkendt_af",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "godkendelsesdato": {
+          "name": "godkendelsesdato",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kriterie_data": {
+          "name": "kriterie_data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "selvevaluering_kommune_id_kommune_id_fk": {
+          "name": "selvevaluering_kommune_id_kommune_id_fk",
+          "tableFrom": "selvevaluering",
+          "tableTo": "kommune",
+          "columnsFrom": [
+            "kommune_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.audit_event": {
+      "name": "audit_event",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "entitet_type": {
+          "name": "entitet_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entitet_id": {
+          "name": "entitet_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "action": {
+          "name": "action",
+          "type": "audit_action",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "before_state": {
+          "name": "before_state",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "after_state": {
+          "name": "after_state",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ip_address": {
+          "name": "ip_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.indikator_template": {
+      "name": "indikator_template",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "titel": {
+          "name": "titel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kilde": {
+          "name": "kilde",
+          "type": "api_kilde",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "api_query": {
+          "name": "api_query",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "enhed": {
+          "name": "enhed",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "beskrivelse": {
+          "name": "beskrivelse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cctf_kriterier": {
+          "name": "cctf_kriterier",
+          "type": "integer[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "aktiv": {
+          "name": "aktiv",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.kommune_indikator": {
+      "name": "kommune_indikator",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kommune_id": {
+          "name": "kommune_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "template_id": {
+          "name": "template_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indikator_id": {
+          "name": "indikator_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "visningsnavn": {
+          "name": "visningsnavn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aktiv": {
+          "name": "aktiv",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "sidst_hentet": {
+          "name": "sidst_hentet",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sidste_fejl": {
+          "name": "sidste_fejl",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sidste_fejl_besked": {
+          "name": "sidste_fejl_besked",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "kommune_indikator_kommune_id_kommune_id_fk": {
+          "name": "kommune_indikator_kommune_id_kommune_id_fk",
+          "tableFrom": "kommune_indikator",
+          "tableTo": "kommune",
+          "columnsFrom": [
+            "kommune_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "kommune_indikator_template_id_indikator_template_id_fk": {
+          "name": "kommune_indikator_template_id_indikator_template_id_fk",
+          "tableFrom": "kommune_indikator",
+          "tableTo": "indikator_template",
+          "columnsFrom": [
+            "template_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "kommune_indikator_indikator_id_indikator_id_fk": {
+          "name": "kommune_indikator_indikator_id_indikator_id_fk",
+          "tableFrom": "kommune_indikator",
+          "tableTo": "indikator",
+          "columnsFrom": [
+            "indikator_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "kommune_indikator_kommune_template_unique": {
+          "name": "kommune_indikator_kommune_template_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "kommune_id",
+            "template_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.import_job": {
+      "name": "import_job",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kommune_id": {
+          "name": "kommune_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "filnavn": {
+          "name": "filnavn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "filtype": {
+          "name": "filtype",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "filindhold": {
+          "name": "filindhold",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "import_job_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "resultat": {
+          "name": "resultat",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fejl": {
+          "name": "fejl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "oprettet": {
+          "name": "oprettet",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "opdateret": {
+          "name": "opdateret",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "import_job_kommune_id_kommune_id_fk": {
+          "name": "import_job_kommune_id_kommune_id_fk",
+          "tableFrom": "import_job",
+          "tableTo": "kommune",
+          "columnsFrom": [
+            "kommune_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.laeringspost": {
+      "name": "laeringspost",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kommune_id": {
+          "name": "kommune_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "knyttet_til_type": {
+          "name": "knyttet_til_type",
+          "type": "laerings_knytning",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "knyttet_til_id": {
+          "name": "knyttet_til_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "observation": {
+          "name": "observation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fortolkning": {
+          "name": "fortolkning",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "beslutning": {
+          "name": "beslutning",
+          "type": "laerings_beslutning",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "beslutningstager": {
+          "name": "beslutningstager",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dato": {
+          "name": "dato",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tovholder_rapport_id": {
+          "name": "tovholder_rapport_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "laeringspost_kommune_id_kommune_id_fk": {
+          "name": "laeringspost_kommune_id_kommune_id_fk",
+          "tableFrom": "laeringspost",
+          "tableTo": "kommune",
+          "columnsFrom": [
+            "kommune_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "laeringspost_tovholder_rapport_id_tovholder_rapport_id_fk": {
+          "name": "laeringspost_tovholder_rapport_id_tovholder_rapport_id_fk",
+          "tableFrom": "laeringspost",
+          "tableTo": "tovholder_rapport",
+          "columnsFrom": [
+            "tovholder_rapport_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.monitoreringscyklus": {
+      "name": "monitoreringscyklus",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kommune_id": {
+          "name": "kommune_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "navn": {
+          "name": "navn",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "periode_start": {
+          "name": "periode_start",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "periode_slut": {
+          "name": "periode_slut",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "monitorerings_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aar": {
+          "name": "aar",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "monitorerings_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'aaben'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "monitoreringscyklus_kommune_id_kommune_id_fk": {
+          "name": "monitoreringscyklus_kommune_id_kommune_id_fk",
+          "tableFrom": "monitoreringscyklus",
+          "tableTo": "kommune",
+          "columnsFrom": [
+            "kommune_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "monitoreringscyklus_kommune_type_aar_unique": {
+          "name": "monitoreringscyklus_kommune_type_aar_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "kommune_id",
+            "type",
+            "aar"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.aktoer_type": {
+      "name": "aktoer_type",
+      "schema": "public",
+      "values": [
+        "internal",
+        "external",
+        "citizen",
+        "business",
+        "utility",
+        "civil_society",
+        "political"
+      ]
+    },
+    "public.api_kilde": {
+      "name": "api_kilde",
+      "schema": "public",
+      "values": [
+        "klimaregnskab",
+        "energidataservice",
+        "bbr",
+        "dst",
+        "klimaatlas",
+        "kamp",
+        "hip"
+      ]
+    },
+    "public.audit_action": {
+      "name": "audit_action",
+      "schema": "public",
+      "values": [
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    "public.avoid_shift_improve": {
+      "name": "avoid_shift_improve",
+      "schema": "public",
+      "values": [
+        "avoid",
+        "shift",
+        "improve"
+      ]
+    },
+    "public.befojelses_kategori": {
+      "name": "befojelses_kategori",
+      "schema": "public",
+      "values": [
+        "enterprise",
+        "supplier",
+        "authority",
+        "facilitator"
+      ]
+    },
+    "public.datakilde_type": {
+      "name": "datakilde_type",
+      "schema": "public",
+      "values": [
+        "manual",
+        "api"
+      ]
+    },
+    "public.dokumentationsstyrke": {
+      "name": "dokumentationsstyrke",
+      "schema": "public",
+      "values": [
+        "primary",
+        "secondary"
+      ]
+    },
+    "public.gruppe_tag": {
+      "name": "gruppe_tag",
+      "schema": "public",
+      "values": [
+        "affected_by_climate_change",
+        "affected_by_climate_action",
+        "has_power_influence"
+      ]
+    },
+    "public.import_job_status": {
+      "name": "import_job_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "processing",
+        "complete",
+        "failed"
+      ]
+    },
+    "public.indikator_niveau": {
+      "name": "indikator_niveau",
+      "schema": "public",
+      "values": [
+        "output",
+        "outcome",
+        "impact"
+      ]
+    },
+    "public.indsats_type": {
+      "name": "indsats_type",
+      "schema": "public",
+      "values": [
+        "ghg_reduction",
+        "adaptation",
+        "consumption",
+        "just_transition",
+        "cross_cutting"
+      ]
+    },
+    "public.klimafare_type": {
+      "name": "klimafare_type",
+      "schema": "public",
+      "values": [
+        "flooding",
+        "drought",
+        "heat",
+        "storm",
+        "sea_level_rise",
+        "groundwater",
+        "other"
+      ]
+    },
+    "public.kriterie_status": {
+      "name": "kriterie_status",
+      "schema": "public",
+      "values": [
+        "complete",
+        "partial",
+        "missing"
+      ]
+    },
+    "public.laerings_beslutning": {
+      "name": "laerings_beslutning",
+      "schema": "public",
+      "values": [
+        "viderefoeres",
+        "justeres",
+        "udgaar",
+        "tilfoeres_ressourcer",
+        "eskaleres"
+      ]
+    },
+    "public.laerings_knytning": {
+      "name": "laerings_knytning",
+      "schema": "public",
+      "values": [
+        "tiltag",
+        "indsatsomraade",
+        "maal"
+      ]
+    },
+    "public.maal_kategori": {
+      "name": "maal_kategori",
+      "schema": "public",
+      "values": [
+        "reduction",
+        "adaptation",
+        "co_benefits",
+        "consumption"
+      ]
+    },
+    "public.maal_type": {
+      "name": "maal_type",
+      "schema": "public",
+      "values": [
+        "smart",
+        "qualitative"
+      ]
+    },
+    "public.monitorerings_status": {
+      "name": "monitorerings_status",
+      "schema": "public",
+      "values": [
+        "aaben",
+        "lukket",
+        "rapporteret"
+      ]
+    },
+    "public.monitorerings_type": {
+      "name": "monitorerings_type",
+      "schema": "public",
+      "values": [
+        "aarlig",
+        "kvartal",
+        "ad_hoc"
+      ]
+    },
+    "public.saarbar_gruppe_kategori": {
+      "name": "saarbar_gruppe_kategori",
+      "schema": "public",
+      "values": [
+        "low_income",
+        "elderly",
+        "children",
+        "disability",
+        "ethnicity",
+        "geography",
+        "other"
+      ]
+    },
+    "public.scenarie_type": {
+      "name": "scenarie_type",
+      "schema": "public",
+      "values": [
+        "bau",
+        "action"
+      ]
+    },
+    "public.sektor": {
+      "name": "sektor",
+      "schema": "public",
+      "values": [
+        "energy",
+        "transport",
+        "buildings",
+        "food",
+        "agriculture",
+        "waste",
+        "adaptation",
+        "other"
+      ]
+    },
+    "public.severity": {
+      "name": "severity",
+      "schema": "public",
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "public.tidsramme": {
+      "name": "tidsramme",
+      "schema": "public",
+      "values": [
+        "short",
+        "medium",
+        "long"
+      ]
+    },
+    "public.tiltag_status": {
+      "name": "tiltag_status",
+      "schema": "public",
+      "values": [
+        "planned",
+        "in_progress",
+        "completed",
+        "discontinued"
+      ]
+    },
+    "public.tiltag_type": {
+      "name": "tiltag_type",
+      "schema": "public",
+      "values": [
+        "reduction",
+        "adaptation",
+        "both"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
