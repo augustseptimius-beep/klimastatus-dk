@@ -2,9 +2,9 @@
 import type { CctfKriterieResult } from '@/lib/cctf/coverage-engine';
 import Link from 'next/link';
 
-type Props = { daekning: CctfKriterieResult[] };
+type Props = { daekning: CctfKriterieResult[]; slug: string };
 
-export function CctfDashboardWidget({ daekning }: Props) {
+export function CctfDashboardWidget({ daekning, slug }: Props) {
   if (daekning.length === 0) return null;
 
   const komplet  = daekning.filter(d => d.status === 'komplet').length;
@@ -15,7 +15,7 @@ export function CctfDashboardWidget({ daekning }: Props) {
   return (
     <div className="ks-stat" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 8 }}>
       <div className="label">
-        <Link href="/selvevaluering" style={{ color: 'inherit', textDecoration: 'none' }}>
+        <Link href={`/k/${slug}/selvevaluering`} style={{ color: 'inherit', textDecoration: 'none' }}>
           CCTF-dækning →
         </Link>
       </div>

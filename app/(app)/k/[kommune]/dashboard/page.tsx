@@ -121,7 +121,7 @@ export default async function DashboardPage({ params }: Props) {
             </div>
           </div>
         )}
-        <CctfDashboardWidget daekning={cctfDaekning} />
+        <CctfDashboardWidget daekning={cctfDaekning} slug={slug} />
       </div>
 
       <div className="ks-section">
