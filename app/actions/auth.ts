@@ -1,7 +1,7 @@
 'use server';
 import { z } from 'zod';
 import { verify } from '@node-rs/argon2';
-import { getUserByEmail } from '@/db/queries';
+import { getUserByEmail, getKommuneById } from '@/db/queries';
 import { createSession, deleteSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import type { FormState } from '@/lib/definitions';
@@ -32,14 +32,26 @@ export async function login(
     return { message: 'Forkert email eller adgangskode.' };
   }
 
+  // Koordinator: hent slug til session og redirect
+  let kommuneSlug: string | null = null;
+  if (foundUser.role === 'koordinator' && foundUser.kommuneId) {
+    const k = await getKommuneById(foundUser.kommuneId);
+    kommuneSlug = k?.subdomain ?? null;
+  }
+
   await createSession({
     userId: foundUser.id,
     kommuneId: foundUser.kommuneId ?? null,
+    kommuneSlug,
     role: foundUser.role as 'admin' | 'koordinator',
     navn: foundUser.navn,
   });
 
-  redirect(foundUser.role === 'admin' ? '/admin/kommuner' : '/dashboard');
+  if (foundUser.role === 'admin') {
+    redirect('/admin/kommuner');
+  } else {
+    redirect(kommuneSlug ? `/k/${kommuneSlug}/dashboard` : '/dashboard');
+  }
 }
 
 export async function logout() {

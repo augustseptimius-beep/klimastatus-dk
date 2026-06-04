@@ -6,6 +6,7 @@ describe('SessionPayload type', () => {
     const payload: SessionPayload = {
       userId: 'abc-123',
       kommuneId: 'def-456',
+      kommuneSlug: null,
       role: 'koordinator',
       navn: 'Test User',
       expiresAt: new Date(),
@@ -17,6 +18,7 @@ describe('SessionPayload type', () => {
     const payload: SessionPayload = {
       userId: 'abc-123',
       kommuneId: null,
+      kommuneSlug: null,
       role: 'admin',
       navn: 'Admin',
       expiresAt: new Date(),

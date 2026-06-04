@@ -10,6 +10,9 @@ vi.mock('next/navigation', () => ({
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }));
+vi.mock('@/lib/dal', () => ({
+  verifySession: vi.fn().mockResolvedValue({ userId: 'admin-1', role: 'admin', navn: 'Admin', kommuneId: null, kommuneSlug: null }),
+}));
 
 describe('createKommuneAction', () => {
   it('returns error for empty navn', async () => {

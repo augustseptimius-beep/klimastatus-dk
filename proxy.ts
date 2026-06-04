@@ -6,7 +6,7 @@ const publicPrefixes = ['/rapport'];
 const adminRoutes = ['/admin'];
 
 const reservedSegments = new Set([
-  'login', 'admin', 'rapport', 'dashboard', 'tiltag',
+  'k', 'login', 'admin', 'rapport', 'dashboard', 'tiltag',
   'indsatser', 'tovholdere', 'data', 'selvevaluering',
   'indstillinger', 'laering', 'api', '_next', 'favicon.ico',
 ]);
@@ -36,9 +36,15 @@ export async function proxy(req: NextRequest) {
   }
 
   if (path === '/login' && session) {
-    return NextResponse.redirect(
-      new URL(session.role === 'admin' ? '/admin/kommuner' : '/dashboard', req.nextUrl),
-    );
+    let destination: string;
+    if (session.role === 'admin') {
+      destination = '/admin/kommuner';
+    } else if (session.kommuneSlug) {
+      destination = `/k/${session.kommuneSlug}/dashboard`;
+    } else {
+      destination = '/dashboard';
+    }
+    return NextResponse.redirect(new URL(destination, req.nextUrl));
   }
 
   return NextResponse.next();

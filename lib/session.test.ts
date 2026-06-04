@@ -11,6 +11,7 @@ describe('session encryption', () => {
     const payload = {
       userId: 'user-1',
       kommuneId: 'kom-1',
+      kommuneSlug: null,
       role: 'koordinator' as const,
       navn: 'Test',
       expiresAt: new Date(Date.now() + 1000 * 60),

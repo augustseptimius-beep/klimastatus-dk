@@ -1,7 +1,6 @@
 import { getAllKommuner } from '@/db/queries';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { switchKommuneAction } from './actions';
 
 export const metadata = { title: 'Kommuner — Admin' };
 
@@ -43,9 +42,9 @@ export default async function KommunerPage() {
                     {new Date(k.createdAt).toLocaleDateString('da-DK')}
                   </td>
                   <td className="px-4 py-3">
-                    <form action={switchKommuneAction.bind(null, k.id)}>
-                      <Button type="submit" variant="outline" size="sm">Åbn dashboard</Button>
-                    </form>
+                    <Link href={`/k/${k.subdomain}/dashboard`}>
+                      <Button variant="outline" size="sm">Åbn dashboard</Button>
+                    </Link>
                   </td>
                 </tr>
               ))}
