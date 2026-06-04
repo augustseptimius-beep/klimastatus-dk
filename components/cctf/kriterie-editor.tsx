@@ -17,9 +17,11 @@ type Props = {
   besvarelse: KriterieBesvarelse;
   daekning: CctfKriterieResult;
   liveDokRefs: DokRef[];
+  saveAction?: (kriterieNr: number, tekst: Pick<KriterieBesvarelse, 'hvadStaarPaa' | 'hvadOpdateres' | 'selvvurdering'>) => Promise<{ ok: boolean }>;
+  godkendAction?: (kriterieNr: number) => Promise<{ ok: boolean }>;
 };
 
-export function KriterieEditor({ kriterie, besvarelse, daekning, liveDokRefs }: Props) {
+export function KriterieEditor({ kriterie, besvarelse, daekning, liveDokRefs, saveAction, godkendAction }: Props) {
   const { kriterieNr } = kriterie;
   const [open, setOpen] = useState(false);
   const [localStatus, setLocalStatus] = useState<KriterieStatus>(besvarelse.status);
@@ -54,14 +56,14 @@ export function KriterieEditor({ kriterie, besvarelse, daekning, liveDokRefs }: 
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
       setSaving(true);
-      await saveKriterieBesvarelse(kriterieNr, updated);
+      await (saveAction ?? saveKriterieBesvarelse)(kriterieNr, updated);
       setSaving(false);
     }, 1000);
   };
 
   const handleGodkend = async () => {
     setGodkending(true);
-    const result = await godkendKriterie(kriterieNr);
+    const result = await (godkendAction ?? godkendKriterie)(kriterieNr);
     if (result.ok) setLocalStatus('godkendt');
     setGodkending(false);
   };
