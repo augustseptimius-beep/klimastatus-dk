@@ -6,7 +6,7 @@ const innerJoin = vi.fn(() => ({ where }));
 const from = vi.fn(() => ({ innerJoin }));
 const select = vi.fn(() => ({ from }));
 
-vi.mock('@/db', () => ({ db: { select: (...a: unknown[]) => select(...a) } }));
+vi.mock('@/db', () => ({ db: { select: (...a: unknown[]) => select(...(a as [])) } }));
 
 import { getReduktionsMaal } from './maal';
 
