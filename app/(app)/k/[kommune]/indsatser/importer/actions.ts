@@ -1,24 +1,10 @@
 'use server';
 
+import type { ImportIndsats } from '@/lib/import/types';
 import { requireKommuneContext } from '@/lib/kommune-context';
 import { db } from '@/db';
 import { indsatsOmraade, tiltag } from '@/db/schema';
 import { redirect } from 'next/navigation';
-
-type ImportHandling = {
-  titel: string;
-  type: 'reduction' | 'adaptation' | 'both';
-  status: 'planned' | 'in_progress' | 'completed' | 'discontinued';
-  beskrivelse?: string;
-};
-
-type ImportIndsats = {
-  navn: string;
-  type: 'ghg_reduction' | 'adaptation' | 'consumption' | 'just_transition' | 'cross_cutting';
-  sektor: 'energy' | 'transport' | 'buildings' | 'food' | 'agriculture' | 'waste' | 'adaptation' | 'other';
-  beskrivelse?: string;
-  handlinger: ImportHandling[];
-};
 
 export async function bulkImportAction(slug: string, indsatser: ImportIndsats[]): Promise<void> {
   const { kommune } = await requireKommuneContext(slug);
