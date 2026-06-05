@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, integer, boolean, timestamp, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, integer, boolean, timestamp, jsonb, unique } from 'drizzle-orm/pg-core';
 import { kommune } from './kommune';
 import { dokumentationsstyrkeEnum } from './enums';
 
@@ -13,7 +13,9 @@ export const cctfKriterie = pgTable('cctf_kriterie', {
   aktiv: boolean('aktiv').notNull().default(true),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => [
+  unique('cctf_kriterie_version_nr_unique').on(table.version, table.kriterieNr),
+]);
 
 export const cctfKriterieMapping = pgTable('cctf_kriterie_mapping', {
   id: uuid('id').primaryKey().defaultRandom(),
