@@ -1,7 +1,7 @@
 import { requireKommuneContext } from '@/lib/kommune-context';
 import { getAllTiltag, getAllIndsatsOmraader } from '@/db/queries';
 import Link from 'next/link';
-import { TiltagTable } from '@/app/(app)/tiltag/tiltag-table';
+import { TiltagTable } from './tiltag-table';
 
 export const metadata = { title: 'Handlingsoverblik — Klimastatus.dk' };
 

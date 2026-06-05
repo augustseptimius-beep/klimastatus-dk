@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { saveKriterieBesvarelse, godkendKriterie } from '@/app/(app)/selvevaluering/actions';
 import type { KriterieBesvarelse, KriterieStatus, DokRef } from '@/lib/cctf/selvevaluering-types';
 import type { CctfKriterieRow } from '@/db/queries/cctf';
 import type { CctfKriterieResult } from '@/lib/cctf/coverage-engine';
@@ -56,14 +55,14 @@ export function KriterieEditor({ kriterie, besvarelse, daekning, liveDokRefs, sa
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
       setSaving(true);
-      await (saveAction ?? saveKriterieBesvarelse)(kriterieNr, updated);
+      if (saveAction) await saveAction(kriterieNr, updated);
       setSaving(false);
     }, 1000);
   };
 
   const handleGodkend = async () => {
     setGodkending(true);
-    const result = await (godkendAction ?? godkendKriterie)(kriterieNr);
+    const result = godkendAction ? await godkendAction(kriterieNr) : { ok: false };
     if (result.ok) setLocalStatus('godkendt');
     setGodkending(false);
   };

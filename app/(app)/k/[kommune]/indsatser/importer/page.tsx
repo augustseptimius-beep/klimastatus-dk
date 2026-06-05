@@ -1,5 +1,5 @@
 import { requireKommuneContext } from '@/lib/kommune-context';
-import { ImporterClient } from '@/app/(app)/indsatser/importer/importer-client';
+import { ImporterClient } from './importer-client';
 
 export const metadata = { title: 'Importer handlingskatalog — Klimastatus.dk' };
 

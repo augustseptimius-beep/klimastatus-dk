@@ -2,7 +2,7 @@
 
 import { useState, useRef, useTransition } from 'react';
 import Link from 'next/link';
-import { bulkImportAction } from '@/app/(app)/k/[kommune]/indsatser/importer/actions';
+import { bulkImportAction } from './actions';
 
 type Handling = {
   titel: string;
@@ -131,7 +131,7 @@ export function ImporterClient({ slug }: { slug: string }) {
           <p className="sub">Upload dit eksisterende handlingskatalog — Claude analyserer det og foreslår indsatsområder og handlinger.</p>
         </div>
         <div className="actions">
-          <Link href="/indsatser" className="ks-btn ks-btn-secondary">← Tilbage</Link>
+          <Link href={`/k/${slug}/indsatser`} className="ks-btn ks-btn-secondary">← Tilbage</Link>
         </div>
       </div>
 

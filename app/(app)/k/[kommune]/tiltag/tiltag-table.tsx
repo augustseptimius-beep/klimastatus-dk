@@ -44,9 +44,8 @@ const TYPE_BADGE: Record<string, string> = {
 
 type SortKey = 'titel' | 'indsats' | 'type' | 'status' | 'co2';
 
-export function TiltagTable({ tiltag, indsatser, slug }: { tiltag: Tiltag[]; indsatser: Indsats[]; slug?: string }) {
+export function TiltagTable({ tiltag, indsatser, slug }: { tiltag: Tiltag[]; indsatser: Indsats[]; slug: string }) {
   const router = useRouter();
-  const redigerPath = (id: string) => slug ? `/k/${slug}/tiltag/${id}/rediger` : `/tiltag/${id}/rediger`;
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
@@ -225,7 +224,7 @@ export function TiltagTable({ tiltag, indsatser, slug }: { tiltag: Tiltag[]; ind
               <tr
                 key={t.id}
                 className="clickable"
-                onClick={() => router.push(redigerPath(t.id))}
+                onClick={() => router.push(`/tiltag/${t.id}/rediger`)}
               >
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -253,7 +252,7 @@ export function TiltagTable({ tiltag, indsatser, slug }: { tiltag: Tiltag[]; ind
                   {t.forventetEffektCo2Ton != null ? t.forventetEffektCo2Ton.toLocaleString('da-DK') : '—'}
                 </td>
                 <td onClick={(e) => e.stopPropagation()}>
-                  <Link href={redigerPath(t.id)} className="ks-btn ks-btn-secondary" style={{ padding: '5px 10px', fontSize: 12 }}>
+                  <Link href={`/k/${slug}/tiltag/${t.id}/rediger`} className="ks-btn ks-btn-secondary" style={{ padding: '5px 10px', fontSize: 12 }}>
                     Rediger
                   </Link>
                 </td>

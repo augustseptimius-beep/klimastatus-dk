@@ -2,7 +2,7 @@ import { requireKommuneContext } from '@/lib/kommune-context';
 import { redirect } from 'next/navigation';
 import { getSelvevaluering } from '@/db/queries/selvevaluering';
 import { getCctfKriterier } from '@/db/queries/cctf';
-import { PrintButton } from '@/app/(app)/selvevaluering/preview/_print-button';
+import { PrintButton } from './_print-button';
 import Link from 'next/link';
 import React from 'react';
 
