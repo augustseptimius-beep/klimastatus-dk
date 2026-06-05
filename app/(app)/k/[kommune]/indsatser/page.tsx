@@ -40,6 +40,7 @@ export default async function IndsatserPage({ params }: Props) {
           <h1>Indsatsområder</h1>
         </div>
         <div className="actions">
+          <Link href={`/k/${slug}/indsatser/importer-skabelon`} className="ks-btn ks-btn-secondary">↑ Importer skabelon</Link>
           <Link href={`/k/${slug}/indsatser/ny`} className="ks-btn ks-btn-primary">+ Nyt indsatsområde</Link>
         </div>
       </div>
@@ -62,7 +63,7 @@ export default async function IndsatserPage({ params }: Props) {
           <div>
             <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--forest-900)', marginBottom: 6 }}>Har du allerede et handlingskatalog?</div>
             <p style={{ fontSize: 13, color: 'var(--ink-700)', lineHeight: 1.6, margin: 0 }}>
-              Opret indsatsområderne manuelt og tilføj handlinger under hvert område. Brug beskrivelsesfeltet til at notere, hvilke handlinger der hører til.
+              Ligger det i et regneark? <Link href={`/k/${slug}/indsatser/importer-skabelon`} style={{ color: 'var(--forest-900)', fontWeight: 600 }}>Importer en udfyldt skabelon</Link> — forudsigeligt og uden AI. Er det et tekstdokument (PDF/Word)? <Link href={`/k/${slug}/indsatser/importer`} style={{ color: 'var(--forest-900)', fontWeight: 600 }}>Lad AI analysere det</Link>.
             </p>
           </div>
         </div>
@@ -73,7 +74,8 @@ export default async function IndsatserPage({ params }: Props) {
           <h3>Ingen indsatsområder endnu</h3>
           <p>Opret dit første indsatsområde manuelt, eller importer et eksisterende handlingskatalog med AI.</p>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-            <Link href={`/k/${slug}/indsatser/importer`} className="ks-btn ks-btn-secondary">↑ Importer fra fil</Link>
+            <Link href={`/k/${slug}/indsatser/importer`} className="ks-btn ks-btn-secondary">↑ Importer med AI (PDF/Word)</Link>
+            <Link href={`/k/${slug}/indsatser/importer-skabelon`} className="ks-btn ks-btn-secondary">↑ Importer udfyldt skabelon</Link>
             <Link href={`/k/${slug}/indsatser/ny`} className="ks-btn ks-btn-primary">+ Nyt indsatsområde</Link>
           </div>
         </div>
