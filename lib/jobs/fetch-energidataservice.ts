@@ -70,7 +70,11 @@ export async function handleFetchEnergidataservice(options?: {
       continue;
     }
     const aar = Number(latest.Month.slice(0, 4));
-    const totalMW = latest.OnshoreWindMW + latest.SolarPowerMW;
+    const totalMW = (latest.OnshoreWindMW ?? 0) + (latest.SolarPowerMW ?? 0);
+    if (!Number.isFinite(totalMW)) {
+      console.warn(`[fetch-energidataservice] NaN/Inf for kommunekode ${kommunekode}, skipper`);
+      continue;
+    }
 
     try {
       const cyklus = await ensureAarligCyklus(ki.kommuneId, aar);

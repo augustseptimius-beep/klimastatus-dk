@@ -35,6 +35,18 @@ export default async function KommuneLayout({ children, params }: Props) {
             </span>
           )}
         </div>
+        <div className="ks-topbar-right" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 16, paddingRight: '1rem' }}>
+          {kommune.publicEnabled && (
+            <Link
+              href={`/${slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontSize: '0.8125rem', color: 'var(--ink-400, #9A9A8E)', textDecoration: 'none' }}
+            >
+              Se offentlig side ↗
+            </Link>
+          )}
+        </div>
       </header>
       <AppSidebar slug={slug} kommuneNavn={kommune.navn} isAdmin={session.role === 'admin'} />
       <main className="ks-main">

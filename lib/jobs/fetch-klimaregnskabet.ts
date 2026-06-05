@@ -69,6 +69,10 @@ async function processKommuneIndikator(ki: ActiveKommuneIndikator, fromYear?: nu
 
   const co2eByYear = parseSamletCo2e(allRecords);
   for (const [yearStr, vaerdi] of Object.entries(co2eByYear)) {
+    if (!Number.isFinite(vaerdi)) {
+      console.warn(`[fetch-klimaregnskabet] NaN/Inf for år ${yearStr}, skipper`);
+      continue;
+    }
     const aar = Number(yearStr);
     const cyklus = await ensureAarligCyklus(ki.kommuneId, aar);
     await db.insert(indikatorMaaling).values({
