@@ -51,7 +51,7 @@ export function SkabelonImporterClient({ slug }: { slug: string }) {
       <div style={{ maxWidth: 640 }}>
         <div className="ks-card" style={{ marginBottom: 20, background: 'var(--moss-50)', border: '1px solid var(--moss-100)' }}>
           <div style={{ fontSize: 13, color: 'var(--ink-700)', lineHeight: 1.6 }}>
-            <strong>1.</strong> <a href="/api/skabelon/handlingskatalog" style={{ color: 'var(--forest-900)', fontWeight: 600 }}>Hent CSV-skabelonen</a> &nbsp;·&nbsp;
+            <strong>1.</strong> <Link href="/api/skabelon/handlingskatalog" style={{ color: 'var(--forest-900)', fontWeight: 600 }}>Hent CSV-skabelonen</Link> &nbsp;·&nbsp;
             <strong>2.</strong> Udfyld én række pr. handling (gentag indsatsområdet på tværs af rækker) &nbsp;·&nbsp;
             <strong>3.</strong> Upload den udfyldte fil herunder.
           </div>
