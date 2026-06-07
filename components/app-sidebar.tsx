@@ -24,6 +24,7 @@ export function AppSidebar({ slug, kommuneNavn, isAdmin }: Props) {
 
   const secondaryNav = [
     { href: `${base}/selvevaluering`, label: 'Selvevaluering' },
+    { href: `${base}/indstillinger/dashboard`, label: 'Offentlig side' },
     { href: `${base}/indstillinger`,  label: 'Indstillinger' },
   ];
 
