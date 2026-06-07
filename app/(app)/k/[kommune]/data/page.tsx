@@ -4,7 +4,8 @@ import { db } from '@/db';
 import { kommuneIndikator, indikatorTemplate, indikatorMaaling } from '@/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import Link from 'next/link';
-import { activateTemplateFormAction, deactivateKommuneIndikatorAction, hentNuFormAction } from './actions';
+import { activateTemplateFormAction, deactivateKommuneIndikatorAction } from './actions';
+import { HentNuKnap } from './_hent-nu-knap';
 import { getForaeldreloeseIndikatorer } from '@/db/queries/beslutningsport';
 
 export const metadata = { title: 'Data — Klimastatus.dk' };
@@ -160,13 +161,7 @@ export default async function DataPage({ params, searchParams }: Props) {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
-                          <form action={hentNuFormAction.bind(null, slug, ki.id)}>
-                            <input type="hidden" name="fromYear" value="" />
-                            <button type="submit"
-                              className="rounded-md bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200">
-                              Hent nu
-                            </button>
-                          </form>
+                          <HentNuKnap slug={slug} kommuneIndikatorId={ki.id} />
                           <form action={deactivateKommuneIndikatorAction.bind(null, slug, ki.id)}>
                             <button type="submit"
                               className="rounded-md px-3 py-1 text-xs font-medium text-gray-400 hover:text-red-600">
