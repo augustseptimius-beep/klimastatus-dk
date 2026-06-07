@@ -9,6 +9,7 @@ import { createMagicLink } from '@/db/queries/magic-link';
 import { sendMagicLinkEmail } from '@/lib/email';
 import { getKommuneById } from '@/db/queries';
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import type { FormState } from '@/lib/definitions';
 
@@ -53,6 +54,7 @@ export async function assignTiltagAction(slug: string, tovholderId: string, tilt
   const tiltag = await getTiltagById(tiltagId);
   if (!tiltag || tiltag.kommuneId !== kommune.id) throw new Error('Ikke autoriseret');
   await assignTiltagToTovholder(tovholderId, tiltagId);
+  revalidatePath(`/k/${slug}/tovholdere/${tovholderId}`);
 }
 
 export async function removeTiltagAction(slug: string, tovholderId: string, tiltagId: string) {
@@ -62,6 +64,7 @@ export async function removeTiltagAction(slug: string, tovholderId: string, tilt
   const tiltag = await getTiltagById(tiltagId);
   if (!tiltag || tiltag.kommuneId !== kommune.id) throw new Error('Ikke autoriseret');
   await removeTiltagFromTovholder(tovholderId, tiltagId);
+  revalidatePath(`/k/${slug}/tovholdere/${tovholderId}`);
 }
 
 export async function sendRundeAction(slug: string): Promise<void> {
