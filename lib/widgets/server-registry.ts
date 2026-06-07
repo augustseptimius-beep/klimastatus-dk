@@ -8,6 +8,8 @@ import { Component as Co2eComponent } from './co2e-udvikling/Component';
 import { loadData as noegletalLoad, type NoegletalData } from './noegletal/load';
 import { Component as NoegletalComponent } from './noegletal/Component';
 import { Component as TekstblokComponent } from './tekstblok/Component';
+import { loadData as indsatserLoad, type IndsatsOversigt } from './indsatser-oversigt/load';
+import { Component as IndsatserComponent } from './indsatser-oversigt/Component';
 
 export type WidgetCtx = {
   kommuneNavn: string;
@@ -37,7 +39,11 @@ export const SERVER_REGISTRY: Record<string, ServerWidget> = {
     loadData: async () => null,
     Component: TekstblokComponent as ComponentType<WidgetProps<never>>,
   },
+  'indsatser-oversigt': {
+    loadData: (id) => indsatserLoad(id),
+    Component: IndsatserComponent as ComponentType<WidgetProps<never>>,
+  },
 };
 
 // Eksplicit type-eksport så TData-typerne ikke pruner væk (bruges af tests/fremtidige loaders)
-export type { HeroData, Co2eUdviklingData, NoegletalData };
+export type { HeroData, Co2eUdviklingData, NoegletalData, IndsatsOversigt };

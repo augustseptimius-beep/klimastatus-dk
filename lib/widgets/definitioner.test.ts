@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { DEFINITIONER, definitionListe } from './definitioner';
 
 describe('DEFINITIONER', () => {
-  it('indeholder de fire Fase 1-widgets', () => {
+  it('indeholder de fire Fase 1-widgets plus indsatser-oversigt', () => {
     expect(Object.keys(DEFINITIONER).sort()).toEqual(
-      ['co2e-udvikling', 'klimamaal-hero', 'noegletal', 'tekstblok'],
+      ['co2e-udvikling', 'indsatser-oversigt', 'klimamaal-hero', 'noegletal', 'tekstblok'],
     );
   });
   it('hver definitions type matcher dens nøgle', () => {
@@ -14,6 +14,6 @@ describe('DEFINITIONER', () => {
     }
   });
   it('definitionListe er et array af alle definitioner', () => {
-    expect(definitionListe()).toHaveLength(4);
+    expect(definitionListe()).toHaveLength(5);
   });
 });
