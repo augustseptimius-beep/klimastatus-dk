@@ -11,9 +11,9 @@ const schema = z.object({
   type: z.enum(['reduction', 'adaptation', 'both']),
   status: z.enum(['planned', 'in_progress', 'completed', 'discontinued']).default('planned'),
   beskrivelse: z.string().optional(),
-  tidsrammeStart: z.string().optional(),
-  tidsrammeSlut: z.string().optional(),
-  forventetEffektCo2Ton: z.string().optional().transform((v) => (v ? parseFloat(v) : undefined)),
+  tidsrammeStart: z.string().optional().transform((v) => v?.trim() || undefined),
+  tidsrammeSlut: z.string().optional().transform((v) => v?.trim() || undefined),
+  forventetEffektCo2Ton: z.string().optional().transform((v) => (v?.trim() ? parseFloat(v) : undefined)),
 });
 
 export async function createTiltagAction(slug: string, _state: FormState, formData: FormData): Promise<FormState> {
