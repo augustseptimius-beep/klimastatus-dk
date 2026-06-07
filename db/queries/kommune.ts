@@ -22,3 +22,7 @@ export async function createKommune(data: {
   const [created] = await db.insert(kommune).values(data).returning();
   return created;
 }
+
+export async function deleteKommune(id: string) {
+  await db.delete(kommune).where(eq(kommune.id, id));
+}

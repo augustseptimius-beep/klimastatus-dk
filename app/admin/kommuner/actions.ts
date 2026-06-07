@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import type { FormState } from '@/lib/definitions';
 import { verifySession } from '@/lib/dal';
 import { findKommune } from '@/lib/kommuner-liste';
+import { deleteKommune } from '@/db/queries';
 
 const CreateKommuneSchema = z.object({
   kommunekode: z.string().min(3).max(3),
@@ -50,4 +51,15 @@ export async function createKommuneAction(
 
   revalidatePath('/admin/kommuner');
   redirect('/admin/kommuner');
+}
+
+export async function deleteKommuneAction(formData: FormData): Promise<void> {
+  const session = await verifySession();
+  if (!session || session.role !== 'admin') redirect('/login');
+
+  const id = formData.get('id');
+  if (typeof id !== 'string' || !id) return;
+
+  await deleteKommune(id);
+  revalidatePath('/admin/kommuner');
 }
