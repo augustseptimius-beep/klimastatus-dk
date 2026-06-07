@@ -22,9 +22,14 @@ function StalenessStatus({ sidstHentet, sidsteFejl, sidsteFejlBesked }: {
 }) {
   if (sidsteFejl && (!sidstHentet || sidsteFejl > sidstHentet)) {
     return (
-      <span className="text-xs text-red-600" title={sidsteFejlBesked ?? undefined}>
-        ⚠ Fejl
-      </span>
+      <div>
+        <span className="text-xs font-medium text-red-600">⚠ Fejl ved hentning</span>
+        {sidsteFejlBesked && (
+          <div className="mt-1 max-w-xs rounded bg-red-50 px-2 py-1 text-xs text-red-700 break-words">
+            {sidsteFejlBesked}
+          </div>
+        )}
+      </div>
     );
   }
   if (!sidstHentet) {
