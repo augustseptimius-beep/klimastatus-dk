@@ -1,5 +1,6 @@
 'use server';
 import { revalidatePath } from 'next/cache';
+import { tilknytIndikatorTiltag, fjernIndikatorTiltag } from '@/db/queries/indikator-kobling';
 import { requireKommuneContext } from '@/lib/kommune-context';
 import { db } from '@/db';
 import { indikator } from '@/db/schema';
@@ -93,4 +94,28 @@ export async function hentNuAction(
 
   revalidatePath(`/k/${slug}/data`);
   return { message: undefined };
+}
+
+export async function tilknytIndikatorTiltagAction(
+  slug: string,
+  kommuneIndikatorId: string,
+  tiltagId: string,
+): Promise<void> {
+  const { kommune } = await requireKommuneContext(slug);
+  const ki = await getKommuneIndikatorById(kommuneIndikatorId);
+  if (!ki || ki.kommuneId !== kommune.id) return;
+  await tilknytIndikatorTiltag(ki.indikatorId, tiltagId);
+  revalidatePath(`/k/${slug}/data`);
+}
+
+export async function fjernIndikatorTiltagAction(
+  slug: string,
+  kommuneIndikatorId: string,
+  tiltagId: string,
+): Promise<void> {
+  const { kommune } = await requireKommuneContext(slug);
+  const ki = await getKommuneIndikatorById(kommuneIndikatorId);
+  if (!ki || ki.kommuneId !== kommune.id) return;
+  await fjernIndikatorTiltag(ki.indikatorId, tiltagId);
+  revalidatePath(`/k/${slug}/data`);
 }

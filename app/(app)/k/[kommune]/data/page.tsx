@@ -7,6 +7,9 @@ import Link from 'next/link';
 import { activateTemplateFormAction, deactivateKommuneIndikatorAction } from './actions';
 import { HentNuKnap } from './_hent-nu-knap';
 import { getForaeldreloeseIndikatorer } from '@/db/queries/beslutningsport';
+import { getIndikatorKobling } from '@/db/queries/indikator-kobling';
+import { getAllTiltag } from '@/db/queries';
+import { KoblingPanel } from './_kobling-panel';
 
 export const metadata = { title: 'Data — Klimastatus.dk' };
 
@@ -90,6 +93,14 @@ export default async function DataPage({ params, searchParams }: Props) {
   const allTemplates = await getActiveTemplates();
   const aktiveredeTemplateIds = new Set(aktiveKI.map((ki) => ki.templateId));
 
+  const alleTiltag = await getAllTiltag(kommune.id);
+  const koblinger = await Promise.all(
+    aktiveWithValue.map(async (ki) => ({
+      kommuneIndikatorId: ki.id,
+      ...(await getIndikatorKobling(ki.indikatorId)),
+    }))
+  );
+
   return (
     <div>
       {foraeldreloese.length > 0 && (
@@ -138,6 +149,7 @@ export default async function DataPage({ params, searchParams }: Props) {
                     <th className="px-4 py-3 font-medium">Seneste</th>
                     <th className="px-4 py-3 font-medium">Status</th>
                     <th className="px-4 py-3 font-medium">Handlinger</th>
+                    <th className="px-4 py-3 font-medium">Koblinger</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -169,6 +181,20 @@ export default async function DataPage({ params, searchParams }: Props) {
                             </button>
                           </form>
                         </div>
+                      </td>
+                      <td className="px-4 py-3 align-top" style={{ minWidth: 220 }}>
+                        {(() => {
+                          const kb = koblinger.find((k) => k.kommuneIndikatorId === ki.id);
+                          if (!kb) return null;
+                          return (
+                            <KoblingPanel
+                              slug={slug}
+                              kommuneIndikatorId={ki.id}
+                              tilknyttedeTiltag={kb.tilknyttedeTiltag}
+                              alleTiltag={alleTiltag}
+                            />
+                          );
+                        })()}
                       </td>
                     </tr>
                   ))}
