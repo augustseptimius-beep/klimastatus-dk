@@ -224,7 +224,7 @@ export function TiltagTable({ tiltag, indsatser, slug }: { tiltag: Tiltag[]; ind
               <tr
                 key={t.id}
                 className="clickable"
-                onClick={() => router.push(`/tiltag/${t.id}/rediger`)}
+                onClick={() => router.push(`/k/${slug}/tiltag/${t.id}/rediger`)}
               >
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
