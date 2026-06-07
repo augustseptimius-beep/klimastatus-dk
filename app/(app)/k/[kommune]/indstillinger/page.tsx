@@ -32,10 +32,6 @@ export default async function IndstillingerPage({ params }: Props) {
             <dt className="font-medium text-gray-500">Subdomæne</dt>
             <dd className="mt-1 text-gray-900">{kommune.subdomain}.klimastatus.dk</dd>
           </div>
-          <div>
-            <dt className="font-medium text-gray-500">Befolkningstal</dt>
-            <dd className="mt-1 text-gray-900">{kommune.befolkningstal?.toLocaleString('da-DK') ?? '—'}</dd>
-          </div>
         </dl>
       </div>
 

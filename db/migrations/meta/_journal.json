@@ -71,6 +71,20 @@
       "when": 1780684173021,
       "tag": "0009_cctf_kriterie_unique",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1780826547716,
+      "tag": "0010_dedup_indikator_template_unique",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1749254400000,
+      "tag": "0011_thisted_kommunekode",
+      "breakpoints": true
     }
   ]
 }

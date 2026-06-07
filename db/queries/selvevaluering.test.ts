@@ -28,6 +28,7 @@ describe('opdaterKriterieText', () => {
       hvadStaarPaa: 'NY TEKST',
       hvadOpdateres: '',
       selvvurdering: '',
+      selvvurderingNiveau: '',
     });
 
     expect(opdateret.kriterier[0].hvadStaarPaa).toBe('NY TEKST');
@@ -43,6 +44,7 @@ describe('opdaterKriterieText', () => {
       hvadStaarPaa: 'noget',
       hvadOpdateres: '',
       selvvurdering: '',
+      selvvurderingNiveau: '',
     });
     expect(opdateret.kriterier[0].status).toBe('redigeret');
   });
@@ -54,9 +56,22 @@ describe('opdaterKriterieText', () => {
       hvadStaarPaa: '',
       hvadOpdateres: '',
       selvvurdering: '',
+      selvvurderingNiveau: '',
     });
     // Rydning af godkendt felt sætter til redigeret (kræver re-godkendelse)
     expect(opdateret.kriterier[0].status).toBe('redigeret');
+  });
+
+  it('gemmer standardiseret selvvurderingsniveau', () => {
+    const data = initialiserKriterieData('2.5');
+    const opdateret = opdaterKriterieText(data, 1, {
+      hvadStaarPaa: '',
+      hvadOpdateres: '',
+      selvvurdering: 'Begrundelse',
+      selvvurderingNiveau: 'lever_op',
+    });
+    expect(opdateret.kriterier[0].selvvurderingNiveau).toBe('lever_op');
+    expect(opdateret.kriterier[0].selvvurdering).toBe('Begrundelse');
   });
 });
 

@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, boolean, integer, timestamp, unique } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, boolean, integer, timestamp, unique, uniqueIndex } from 'drizzle-orm/pg-core';
 import { apiKildeEnum } from './enums';
 import { kommune } from './kommune';
 import { indikator } from './indikator';
@@ -14,7 +14,9 @@ export const indikatorTemplate = pgTable('indikator_template', {
   aktiv: boolean('aktiv').notNull().default(true),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  uniqueIndex('indikator_template_titel_unique').on(t.titel),
+]);
 
 export const kommuneIndikator = pgTable('kommune_indikator', {
   id: uuid('id').primaryKey().defaultRandom(),

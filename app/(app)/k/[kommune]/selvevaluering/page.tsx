@@ -120,7 +120,7 @@ export default async function SelvevalueringPage({ params }: Props) {
                 const fallbackBesvarelse: KriterieBesvarelse = {
                   kriterieNr: k.kriterieNr,
                   status: 'tom',
-                  hvadStaarPaa: '', hvadOpdateres: '', selvvurdering: '',
+                  hvadStaarPaa: '', hvadOpdateres: '', selvvurdering: '', selvvurderingNiveau: '',
                   dokumentationshenvisninger: [],
                   aiGenereret: false, aiGenereretDato: null,
                 };

@@ -2,6 +2,7 @@
 import { useActionState } from 'react';
 import { createKommuneAction } from '@/app/admin/kommuner/actions';
 import { Button } from '@/components/ui/button';
+import { ALLE_KOMMUNER } from '@/lib/kommuner-liste';
 
 export function CreateKommuneForm() {
   const [state, action, pending] = useActionState(createKommuneAction, undefined);
@@ -9,33 +10,22 @@ export function CreateKommuneForm() {
   return (
     <form action={action} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <label htmlFor="navn" className="text-sm font-medium text-gray-700">
-          Kommunenavn
-        </label>
-        <input
-          id="navn"
-          name="navn"
-          type="text"
-          placeholder="Thisted"
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-        />
-        {state?.errors?.navn && (
-          <p className="text-sm text-red-600">{state.errors.navn[0]}</p>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-1">
         <label htmlFor="kommunekode" className="text-sm font-medium text-gray-700">
-          Kommunekode
+          Kommune
         </label>
-        <input
+        <select
           id="kommunekode"
           name="kommunekode"
-          type="text"
-          placeholder="773"
+          defaultValue=""
           className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-        />
-        <p className="text-xs text-gray-400">Find kommunekoden på Danmarks Statistik (3-4 cifre).</p>
+        >
+          <option value="" disabled>Vælg kommune…</option>
+          {ALLE_KOMMUNER.map(k => (
+            <option key={k.kode} value={k.kode}>
+              {k.navn} ({k.kode})
+            </option>
+          ))}
+        </select>
         {state?.errors?.kommunekode && (
           <p className="text-sm text-red-600">{state.errors.kommunekode[0]}</p>
         )}

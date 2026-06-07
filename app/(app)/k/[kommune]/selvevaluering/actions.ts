@@ -39,14 +39,16 @@ export async function genererSelvevaluering(slug: string): Promise<{ ok: boolean
 export async function saveKriterieBesvarelse(
   slug: string,
   kriterieNr: number,
-  tekst: Pick<KriterieBesvarelse, 'hvadStaarPaa' | 'hvadOpdateres' | 'selvvurdering'>,
+  tekst: Pick<KriterieBesvarelse, 'hvadStaarPaa' | 'hvadOpdateres' | 'selvvurdering' | 'selvvurderingNiveau'>,
 ): Promise<{ ok: boolean }> {
   const { kommune } = await requireKommuneContext(slug);
 
+  // Lazy-init: opret skemaet ved første redigering, så man ikke behøver
+  // klikke "Generér skema" først.
   const existing = await getSelvevaluering(kommune.id);
-  if (!existing) return { ok: false };
+  const base = existing?.kriterieData ?? initialiserKriterieData('2.5');
 
-  const opdateret = opdaterKriterieText(existing.kriterieData, kriterieNr, tekst);
+  const opdateret = opdaterKriterieText(base, kriterieNr, tekst);
   await upsertSelvevaluering(kommune.id, opdateret);
   return { ok: true };
 }
@@ -54,11 +56,12 @@ export async function saveKriterieBesvarelse(
 export async function godkendKriterie(slug: string, kriterieNr: number): Promise<{ ok: boolean }> {
   const { kommune } = await requireKommuneContext(slug);
 
+  // Lazy-init: tillad godkendelse selv hvis "Generér skema" aldrig blev klikket.
   const existing = await getSelvevaluering(kommune.id);
-  if (!existing) return { ok: false };
+  const base = existing?.kriterieData ?? initialiserKriterieData('2.5');
 
   const dokRefs = await getDokumentationshenvisninger(kommune.id, kriterieNr);
-  const opdateret = godkendKriterieInData(existing.kriterieData, kriterieNr, dokRefs);
+  const opdateret = godkendKriterieInData(base, kriterieNr, dokRefs);
   await upsertSelvevaluering(kommune.id, opdateret);
   revalidatePath(`/k/${slug}/selvevaluering`);
   return { ok: true };

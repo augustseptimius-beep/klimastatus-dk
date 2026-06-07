@@ -3,8 +3,11 @@ import { redirect } from 'next/navigation';
 import { getSelvevaluering } from '@/db/queries/selvevaluering';
 import { getCctfKriterier } from '@/db/queries/cctf';
 import { PrintButton } from './_print-button';
+import { SELVVURDERING_NIVEAUER } from '@/lib/cctf/selvevaluering-types';
 import Link from 'next/link';
 import React from 'react';
+
+const NIVEAU_MAP = new Map(SELVVURDERING_NIVEAUER.map(n => [n.value, n]));
 
 export const metadata = { title: 'Selvevaluering — Eksport' };
 
@@ -118,15 +121,29 @@ export default async function SelvevalueringPreviewPage({ params }: Props) {
                           <div style={{ whiteSpace: 'pre-wrap' }}>{b.hvadOpdateres}</div>
                         </div>
                       )}
-                      {b?.selvvurdering && (
+                      {(b?.selvvurderingNiveau || b?.selvvurdering) && (
                         <div>
                           <div style={{ fontWeight: 600, fontSize: 11, textTransform: 'uppercase', color: '#666', marginBottom: 4 }}>
                             Selvvurdering:
                           </div>
-                          <div style={{ whiteSpace: 'pre-wrap' }}>{b.selvvurdering}</div>
+                          {b?.selvvurderingNiveau && NIVEAU_MAP.has(b.selvvurderingNiveau) && (
+                            <span style={{
+                              display: 'inline-block',
+                              padding: '2px 8px',
+                              borderRadius: 10,
+                              fontSize: 11,
+                              fontWeight: 600,
+                              background: NIVEAU_MAP.get(b.selvvurderingNiveau)!.bg,
+                              color: NIVEAU_MAP.get(b.selvvurderingNiveau)!.color,
+                              marginBottom: b.selvvurdering ? 4 : 0,
+                            }}>
+                              {NIVEAU_MAP.get(b.selvvurderingNiveau)!.label}
+                            </span>
+                          )}
+                          {b?.selvvurdering && <div style={{ whiteSpace: 'pre-wrap' }}>{b.selvvurdering}</div>}
                         </div>
                       )}
-                      {!b?.hvadStaarPaa && !b?.hvadOpdateres && !b?.selvvurdering && (
+                      {!b?.hvadStaarPaa && !b?.hvadOpdateres && !b?.selvvurdering && !b?.selvvurderingNiveau && (
                         <span style={{ color: '#aaa', fontStyle: 'italic' }}>Ikke udfyldt</span>
                       )}
                     </td>

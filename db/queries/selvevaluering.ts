@@ -27,7 +27,7 @@ export function initialiserKriterieData(cctfVersion: string): SelvevalueringData
 export function opdaterKriterieText(
   data: SelvevalueringData,
   kriterieNr: number,
-  tekst: Pick<KriterieBesvarelse, 'hvadStaarPaa' | 'hvadOpdateres' | 'selvvurdering'>,
+  tekst: Pick<KriterieBesvarelse, 'hvadStaarPaa' | 'hvadOpdateres' | 'selvvurdering' | 'selvvurderingNiveau'>,
 ): SelvevalueringData {
   return {
     ...data,

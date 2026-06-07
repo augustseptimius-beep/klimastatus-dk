@@ -175,7 +175,10 @@ async function seed() {
       cctfKriterier: [],
       aktiv: true,
     },
-  ] as const).onConflictDoNothing();
+  ] as const).onConflictDoUpdate({
+    target: indikatorTemplate.titel,
+    set: { updatedAt: new Date() },
+  });
   console.log('Seeded 3 indicator templates.');
 
   console.log('Seeding Grønkøbing Kommune...');

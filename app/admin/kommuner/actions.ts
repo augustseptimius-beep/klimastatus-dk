@@ -5,10 +5,10 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import type { FormState } from '@/lib/definitions';
 import { verifySession } from '@/lib/dal';
+import { findKommune } from '@/lib/kommuner-liste';
 
 const CreateKommuneSchema = z.object({
-  navn: z.string().min(2, 'Navn skal være mindst 2 tegn.').max(100),
-  kommunekode: z.string().min(3, 'Kommunekode skal være mindst 3 tegn.').max(10),
+  kommunekode: z.string().min(3).max(3),
 });
 
 function toSubdomain(navn: string): string {
@@ -29,21 +29,23 @@ export async function createKommuneAction(
   const session = await verifySession();
   if (!session || session.role !== 'admin') redirect('/login');
 
-  const raw = {
-    navn: formData.get('navn'),
-    kommunekode: formData.get('kommunekode'),
-  };
-  const parsed = CreateKommuneSchema.safeParse(raw);
+  const parsed = CreateKommuneSchema.safeParse({ kommunekode: formData.get('kommunekode') });
   if (!parsed.success) {
-    return { errors: parsed.error.flatten().fieldErrors };
+    return { errors: { kommunekode: ['Vælg en kommune fra listen.'] } };
   }
-  const { navn, kommunekode } = parsed.data;
+
+  const kommune = findKommune(parsed.data.kommunekode);
+  if (!kommune) {
+    return { errors: { kommunekode: ['Ukendt kommunekode.'] } };
+  }
+
+  const { navn, kode: kommunekode } = kommune;
   const subdomain = toSubdomain(navn);
 
   try {
     await createKommune({ navn, kommunekode, subdomain });
   } catch {
-    return { message: 'Subdomæne eller kommunekode er allerede i brug.' };
+    return { message: 'Kommunen er allerede oprettet.' };
   }
 
   revalidatePath('/admin/kommuner');

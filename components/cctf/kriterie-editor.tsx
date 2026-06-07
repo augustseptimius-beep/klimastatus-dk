@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import type { KriterieBesvarelse, KriterieStatus, DokRef } from '@/lib/cctf/selvevaluering-types';
+import { SELVVURDERING_NIVEAUER } from '@/lib/cctf/selvevaluering-types';
 import type { CctfKriterieRow } from '@/db/queries/cctf';
 import type { CctfKriterieResult } from '@/lib/cctf/coverage-engine';
 
@@ -16,7 +17,7 @@ type Props = {
   besvarelse: KriterieBesvarelse;
   daekning: CctfKriterieResult;
   liveDokRefs: DokRef[];
-  saveAction?: (kriterieNr: number, tekst: Pick<KriterieBesvarelse, 'hvadStaarPaa' | 'hvadOpdateres' | 'selvvurdering'>) => Promise<{ ok: boolean }>;
+  saveAction?: (kriterieNr: number, tekst: Pick<KriterieBesvarelse, 'hvadStaarPaa' | 'hvadOpdateres' | 'selvvurdering' | 'selvvurderingNiveau'>) => Promise<{ ok: boolean }>;
   godkendAction?: (kriterieNr: number) => Promise<{ ok: boolean }>;
 };
 
@@ -45,6 +46,7 @@ export function KriterieEditor({ kriterie, besvarelse, daekning, liveDokRefs, sa
     hvadStaarPaa: besvarelse.hvadStaarPaa,
     hvadOpdateres: besvarelse.hvadOpdateres,
     selvvurdering: besvarelse.selvvurdering,
+    selvvurderingNiveau: besvarelse.selvvurderingNiveau,
   });
 
   const handleChange = (field: keyof typeof fields, value: string) => {
@@ -58,6 +60,19 @@ export function KriterieEditor({ kriterie, besvarelse, daekning, liveDokRefs, sa
       if (saveAction) await saveAction(kriterieNr, updated);
       setSaving(false);
     }, 1000);
+  };
+
+  /** Dropdown-valg gemmes med det samme (ingen debounce-ventetid på et enkelt klik). */
+  const handleNiveauChange = (value: string) => {
+    const updated = { ...fields, selvvurderingNiveau: value as typeof fields.selvvurderingNiveau };
+    setFields(updated);
+    setLocalStatus('redigeret');
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(async () => {
+      setSaving(true);
+      if (saveAction) await saveAction(kriterieNr, updated);
+      setSaving(false);
+    }, 300);
   };
 
   const handleGodkend = async () => {
@@ -121,11 +136,10 @@ export function KriterieEditor({ kriterie, besvarelse, daekning, liveDokRefs, sa
             {kriterie.beskrivelse}
           </p>
 
-          {(['hvadStaarPaa', 'hvadOpdateres', 'selvvurdering'] as const).map(field => {
+          {(['hvadStaarPaa', 'hvadOpdateres'] as const).map(field => {
             const labels: Record<string, string> = {
               hvadStaarPaa: 'Hvad kommunen allerede har gjort',
               hvadOpdateres: 'Hvad kommunen vil opdatere / udbygge',
-              selvvurdering: 'Samlet selvvurdering',
             };
             return (
               <div key={field} style={{ marginBottom: 16 }}>
@@ -154,6 +168,57 @@ export function KriterieEditor({ kriterie, besvarelse, daekning, liveDokRefs, sa
               </div>
             );
           })}
+
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-600)', marginBottom: 4 }}>
+              Samlet selvvurdering
+            </label>
+            <select
+              value={fields.selvvurderingNiveau}
+              onChange={e => handleNiveauChange(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                borderRadius: 4,
+                border: '1px solid var(--sand-300)',
+                background: 'white',
+                fontSize: 14,
+                fontFamily: 'inherit',
+                color: fields.selvvurderingNiveau ? 'var(--ink-900)' : 'var(--ink-400)',
+                boxSizing: 'border-box',
+              }}
+            >
+              <option value="">Vælg vurdering…</option>
+              {SELVVURDERING_NIVEAUER.map(n => (
+                <option key={n.value} value={n.value}>{n.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-600)', marginBottom: 4 }}>
+              Begrundelse for selvvurdering
+            </label>
+            <textarea
+              value={fields.selvvurdering}
+              onChange={e => handleChange('selvvurdering', e.target.value)}
+              rows={4}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                borderRadius: 4,
+                border: '1px solid var(--sand-300)',
+                background: 'white',
+                fontSize: 14,
+                lineHeight: 1.6,
+                resize: 'vertical',
+                fontFamily: 'inherit',
+                color: 'var(--ink-900)',
+                boxSizing: 'border-box',
+              }}
+              placeholder="Skriv her..."
+            />
+          </div>
 
           {visibleDokRefs.length > 0 && (
             <div style={{ marginBottom: 16 }}>
