@@ -1,6 +1,6 @@
 'use server';
 import { requireKommuneContext } from '@/lib/kommune-context';
-import { createTiltag, updateTiltag, getTiltagById, getIndsatsOmraadeById } from '@/db/queries';
+import { createTiltag, updateTiltag, getTiltagById, getIndsatsOmraadeById, setTiltagTovholdere } from '@/db/queries';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import type { FormState } from '@/lib/definitions';
@@ -34,12 +34,16 @@ export async function createTiltagAction(slug: string, _state: FormState, formDa
   if (!indsatsOmraade || indsatsOmraade.kommuneId !== kommune.id) return { message: 'Ugyldigt indsatsområde' };
 
   const { tidsrammeStartAar, tidsrammeStartMaaned, tidsrammeSlutAar, tidsrammeSlutMaaned, ...rest } = parsed.data;
-  await createTiltag({
+  const nytTiltag = await createTiltag({
     ...rest,
     kommuneId: kommune.id,
     tidsrammeStart: byggDato(tidsrammeStartAar, tidsrammeStartMaaned),
     tidsrammeSlut: byggDato(tidsrammeSlutAar, tidsrammeSlutMaaned),
   });
+  const tovholderIds = formData.getAll('tovholderIds') as string[];
+  if (tovholderIds.length > 0) {
+    await setTiltagTovholdere(nytTiltag.id, tovholderIds);
+  }
   redirect(`/k/${slug}/tiltag`);
 }
 
@@ -66,5 +70,7 @@ export async function updateTiltagAction(
     tidsrammeStart: byggDato(tidsrammeStartAar, tidsrammeStartMaaned),
     tidsrammeSlut: byggDato(tidsrammeSlutAar, tidsrammeSlutMaaned),
   });
+  const tovholderIds = formData.getAll('tovholderIds') as string[];
+  await setTiltagTovholdere(id, tovholderIds);
   redirect(`/k/${slug}/tiltag`);
 }

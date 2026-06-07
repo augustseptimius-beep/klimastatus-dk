@@ -1,5 +1,5 @@
 import { requireKommuneContext } from '@/lib/kommune-context';
-import { getAllIndsatsOmraader } from '@/db/queries';
+import { getAllIndsatsOmraader, getAllTovholdere } from '@/db/queries';
 import { redirect } from 'next/navigation';
 import { TiltagForm } from '@/components/tiltag-form';
 import { createTiltagAction } from '@/app/(app)/k/[kommune]/tiltag/actions';
@@ -16,6 +16,7 @@ export default async function NytTiltagPage({ params }: Props) {
   const indsatser = await getAllIndsatsOmraader(kommune.id);
   if (indsatser.length === 0) redirect(`/k/${slug}/indsatser`);
 
+  const tovholdere = await getAllTovholdere(kommune.id);
   const boundCreate = createTiltagAction.bind(null, slug);
 
   return (
@@ -24,7 +25,7 @@ export default async function NytTiltagPage({ params }: Props) {
         <Link href={`/k/${slug}/tiltag`} className="text-sm text-gray-500 hover:text-gray-900">← Tilbage</Link>
         <h1 className="text-2xl font-bold text-gray-900">Nyt tiltag</h1>
       </div>
-      <TiltagForm action={boundCreate} indsatser={indsatser} />
+      <TiltagForm action={boundCreate} indsatser={indsatser} tovholdere={tovholdere} />
     </div>
   );
 }

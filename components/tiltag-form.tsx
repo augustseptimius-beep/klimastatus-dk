@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import type { FormState } from '@/lib/definitions';
 
 type IndsatsOption = { id: string; navn: string };
+type TovholderOption = { id: string; navn: string; forvaltning?: string | null };
 type DefaultValues = {
   titel?: string; indsatsOmraadeId?: string; type?: string;
   status?: string; beskrivelse?: string | null;
@@ -11,7 +12,8 @@ type DefaultValues = {
   forventetEffektCo2Ton?: number | null;
 };
 
-const YEARS = Array.from({ length: 36 }, (_, i) => 2015 + i); // 2015–2050
+const CURRENT_YEAR = new Date().getFullYear();
+const YEARS = Array.from({ length: CURRENT_YEAR - 2015 + 20 }, (_, i) => 2015 + i);
 const MONTHS = [
   { value: '02', label: 'Februar' }, { value: '03', label: 'Marts' },
   { value: '04', label: 'April' },   { value: '05', label: 'Maj' },
@@ -41,16 +43,19 @@ const STATUS_OPTIONS = [
 ];
 
 export function TiltagForm({
-  action, indsatser, defaultValues,
+  action, indsatser, defaultValues, tovholdere = [], selectedTovholderIds = [],
 }: {
   action: (state: FormState, formData: FormData) => Promise<FormState>;
   indsatser: IndsatsOption[];
   defaultValues?: DefaultValues;
+  tovholdere?: TovholderOption[];
+  selectedTovholderIds?: string[];
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
 
   const startDato = parseDato(defaultValues?.tidsrammeStart);
   const slutDato = parseDato(defaultValues?.tidsrammeSlut);
+  const defaultStartAar = startDato.year || (defaultValues === undefined ? String(CURRENT_YEAR) : '');
 
   return (
     <form action={formAction} className="flex max-w-lg flex-col gap-4">
@@ -95,11 +100,32 @@ export function TiltagForm({
           className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
       </div>
 
+      {tovholdere.length > 0 && (
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">Tovholdere</label>
+          <div className="flex flex-col gap-2 rounded-md border border-gray-300 p-3">
+            {tovholdere.map((tv) => (
+              <label key={tv.id} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="tovholderIds"
+                  value={tv.id}
+                  defaultChecked={selectedTovholderIds.includes(tv.id)}
+                  className="h-4 w-4 rounded border-gray-300"
+                />
+                <span>{tv.navn}</span>
+                {tv.forvaltning && <span className="text-xs text-gray-400">({tv.forvaltning})</span>}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700">Tidsramme start</label>
           <div className="grid grid-cols-2 gap-2">
-            <select name="tidsrammeStartAar" defaultValue={startDato.year}
+            <select name="tidsrammeStartAar" defaultValue={defaultStartAar}
               className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900">
               <option value="">År</option>
               {YEARS.map(y => <option key={y} value={y}>{y}</option>)}

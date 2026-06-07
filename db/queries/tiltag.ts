@@ -65,3 +65,20 @@ export async function updateTiltag(
     .returning();
   return updated;
 }
+
+export async function getTiltagTovholdere(tiltagId: string): Promise<string[]> {
+  const rows = await db
+    .select({ tovholderId: tovholderTiltag.tovholderId })
+    .from(tovholderTiltag)
+    .where(eq(tovholderTiltag.tiltagId, tiltagId));
+  return rows.map((r) => r.tovholderId);
+}
+
+export async function setTiltagTovholdere(tiltagId: string, tovholderIds: string[]): Promise<void> {
+  await db.delete(tovholderTiltag).where(eq(tovholderTiltag.tiltagId, tiltagId));
+  if (tovholderIds.length > 0) {
+    await db.insert(tovholderTiltag).values(
+      tovholderIds.map((tovholderId) => ({ tiltagId, tovholderId }))
+    );
+  }
+}
