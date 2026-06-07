@@ -285,6 +285,8 @@ function Th({
 }
 
 function formatDate(d: string) {
+  // "YYYY-01-01" = kun årstal (ingen specifik måned valgt)
+  if (d.endsWith('-01-01')) return d.slice(0, 4);
   const dt = new Date(d);
   return dt.toLocaleDateString('da-DK', { year: 'numeric', month: 'short' });
 }

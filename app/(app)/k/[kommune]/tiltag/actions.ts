@@ -11,10 +11,18 @@ const schema = z.object({
   type: z.enum(['reduction', 'adaptation', 'both']),
   status: z.enum(['planned', 'in_progress', 'completed', 'discontinued']).default('planned'),
   beskrivelse: z.string().optional(),
-  tidsrammeStart: z.string().optional().transform((v) => v?.trim() || undefined),
-  tidsrammeSlut: z.string().optional().transform((v) => v?.trim() || undefined),
+  tidsrammeStartAar: z.string().optional().transform((v) => v?.trim() || undefined),
+  tidsrammeStartMaaned: z.string().optional().transform((v) => v?.trim() || undefined),
+  tidsrammeSlutAar: z.string().optional().transform((v) => v?.trim() || undefined),
+  tidsrammeSlutMaaned: z.string().optional().transform((v) => v?.trim() || undefined),
   forventetEffektCo2Ton: z.string().optional().transform((v) => (v?.trim() ? parseFloat(v) : undefined)),
 });
+
+function byggDato(aar?: string, maaned?: string): string | undefined {
+  if (!aar) return undefined;
+  const mm = maaned || '01';
+  return `${aar}-${mm}-01`;
+}
 
 export async function createTiltagAction(slug: string, _state: FormState, formData: FormData): Promise<FormState> {
   const { kommune } = await requireKommuneContext(slug);
@@ -25,7 +33,13 @@ export async function createTiltagAction(slug: string, _state: FormState, formDa
   const indsatsOmraade = await getIndsatsOmraadeById(parsed.data.indsatsOmraadeId);
   if (!indsatsOmraade || indsatsOmraade.kommuneId !== kommune.id) return { message: 'Ugyldigt indsatsområde' };
 
-  await createTiltag({ ...parsed.data, kommuneId: kommune.id });
+  const { tidsrammeStartAar, tidsrammeStartMaaned, tidsrammeSlutAar, tidsrammeSlutMaaned, ...rest } = parsed.data;
+  await createTiltag({
+    ...rest,
+    kommuneId: kommune.id,
+    tidsrammeStart: byggDato(tidsrammeStartAar, tidsrammeStartMaaned),
+    tidsrammeSlut: byggDato(tidsrammeSlutAar, tidsrammeSlutMaaned),
+  });
   redirect(`/k/${slug}/tiltag`);
 }
 
@@ -46,6 +60,11 @@ export async function updateTiltagAction(
   const indsatsOmraade = await getIndsatsOmraadeById(parsed.data.indsatsOmraadeId);
   if (!indsatsOmraade || indsatsOmraade.kommuneId !== kommune.id) return { message: 'Ugyldigt indsatsområde' };
 
-  await updateTiltag(id, parsed.data);
+  const { tidsrammeStartAar, tidsrammeStartMaaned, tidsrammeSlutAar, tidsrammeSlutMaaned, ...rest } = parsed.data;
+  await updateTiltag(id, {
+    ...rest,
+    tidsrammeStart: byggDato(tidsrammeStartAar, tidsrammeStartMaaned),
+    tidsrammeSlut: byggDato(tidsrammeSlutAar, tidsrammeSlutMaaned),
+  });
   redirect(`/k/${slug}/tiltag`);
 }

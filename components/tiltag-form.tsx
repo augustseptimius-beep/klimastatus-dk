@@ -11,6 +11,23 @@ type DefaultValues = {
   forventetEffektCo2Ton?: number | null;
 };
 
+const YEARS = Array.from({ length: 36 }, (_, i) => 2015 + i); // 2015–2050
+const MONTHS = [
+  { value: '02', label: 'Februar' }, { value: '03', label: 'Marts' },
+  { value: '04', label: 'April' },   { value: '05', label: 'Maj' },
+  { value: '06', label: 'Juni' },    { value: '07', label: 'Juli' },
+  { value: '08', label: 'August' },  { value: '09', label: 'September' },
+  { value: '10', label: 'Oktober' }, { value: '11', label: 'November' },
+  { value: '12', label: 'December' },{ value: '01', label: 'Januar' },
+];
+
+/** Parses "YYYY-MM-DD" → { year, month }. "YYYY-01-01" = år uden måned → month = '' */
+function parseDato(d?: string | null): { year: string; month: string } {
+  if (!d) return { year: '', month: '' };
+  const [year, month] = d.split('-');
+  return { year: year ?? '', month: month === '01' ? '' : (month ?? '') };
+}
+
 const TYPE_OPTIONS = [
   { value: 'reduction', label: 'Reduktion' },
   { value: 'adaptation', label: 'Klimatilpasning' },
@@ -31,6 +48,9 @@ export function TiltagForm({
   defaultValues?: DefaultValues;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
+
+  const startDato = parseDato(defaultValues?.tidsrammeStart);
+  const slutDato = parseDato(defaultValues?.tidsrammeSlut);
 
   return (
     <form action={formAction} className="flex max-w-lg flex-col gap-4">
@@ -77,14 +97,34 @@ export function TiltagForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1">
-          <label htmlFor="tidsrammeStart" className="text-sm font-medium text-gray-700">Tidsramme start</label>
-          <input id="tidsrammeStart" name="tidsrammeStart" type="date" defaultValue={defaultValues?.tidsrammeStart ?? ''}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
+          <label className="text-sm font-medium text-gray-700">Tidsramme start</label>
+          <div className="grid grid-cols-2 gap-2">
+            <select name="tidsrammeStartAar" defaultValue={startDato.year}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900">
+              <option value="">År</option>
+              {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+            <select name="tidsrammeStartMaaned" defaultValue={startDato.month}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900">
+              <option value="">Hele året</option>
+              {MONTHS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+            </select>
+          </div>
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor="tidsrammeSlut" className="text-sm font-medium text-gray-700">Tidsramme slut</label>
-          <input id="tidsrammeSlut" name="tidsrammeSlut" type="date" defaultValue={defaultValues?.tidsrammeSlut ?? ''}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
+          <label className="text-sm font-medium text-gray-700">Tidsramme slut</label>
+          <div className="grid grid-cols-2 gap-2">
+            <select name="tidsrammeSlutAar" defaultValue={slutDato.year}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900">
+              <option value="">År</option>
+              {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+            <select name="tidsrammeSlutMaaned" defaultValue={slutDato.month}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900">
+              <option value="">Hele året</option>
+              {MONTHS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+            </select>
+          </div>
         </div>
       </div>
 
