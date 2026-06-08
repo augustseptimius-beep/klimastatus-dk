@@ -1,5 +1,5 @@
 import { requireKommuneContext } from '@/lib/kommune-context';
-import { getAllTiltag, getAllIndsatsOmraader } from '@/db/queries';
+import { getAllTiltag, getAllIndsatsOmraader, getCo2SumForTiltag } from '@/db/queries';
 import Link from 'next/link';
 import { TiltagTable } from './tiltag-table';
 
@@ -16,6 +16,9 @@ export default async function TiltagPage({ params }: Props) {
     getAllIndsatsOmraader(kommune.id),
   ]);
 
+  const co2Sum = await getCo2SumForTiltag(allTiltag.map((t) => t.id));
+  const tiltagMedCo2 = allTiltag.map((t) => ({ ...t, forventetEffektCo2Ton: co2Sum.get(t.id) ?? null }));
+
   return (
     <>
       <div className="ks-page-header">
@@ -28,7 +31,7 @@ export default async function TiltagPage({ params }: Props) {
         </div>
       </div>
 
-      <TiltagTable tiltag={allTiltag} indsatser={indsatser} slug={slug} />
+      <TiltagTable tiltag={tiltagMedCo2} indsatser={indsatser} slug={slug} />
     </>
   );
 }
