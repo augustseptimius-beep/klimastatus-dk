@@ -4,7 +4,7 @@
 
 **Goal:** Erstat handlingers enkelte CO₂-felt med en fleksibel liste af effekt-KPI'er (kategori + værdi + enhed, med fritekst-fallback), uden at bryde eksisterende CO₂-visning.
 
-**Architecture:** Additiv sekvens — vi tilføjer en ny `tiltag_effekt`-tabel ved siden af de gamle kolonner, migrerer alle forbrugere (formular, tabel) over, og dropper FØRST de gamle kolonner når intet refererer dem. Det holder build grønt ved hvert commit og gør produktionsmigrationen sikker (backfill verificeres lokalt før drop).
+**Architecture:** Additiv sekvens — vi tilføjer en ny `tiltag_effekt`-tabel ved siden af de gamle kolonner, migrerer alle forbrugere (formular, tabel) over, og dropper FØRST de gamle kolonner når intet refererer dem. Det holder build grønt ved hvert commit. **Eksisterende data (Grønkøbing/Thisted) er disposabel testdata** — derfor migrerer vi den ikke; seedet genskaber frisk Grønkøbing-data mod det nye schema.
 
 **Tech Stack:** Next.js 16 App Router, TypeScript, Drizzle ORM, drizzle-kit, Vitest, Tailwind/custom CSS.
 
@@ -267,13 +267,13 @@ git commit -m "feat: ren validering/normalisering af effekt-input"
 
 ---
 
-## Task 3: Schema-tabel + migration (opret + backfill) + query-lag
+## Task 3: Schema-tabel + migration (opret) + query-lag
 
-Tilføjer `tiltag_effekt` ved siden af de gamle kolonner — de droppes IKKE her, så build forbliver grønt.
+Tilføjer `tiltag_effekt` ved siden af de gamle kolonner — de droppes IKKE her, så build forbliver grønt. Ingen backfill: eksisterende data er disposabel testdata.
 
 **Files:**
 - Modify: `db/schema/tiltag.ts`
-- Create: `db/migrations/0012_*.sql` (genereres + backfill tilføjes manuelt)
+- Create: `db/migrations/0012_*.sql` (genereres)
 - Modify: `db/queries/tiltag.ts`
 
 - [ ] **Step 1: Tilføj tabellen til schema**
@@ -297,37 +297,19 @@ export const tiltagEffekt = pgTable('tiltag_effekt', {
 
 Stop dev-server hvis den kører: `pkill -f "next dev" || true`
 Run: `npx drizzle-kit generate`
-Expected: en ny fil `db/migrations/0012_*.sql` der indeholder `CREATE TABLE "tiltag_effekt" ...`. Notér det genererede filnavn.
+Expected: en ny fil `db/migrations/0012_*.sql` der indeholder `CREATE TABLE "tiltag_effekt" ...`. Ingen manuel SQL tilføjes — ingen backfill (eksisterende data er disposabel testdata).
 
-- [ ] **Step 3: Tilføj backfill manuelt til 0012-filen**
-
-Åbn den nye `db/migrations/0012_*.sql` og tilføj — EFTER `CREATE TABLE`-statementet — disse to backfill-statements adskilt af breakpoints (følg mønstret fra `0009_cctf_kriterie_unique.sql`):
-
-```sql
---> statement-breakpoint
-INSERT INTO "tiltag_effekt" ("tiltag_id", "kategori", "vaerdi", "enhed")
-SELECT "id", 'co2_reduktion', "forventet_effekt_co2_ton", 'ton CO₂e/år'
-FROM "tiltag" WHERE "forventet_effekt_co2_ton" IS NOT NULL;
---> statement-breakpoint
-INSERT INTO "tiltag_effekt" ("tiltag_id", "kategori", "beskrivelse")
-SELECT "id", NULL, "forventet_effekt_kvalitativ"
-FROM "tiltag"
-WHERE "forventet_effekt_kvalitativ" IS NOT NULL AND trim("forventet_effekt_kvalitativ") <> '';
-```
-
-- [ ] **Step 4: Kør migrationen lokalt og verificér backfill (SIKKERHEDSLINE)**
+- [ ] **Step 3: Kør migrationen lokalt**
 
 Sørg for at Docker-DB kører: `docker compose up -d db` (vent på den er klar).
 Run: `npx drizzle-kit migrate`
-Expected: migration 0012 kører uden fejl.
-
-Verificér backfill mod seed-data — kør denne kontrol:
+Expected: migration 0012 kører uden fejl. Bekræft at tabellen findes:
 ```bash
-docker compose exec -T db psql -U klimastatus -d klimastatus -c "SELECT te.kategori, COUNT(*), MIN(te.vaerdi), MAX(te.vaerdi) FROM tiltag_effekt te GROUP BY te.kategori;"
+docker compose exec -T db psql -U klimastatus -d klimastatus -c "\d tiltag_effekt"
 ```
-Expected: en `co2_reduktion`-række med antal > 0 og værdier der matcher seed-CO₂-tallene (fx max 112500). Hvis tabellen er tom, er seed ikke kørt endnu — kør seed (`npx tsx run-seed.mts` eller projektets seed-kommando) FØR migrationen for at have data at backfille, og gentag. Notér resultatet i commit-beskeden.
+Expected: kolonnerne `id, tiltag_id, kategori, vaerdi, enhed, beskrivelse, sortering, created_at` vises. (Tabellen er tom indtil seedet opdateres i Task 7 — det er forventet.)
 
-- [ ] **Step 5: Tilføj query-funktioner**
+- [ ] **Step 4: Tilføj query-funktioner**
 
 I `db/queries/tiltag.ts`:
 
@@ -401,18 +383,18 @@ export async function getCo2SumForTiltag(tiltagIds: string[]): Promise<Map<strin
 }
 ```
 
-- [ ] **Step 6: Typecheck + tests**
+- [ ] **Step 5: Typecheck + tests**
 
 Run: `pkill -f "next dev" || true && npx tsc --noEmit`
 Expected: 0 fejl (de gamle kolonner findes stadig, så intet er brudt).
 Run: `npm test -- --run 2>&1 | tail -5`
 Expected: alle grønne.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add db/schema/tiltag.ts db/migrations/ db/queries/tiltag.ts
-git commit -m "feat: tiltag_effekt-tabel + backfill-migration + effekt-queries"
+git commit -m "feat: tiltag_effekt-tabel + opret-migration + effekt-queries"
 ```
 
 ---
@@ -787,9 +769,9 @@ Expected: ny fil `db/migrations/0013_*.sql` med `ALTER TABLE "tiltag" DROP COLUM
 docker compose up -d db
 npx drizzle-kit migrate
 ```
-Expected: 0013 kører uden fejl.
+Expected: 0013 kører uden fejl (drop af de to kolonner; ingen data at bevare).
 
-Verificér at tabellen stadig viser CO₂ ved at re-seede (projektets seed-kommando, fx `npx tsx run-seed.mts`) og derefter:
+Verificér at det opdaterede seed populerer `tiltag_effekt` korrekt. Da eksisterende data er disposabel, kan du roligt nulstille den lokale DB hvis seedet konflikter (`docker compose down -v && docker compose up -d db && npx drizzle-kit migrate`). Kør derefter projektets seed-kommando (fx `npx tsx run-seed.mts`) og tjek:
 ```bash
 docker compose exec -T db psql -U klimastatus -d klimastatus -c "SELECT COUNT(*) FROM tiltag_effekt WHERE kategori='co2_reduktion';"
 ```
@@ -839,7 +821,7 @@ Expected: alle grønne (lint må have den ene præeksisterende `XLSX`-advarsel, 
 ```bash
 git push
 ```
-Auto-deploy udløses. Migrationerne 0012 (opret+backfill) og 0013 (drop) kører i rækkefølge ved container-opstart — backfill sker FØR drop, så produktionsdata bevares.
+Auto-deploy udløses. Migrationerne 0012 (opret tabel) og 0013 (drop kolonner) kører i rækkefølge ved container-opstart. Der er ingen data-migration — det opdaterede seed genskaber Grønkøbing-data med `tiltag_effekt`-rækker mod det nye schema.
 
 ---
 

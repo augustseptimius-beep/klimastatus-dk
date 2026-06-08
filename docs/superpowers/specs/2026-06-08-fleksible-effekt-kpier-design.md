@@ -82,31 +82,16 @@ export function kategoriNavn(key: string | null): string {
 
 Når brugeren vælger en kategori med ikke-tom `standardEnhed`, forudfyldes enhed-feltet (kan overskrives).
 
-## Migration (0008)
+## Migration
 
-`drizzle-kit generate` producerer tabel-oprettelsen; backfill + drop skrives som håndholdt SQL i samme migrationsfil (eller en efterfølgende `.sql` i migrationsmappen, alt efter hvordan 0007 blev struktureret — implementeringsplanen tjekker mønstret).
+**Eksisterende data (Grønkøbing/Thisted) er disposabel testdata** — bekræftet af brugeren. Derfor ingen backfill af gammel data. To sekventielle migrationer (næste ledige numre, p.t. 0012 og 0013), så build forbliver grønt mens forbrugere migreres:
 
-Trin i migrationen:
-1. `CREATE TABLE tiltag_effekt (...)`.
-2. Backfill CO₂:
-   ```sql
-   INSERT INTO tiltag_effekt (tiltag_id, kategori, vaerdi, enhed)
-   SELECT id, 'co2_reduktion', forventet_effekt_co2_ton, 'ton CO₂e/år'
-   FROM tiltag WHERE forventet_effekt_co2_ton IS NOT NULL;
-   ```
-3. Backfill kvalitativ:
-   ```sql
-   INSERT INTO tiltag_effekt (tiltag_id, kategori, beskrivelse)
-   SELECT id, NULL, forventet_effekt_kvalitativ
-   FROM tiltag
-   WHERE forventet_effekt_kvalitativ IS NOT NULL
-     AND trim(forventet_effekt_kvalitativ) <> '';
-   ```
-4. `ALTER TABLE tiltag DROP COLUMN forventet_effekt_co2_ton, DROP COLUMN forventet_effekt_kvalitativ;`
+1. **Opret-migration** (`drizzle-kit generate` fra schema-ændringen): `CREATE TABLE tiltag_effekt (...)`. Ingen manuel SQL. De gamle kolonner bevares stadig her.
+2. **Drop-migration** (genereres når kolonnerne fjernes fra schema, efter alle forbrugere er migreret): `ALTER TABLE tiltag DROP COLUMN forventet_effekt_co2_ton, DROP COLUMN forventet_effekt_kvalitativ;`
 
-Migrationen kører ved container-opstart i produktion (eksisterende mønster). Backfill er idempotent nok til formålet, da den kører én gang før kolonnerne droppes.
+Begge kører i rækkefølge ved container-opstart (eksisterende mønster). Ingen data går tabt der betyder noget — seedet genskaber Grønkøbing-data mod det nye schema.
 
-**Seed skal opdateres samtidig:** `db/seeds/groenkobing.ts` sætter `forventetEffektCo2Ton` på ~19 handlinger. Når kolonnen droppes vil seedet knække (TypeScript + runtime). Seedet skal i stedet indsætte en `tiltag_effekt`-række med `kategori:'co2_reduktion'` pr. handling efter tiltag er oprettet. Denne ændring hører til samme implementeringstask som schema/migration, så seed og schema aldrig er ude af sync.
+**Seed skal opdateres samtidig med drop-migrationen:** `db/seeds/groenkobing.ts` sætter `forventetEffektCo2Ton` på ~19 handlinger og kører ved hver container-opstart. Når kolonnen droppes vil seedet ellers knække (TypeScript + runtime). Seedet skal i stedet indsætte en `tiltag_effekt`-række med `kategori:'co2_reduktion'` pr. handling. CO₂-værdierne beholdes (det er stadig den ønskede frisk-seed-data) — de flyttes blot fra kolonne til effekt-række. Hører til samme task som drop-migrationen, så seed og schema aldrig er ude af sync.
 
 ## Formular-UX (nudge mod struktur)
 
@@ -157,8 +142,8 @@ export async function getCo2SumForTiltag(tiltagIds: string[]): Promise<Map<strin
 
 ## Succeskriterier
 
-- [ ] `tiltag_effekt`-tabel oprettet; `forventet_effekt_co2_ton` og `forventet_effekt_kvalitativ` migreret og droppet.
-- [ ] Eksisterende Grønkøbing-CO₂-tal vises uændret i tiltag-tabellen efter migration (seed opdateret til at indsætte `tiltag_effekt`-rækker).
+- [ ] `tiltag_effekt`-tabel oprettet; `forventet_effekt_co2_ton` og `forventet_effekt_kvalitativ` droppet (ingen backfill — data er disposabel).
+- [ ] Grønkøbing-CO₂-tal vises i tiltag-tabellen efter re-seed (seed opdateret til at indsætte `tiltag_effekt`-rækker).
 - [ ] En handling kan have flere effekter på tværs af kategorier, hver med kategori + værdi + enhed.
 - [ ] En effekt kan i stedet være fritekst.
 - [ ] Formularen starter med én struktureret blank række og lader brugeren tilføje/fjerne rækker.
