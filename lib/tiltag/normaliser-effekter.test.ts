@@ -59,4 +59,22 @@ describe('normaliserEffekter', () => {
     expect(r.map((e) => e.sortering)).toEqual([0, 1]);
     expect(r[1].beskrivelse).toBe('Støjreduktion');
   });
+
+  it('behandler NaN som null (ingen ugyldig vaerdi)', () => {
+    const r = normaliserEffekter([
+      { kategori: 'co2_reduktion', vaerdi: NaN, enhed: 'ton', beskrivelse: '' },
+    ]);
+    expect(r).toEqual([
+      { kategori: 'co2_reduktion', vaerdi: null, enhed: 'ton', beskrivelse: null, sortering: 0 },
+    ]);
+  });
+
+  it('behandler Infinity som null', () => {
+    const r = normaliserEffekter([
+      { kategori: 'sidegevinst', vaerdi: Infinity, enhed: '', beskrivelse: 'Klimafordel' },
+    ]);
+    expect(r).toEqual([
+      { kategori: 'sidegevinst', vaerdi: null, enhed: null, beskrivelse: 'Klimafordel', sortering: 0 },
+    ]);
+  });
 });
