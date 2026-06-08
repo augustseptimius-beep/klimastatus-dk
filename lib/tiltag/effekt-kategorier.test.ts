@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { EFFEKT_KATEGORIER, CO2_KATEGORI, kategoriNavn } from './effekt-kategorier';
+import { EFFEKT_KATEGORIER, CO2_KATEGORI, kategoriNavn, standardEnhedFor } from './effekt-kategorier';
 
 describe('effekt-kategorier', () => {
   it('indeholder de fire startkategorier', () => {
@@ -26,5 +26,13 @@ describe('effekt-kategorier', () => {
 
   it('kategoriNavn returnerer key uændret for ukendt key', () => {
     expect(kategoriNavn('ukendt')).toBe('ukendt');
+  });
+
+  it('standardEnhedFor returnerer tom streng for kategori uden enhed', () => {
+    expect(standardEnhedFor('klimatilpasning')).toBe('');
+  });
+
+  it('standardEnhedFor returnerer "ton CO₂e/år" for co2_reduktion', () => {
+    expect(standardEnhedFor('co2_reduktion')).toBe('ton CO₂e/år');
   });
 });
