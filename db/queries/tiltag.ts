@@ -12,7 +12,6 @@ type TiltagData = {
   status?: 'planned' | 'in_progress' | 'completed' | 'discontinued';
   tidsrammeStart?: string;
   tidsrammeSlut?: string;
-  forventetEffektCo2Ton?: number;
   prioriteretTiltag?: boolean;
 };
 

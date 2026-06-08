@@ -9,6 +9,7 @@ import {
   indsatsOmraade,
   maal,
   tiltag,
+  tiltagEffekt,
   tovholder,
   tovholderTiltag,
   indikator,
@@ -142,7 +143,8 @@ export async function seedGroenkobing() {
     ]).returning();
 
     // 4. Tiltag (22 stk.)
-    const insertedTiltag = await db.insert(tiltag).values([
+    type SeedRad = typeof tiltag.$inferInsert & { _co2?: number };
+    const tiltagSeed: SeedRad[] = [
       // --- Indsats 1: Vedvarende energi (5 tiltag) ---
       {
         kommuneId: groenkobing.id,
@@ -152,7 +154,7 @@ export async function seedGroenkobing() {
         status: 'in_progress' as const,
         beskrivelse:
           'Anlæg af 85 ha solcellepark nord for Grønkøbing by. Forventet kapacitet: 85 MW. Samarbejde med lokalt energiselskab.',
-        forventetEffektCo2Ton: 42000,
+        _co2: 42000,
         tidsrammeStart: '2024-01-01',
         tidsrammeSlut: '2026-12-31',
         ansvarligOrganisation: 'Grønkøbing Energi A/S',
@@ -170,7 +172,7 @@ export async function seedGroenkobing() {
         status: 'planned' as const,
         beskrivelse:
           'Udskiftning af 12 ældre vindmøller (2–3 MW) med moderne møller (5+ MW). Øger samlet kapacitet fra ~30 MW til ~65 MW.',
-        forventetEffektCo2Ton: 28000,
+        _co2: 28000,
         tidsrammeStart: '2026-01-01',
         tidsrammeSlut: '2029-12-31',
         ansvarligOrganisation: 'Teknik & Miljø',
@@ -187,7 +189,7 @@ export async function seedGroenkobing() {
         status: 'completed' as const,
         beskrivelse:
           'Alle 23 kommunale bygninger med oliefyr er overgået til varmepumpe eller fjernvarme.',
-        forventetEffektCo2Ton: 1200,
+        _co2: 1200,
         tidsrammeStart: '2022-01-01',
         tidsrammeSlut: '2024-06-30',
         ansvarligOrganisation: 'Ejendomsservice',
@@ -203,7 +205,7 @@ export async function seedGroenkobing() {
         status: 'in_progress' as const,
         beskrivelse:
           'Udvidelse af fjernvarmenettet til 1.200 boliger i Grønkøbing Vest der i dag opvarmes med naturgas.',
-        forventetEffektCo2Ton: 8500,
+        _co2: 8500,
         tidsrammeStart: '2024-06-01',
         tidsrammeSlut: '2027-06-30',
         ansvarligOrganisation: 'Grønkøbing Energi A/S',
@@ -238,7 +240,7 @@ export async function seedGroenkobing() {
         status: 'in_progress' as const,
         beskrivelse:
           'Indkøb og idriftsættelse af 8 el-busser på de 3 mest trafikerede lokalruter.',
-        forventetEffektCo2Ton: 950,
+        _co2: 950,
         tidsrammeStart: '2024-01-01',
         tidsrammeSlut: '2025-12-31',
         ansvarligOrganisation: 'Vej & Park',
@@ -255,7 +257,7 @@ export async function seedGroenkobing() {
         status: 'planned' as const,
         beskrivelse:
           'Anlæg af 15 km forbedrede pendlercykelruter mellem de 3 største bysamfund i kommunen.',
-        forventetEffektCo2Ton: 600,
+        _co2: 600,
         tidsrammeStart: '2025-01-01',
         tidsrammeSlut: '2028-12-31',
         ansvarligOrganisation: 'Vej & Park',
@@ -273,7 +275,7 @@ export async function seedGroenkobing() {
         status: 'in_progress' as const,
         beskrivelse:
           'Udskiftning af 47 kommunale benzin-/dieselkøretøjer med elbiler. 22 er udskiftet pr. 2024.',
-        forventetEffektCo2Ton: 420,
+        _co2: 420,
         tidsrammeStart: '2023-01-01',
         tidsrammeSlut: '2027-12-31',
         ansvarligOrganisation: 'Ejendomsservice',
@@ -291,7 +293,7 @@ export async function seedGroenkobing() {
         status: 'planned' as const,
         beskrivelse:
           'Etablering af digital samkørselsplatform i samarbejde med 15 store lokale virksomheder.',
-        forventetEffektCo2Ton: 300,
+        _co2: 300,
         tidsrammeStart: '2025-01-01',
         tidsrammeSlut: '2027-12-31',
         ansvarligOrganisation: 'Vej & Park',
@@ -307,7 +309,7 @@ export async function seedGroenkobing() {
         status: 'completed' as const,
         beskrivelse:
           '40 ladestander-punkter opstillet på 12 kommunale parkeringspladser i kommunen.',
-        forventetEffektCo2Ton: 180,
+        _co2: 180,
         tidsrammeStart: '2022-06-01',
         tidsrammeSlut: '2023-12-31',
         ansvarligOrganisation: 'Vej & Park',
@@ -325,7 +327,7 @@ export async function seedGroenkobing() {
         status: 'in_progress' as const,
         beskrivelse:
           'Frivillig udtagning af 450 ha lavbundsjord fra omdrift for at reducere metan- og lattergas-udledning fra drænet tørv.',
-        forventetEffektCo2Ton: 112500,
+        _co2: 112500,
         tidsrammeStart: '2023-01-01',
         tidsrammeSlut: '2030-12-31',
         ansvarligOrganisation: 'Natur & Landbrug',
@@ -343,7 +345,7 @@ export async function seedGroenkobing() {
         status: 'planned' as const,
         beskrivelse:
           'Skovrejsning på 120 ha landbrugsjord. Øger CO₂-optag og styrker biodiversiteten.',
-        forventetEffektCo2Ton: 18000,
+        _co2: 18000,
         tidsrammeStart: '2025-01-01',
         tidsrammeSlut: '2035-12-31',
         ansvarligOrganisation: 'Natur & Landbrug',
@@ -361,7 +363,7 @@ export async function seedGroenkobing() {
         status: 'in_progress' as const,
         beskrivelse:
           'Fælles biogasanlæg for 8 kvægbrug. Reducerer metan fra gødningshåndtering og erstatter naturgas i fjernvarmen.',
-        forventetEffektCo2Ton: 21000,
+        _co2: 21000,
         tidsrammeStart: '2024-01-01',
         tidsrammeSlut: '2026-06-30',
         ansvarligOrganisation: 'Natur & Landbrug',
@@ -378,7 +380,7 @@ export async function seedGroenkobing() {
         status: 'planned' as const,
         beskrivelse:
           'Rådgivningsforløb og tilskud til landmænd der omlægger marginale dyrkningsarealer til vedvarende vegetation.',
-        forventetEffektCo2Ton: 8000,
+        _co2: 8000,
         tidsrammeStart: '2025-01-01',
         tidsrammeSlut: '2030-12-31',
         ansvarligOrganisation: 'Natur & Landbrug',
@@ -394,7 +396,7 @@ export async function seedGroenkobing() {
         status: 'in_progress' as const,
         beskrivelse:
           'Forpligtende partnerskab med Østjyllands Landboforening om klimarådgivning til 200 lokale landmænd.',
-        forventetEffektCo2Ton: 5000,
+        _co2: 5000,
         tidsrammeStart: '2024-01-01',
         tidsrammeSlut: '2030-12-31',
         ansvarligOrganisation: 'Natur & Landbrug',
@@ -412,7 +414,7 @@ export async function seedGroenkobing() {
         status: 'in_progress' as const,
         beskrivelse:
           'Kommunal medfinansieringspulje til energirenovering. Støtter op til 30% af renoveringsomkostninger for lavindkomstboliger.',
-        forventetEffektCo2Ton: 4200,
+        _co2: 4200,
         tidsrammeStart: '2024-01-01',
         tidsrammeSlut: '2026-12-31',
         ansvarligOrganisation: 'Ejendomsservice',
@@ -430,7 +432,7 @@ export async function seedGroenkobing() {
         status: 'completed' as const,
         beskrivelse:
           'Energioptimering af 8 skoler via ESCO-kontrakt. Opnået 38% energibesparelse i gennemsnit.',
-        forventetEffektCo2Ton: 2100,
+        _co2: 2100,
         tidsrammeStart: '2021-01-01',
         tidsrammeSlut: '2023-12-31',
         ansvarligOrganisation: 'Ejendomsservice',
@@ -446,7 +448,7 @@ export async function seedGroenkobing() {
         status: 'in_progress' as const,
         beskrivelse:
           'Integration af klimakrav i alle kommunale udbud over 500.000 kr. Mål: 80% af udbud har klimakriterier inden 2026.',
-        forventetEffektCo2Ton: 3500,
+        _co2: 3500,
         tidsrammeStart: '2024-01-01',
         tidsrammeSlut: '2026-12-31',
         ansvarligOrganisation: 'Ejendomsservice',
@@ -462,7 +464,7 @@ export async function seedGroenkobing() {
         status: 'planned' as const,
         beskrivelse:
           'Opsøgende rådgivning og informationskampagne til 3.000 naturgasbrugere om overgang til varmepumpe.',
-        forventetEffektCo2Ton: 6800,
+        _co2: 6800,
         tidsrammeStart: '2025-01-01',
         tidsrammeSlut: '2028-12-31',
         ansvarligOrganisation: 'Teknik & Miljø',
@@ -520,7 +522,28 @@ export async function seedGroenkobing() {
         udfaserFossileBraendsler: false,
         retfaerdigFordelingRelevant: false,
       },
-    ]).returning();
+    ];
+
+    // Byg co2-lookup og strip _co2 inden insert
+    const co2ByTitel = new Map<string, number>(
+      tiltagSeed.filter(t => t._co2 != null).map(t => [t.titel, t._co2!]),
+    );
+    const insertedTiltag = await db
+      .insert(tiltag)
+      .values(tiltagSeed.map(({ _co2: _drop, ...rest }) => rest))
+      .returning();
+
+    // 4b. Indsæt tiltag_effekt-rækker for tiltag med _co2-værdier
+    const effektRows = insertedTiltag
+      .filter(t => co2ByTitel.has(t.titel))
+      .map(t => ({
+        tiltagId: t.id,
+        kategori: 'co2_reduktion' as const,
+        vaerdi: co2ByTitel.get(t.titel)!,
+        enhed: 'ton CO₂e/år',
+        sortering: 0,
+      }));
+    if (effektRows.length > 0) await db.insert(tiltagEffekt).values(effektRows);
 
     // 5. Mål (3 stk. — linket til relevante indsatsområder)
     await db.insert(maal).values([

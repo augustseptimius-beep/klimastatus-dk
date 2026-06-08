@@ -13,8 +13,6 @@ export const tiltag = pgTable('tiltag', {
   tidsrammeStart: date('tidsramme_start'),
   tidsrammeSlut: date('tidsramme_slut'),
   ansvarligOrganisation: text('ansvarlig_organisation'),
-  forventetEffektCo2Ton: real('forventet_effekt_co2_ton'),
-  forventetEffektKvalitativ: text('forventet_effekt_kvalitativ'),
   status: tiltagStatusEnum('status').notNull().default('planned'),
   prioriteretTiltag: boolean('prioriteret_tiltag').notNull().default(false),
   befoejelsesKategori: befoejelsesKategoriEnum('befojelses_kategori'),
