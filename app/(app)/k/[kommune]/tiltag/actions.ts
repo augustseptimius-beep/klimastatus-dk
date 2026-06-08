@@ -1,6 +1,7 @@
 'use server';
 import { requireKommuneContext } from '@/lib/kommune-context';
-import { createTiltag, updateTiltag, getTiltagById, getIndsatsOmraadeById, setTiltagTovholdere } from '@/db/queries';
+import { createTiltag, updateTiltag, getTiltagById, getIndsatsOmraadeById, setTiltagTovholdere, setTiltagEffekter } from '@/db/queries';
+import { normaliserEffekter, type RaaEffekt } from '@/lib/tiltag/normaliser-effekter';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import type { FormState } from '@/lib/definitions';
@@ -15,8 +16,24 @@ const schema = z.object({
   tidsrammeStartMaaned: z.string().optional().transform((v) => v?.trim() || undefined),
   tidsrammeSlutAar: z.string().optional().transform((v) => v?.trim() || undefined),
   tidsrammeSlutMaaned: z.string().optional().transform((v) => v?.trim() || undefined),
-  forventetEffektCo2Ton: z.string().optional().transform((v) => (v?.trim() ? parseFloat(v) : undefined)),
 });
+
+function parseEffekter(formData: FormData): RaaEffekt[] {
+  const raw = formData.get('effekter');
+  if (typeof raw !== 'string' || raw.trim() === '') return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((e) => ({
+      kategori: typeof e?.kategori === 'string' ? e.kategori : null,
+      vaerdi: typeof e?.vaerdi === 'number' ? e.vaerdi : null,
+      enhed: typeof e?.enhed === 'string' ? e.enhed : null,
+      beskrivelse: typeof e?.beskrivelse === 'string' ? e.beskrivelse : null,
+    }));
+  } catch {
+    return [];
+  }
+}
 
 function byggDato(aar?: string, maaned?: string): string | undefined {
   if (!aar) return undefined;
@@ -44,6 +61,7 @@ export async function createTiltagAction(slug: string, _state: FormState, formDa
   if (tovholderIds.length > 0) {
     await setTiltagTovholdere(nytTiltag.id, tovholderIds);
   }
+  await setTiltagEffekter(nytTiltag.id, normaliserEffekter(parseEffekter(formData)));
   redirect(`/k/${slug}/tiltag`);
 }
 
@@ -72,5 +90,6 @@ export async function updateTiltagAction(
   });
   const tovholderIds = formData.getAll('tovholderIds') as string[];
   await setTiltagTovholdere(id, tovholderIds);
+  await setTiltagEffekter(id, normaliserEffekter(parseEffekter(formData)));
   redirect(`/k/${slug}/tiltag`);
 }

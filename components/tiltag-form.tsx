@@ -2,6 +2,7 @@
 import { useActionState } from 'react';
 import { Button } from '@/components/ui/button';
 import type { FormState } from '@/lib/definitions';
+import { TiltagEffektListe, type EffektRow } from '@/components/tiltag-effekt-liste';
 
 type IndsatsOption = { id: string; navn: string };
 type TovholderOption = { id: string; navn: string; forvaltning?: string | null };
@@ -9,7 +10,6 @@ type DefaultValues = {
   titel?: string; indsatsOmraadeId?: string; type?: string;
   status?: string; beskrivelse?: string | null;
   tidsrammeStart?: string | null; tidsrammeSlut?: string | null;
-  forventetEffektCo2Ton?: number | null;
 };
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -43,13 +43,14 @@ const STATUS_OPTIONS = [
 ];
 
 export function TiltagForm({
-  action, indsatser, defaultValues, tovholdere = [], selectedTovholderIds = [],
+  action, indsatser, defaultValues, tovholdere = [], selectedTovholderIds = [], effekter = [],
 }: {
   action: (state: FormState, formData: FormData) => Promise<FormState>;
   indsatser: IndsatsOption[];
   defaultValues?: DefaultValues;
   tovholdere?: TovholderOption[];
   selectedTovholderIds?: string[];
+  effekter?: EffektRow[];
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
 
@@ -154,14 +155,7 @@ export function TiltagForm({
         </div>
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="forventetEffektCo2Ton" className="text-sm font-medium text-gray-700">
-          Forventet CO₂-effekt (ton/år)
-        </label>
-        <input id="forventetEffektCo2Ton" name="forventetEffektCo2Ton" type="number" step="0.1"
-          defaultValue={defaultValues?.forventetEffektCo2Ton ?? ''}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
-      </div>
+      <TiltagEffektListe initielle={effekter} />
 
       {state?.message && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{state.message}</p>}
       <Button type="submit" disabled={pending}>{pending ? 'Gemmer…' : 'Gem tiltag'}</Button>
