@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, real, boolean, date, timestamp, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, real, boolean, date, timestamp, jsonb, integer } from 'drizzle-orm/pg-core';
 import { kommune } from './kommune';
 import { indsatsOmraade } from './klimaplan';
 import { tiltagStatusEnum, tiltagTypeEnum, befoejelsesKategoriEnum, avoidShiftImproveEnum } from './enums';
@@ -32,4 +32,15 @@ export const tiltag = pgTable('tiltag', {
   barrierer: text('barrierer'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const tiltagEffekt = pgTable('tiltag_effekt', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  tiltagId: uuid('tiltag_id').references(() => tiltag.id, { onDelete: 'cascade' }).notNull(),
+  kategori: text('kategori'),
+  vaerdi: real('vaerdi'),
+  enhed: text('enhed'),
+  beskrivelse: text('beskrivelse'),
+  sortering: integer('sortering').notNull().default(0),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });

@@ -1,6 +1,7 @@
 import { db } from '@/db';
-import { tiltag, tovholderTiltag } from '@/db/schema';
-import { eq, asc, and } from 'drizzle-orm';
+import { tiltag, tovholderTiltag, tiltagEffekt } from '@/db/schema';
+import { eq, asc, and, sql, inArray } from 'drizzle-orm';
+import type { TiltagEffektInput } from '@/lib/tiltag/normaliser-effekter';
 
 type TiltagData = {
   kommuneId: string;
@@ -81,4 +82,58 @@ export async function setTiltagTovholdere(tiltagId: string, tovholderIds: string
       tovholderIds.map((tovholderId) => ({ tiltagId, tovholderId }))
     );
   }
+}
+
+export type TiltagEffekt = {
+  id: string;
+  kategori: string | null;
+  vaerdi: number | null;
+  enhed: string | null;
+  beskrivelse: string | null;
+  sortering: number;
+};
+
+export async function getTiltagEffekter(tiltagId: string): Promise<TiltagEffekt[]> {
+  return db
+    .select({
+      id: tiltagEffekt.id,
+      kategori: tiltagEffekt.kategori,
+      vaerdi: tiltagEffekt.vaerdi,
+      enhed: tiltagEffekt.enhed,
+      beskrivelse: tiltagEffekt.beskrivelse,
+      sortering: tiltagEffekt.sortering,
+    })
+    .from(tiltagEffekt)
+    .where(eq(tiltagEffekt.tiltagId, tiltagId))
+    .orderBy(asc(tiltagEffekt.sortering));
+}
+
+export async function setTiltagEffekter(tiltagId: string, effekter: TiltagEffektInput[]): Promise<void> {
+  await db.delete(tiltagEffekt).where(eq(tiltagEffekt.tiltagId, tiltagId));
+  if (effekter.length > 0) {
+    await db.insert(tiltagEffekt).values(
+      effekter.map((e) => ({
+        tiltagId,
+        kategori: e.kategori,
+        vaerdi: e.vaerdi,
+        enhed: e.enhed,
+        beskrivelse: e.beskrivelse,
+        sortering: e.sortering,
+      })),
+    );
+  }
+}
+
+/** Sum af co2_reduktion-effekter pr. tiltag. Returnerer Map(tiltagId → sum). */
+export async function getCo2SumForTiltag(tiltagIds: string[]): Promise<Map<string, number>> {
+  if (tiltagIds.length === 0) return new Map();
+  const rows = await db
+    .select({
+      tiltagId: tiltagEffekt.tiltagId,
+      sum: sql<number>`coalesce(sum(${tiltagEffekt.vaerdi}), 0)`,
+    })
+    .from(tiltagEffekt)
+    .where(and(eq(tiltagEffekt.kategori, 'co2_reduktion'), inArray(tiltagEffekt.tiltagId, tiltagIds)))
+    .groupBy(tiltagEffekt.tiltagId);
+  return new Map(rows.map((r) => [r.tiltagId, Number(r.sum)]));
 }
