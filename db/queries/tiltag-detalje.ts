@@ -1,6 +1,7 @@
 import { db } from '@/db';
-import { indikator, indikatorTiltag, indikatorMaaling, tovholderRapport, tovholder, laeringspost } from '@/db/schema';
+import { indikator, indikatorTiltag, indikatorMaaling, tovholderRapport, tovholder, laeringspost, tiltag, indsatsOmraade } from '@/db/schema';
 import { eq, and, desc, inArray } from 'drizzle-orm';
+import { getCo2SumForTiltag } from './tiltag';
 
 export type IndikatorMedMaaling = {
   id: string;
@@ -115,4 +116,40 @@ export async function getLaeringsposterForTiltag(kommuneId: string, tiltagId: st
       eq(laeringspost.knyttetTilId, tiltagId),
     ))
     .orderBy(desc(laeringspost.dato), desc(laeringspost.createdAt));
+}
+
+export type TiltagDetalje = {
+  tiltag: typeof tiltag.$inferSelect;
+  indsatsomraadeNavn: string | null;
+  indikatorer: IndikatorMedMaaling[];
+  rapporter: RapportForTiltag[];
+  laering: LaeringForTiltag[];
+  effektSum: number;
+};
+
+/** Alt om ét tiltag, batchet i parallel. Returnerer null hvis ikke fundet eller forkert kommune. */
+export async function getTiltagDetalje(kommuneId: string, tiltagId: string): Promise<TiltagDetalje | null> {
+  const [rows, indikatorer, rapporter, laering, co2Map] = await Promise.all([
+    db.select({ t: tiltag, ioNavn: indsatsOmraade.navn })
+      .from(tiltag)
+      .leftJoin(indsatsOmraade, eq(tiltag.indsatsOmraadeId, indsatsOmraade.id))
+      .where(eq(tiltag.id, tiltagId))
+      .limit(1),
+    getIndikatorerForTiltag(tiltagId),
+    getRapporterForTiltag(tiltagId),
+    getLaeringsposterForTiltag(kommuneId, tiltagId),
+    getCo2SumForTiltag([tiltagId]),
+  ]);
+
+  const row = rows[0];
+  if (!row || row.t.kommuneId !== kommuneId) return null;
+
+  return {
+    tiltag: row.t,
+    indsatsomraadeNavn: row.ioNavn,
+    indikatorer,
+    rapporter,
+    laering,
+    effektSum: co2Map.get(tiltagId) ?? 0,
+  };
 }
