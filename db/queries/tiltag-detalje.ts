@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { indikator, indikatorTiltag, indikatorMaaling } from '@/db/schema';
+import { indikator, indikatorTiltag, indikatorMaaling, tovholderRapport, tovholder, laeringspost } from '@/db/schema';
 import { eq, and, desc, inArray } from 'drizzle-orm';
 
 export type IndikatorMedMaaling = {
@@ -58,4 +58,61 @@ export async function getIndikatorerForTiltag(tiltagId: string): Promise<Indikat
       senesteAar: s?.aar ?? null,
     };
   });
+}
+
+export type RapportForTiltag = {
+  id: string;
+  dato: string;
+  statusImplementering: string | null;
+  barrierer: string | null;
+  naesteSkrid: string | null;
+  effektRealiseret: string | null;
+  tovholderNavn: string;
+};
+
+/** Tovholder-rapporter for tiltaget, nyeste først, med tovholderens navn. */
+export async function getRapporterForTiltag(tiltagId: string): Promise<RapportForTiltag[]> {
+  return db
+    .select({
+      id: tovholderRapport.id,
+      dato: tovholderRapport.dato,
+      statusImplementering: tovholderRapport.statusImplementering,
+      barrierer: tovholderRapport.barrierer,
+      naesteSkrid: tovholderRapport.naesteSkrid,
+      effektRealiseret: tovholderRapport.effektRealiseret,
+      tovholderNavn: tovholder.navn,
+    })
+    .from(tovholderRapport)
+    .innerJoin(tovholder, eq(tovholderRapport.tovholderId, tovholder.id))
+    .where(eq(tovholderRapport.tiltagId, tiltagId))
+    .orderBy(desc(tovholderRapport.dato));
+}
+
+export type LaeringForTiltag = {
+  id: string;
+  observation: string;
+  fortolkning: string | null;
+  beslutning: string;
+  beslutningstager: string | null;
+  dato: string;
+};
+
+/** Læringsposter knyttet specifikt til dette tiltag (polymorf type='tiltag'). */
+export async function getLaeringsposterForTiltag(kommuneId: string, tiltagId: string): Promise<LaeringForTiltag[]> {
+  return db
+    .select({
+      id: laeringspost.id,
+      observation: laeringspost.observation,
+      fortolkning: laeringspost.fortolkning,
+      beslutning: laeringspost.beslutning,
+      beslutningstager: laeringspost.beslutningstager,
+      dato: laeringspost.dato,
+    })
+    .from(laeringspost)
+    .where(and(
+      eq(laeringspost.kommuneId, kommuneId),
+      eq(laeringspost.knyttetTilType, 'tiltag'),
+      eq(laeringspost.knyttetTilId, tiltagId),
+    ))
+    .orderBy(desc(laeringspost.dato), desc(laeringspost.createdAt));
 }
