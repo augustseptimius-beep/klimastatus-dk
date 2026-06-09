@@ -224,7 +224,7 @@ export function TiltagTable({ tiltag, indsatser, slug }: { tiltag: Tiltag[]; ind
               <tr
                 key={t.id}
                 className="clickable"
-                onClick={() => router.push(`/k/${slug}/tiltag/${t.id}/rediger`)}
+                onClick={() => router.push(`/k/${slug}/tiltag/${t.id}`)}
               >
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -252,8 +252,8 @@ export function TiltagTable({ tiltag, indsatser, slug }: { tiltag: Tiltag[]; ind
                   {t.forventetEffektCo2Ton != null ? t.forventetEffektCo2Ton.toLocaleString('da-DK') : '—'}
                 </td>
                 <td onClick={(e) => e.stopPropagation()}>
-                  <Link href={`/k/${slug}/tiltag/${t.id}/rediger`} className="ks-btn ks-btn-secondary" style={{ padding: '5px 10px', fontSize: 12 }}>
-                    Rediger
+                  <Link href={`/k/${slug}/tiltag/${t.id}`} className="ks-btn ks-btn-secondary" style={{ padding: '5px 10px', fontSize: 12 }}>
+                    Åbn
                   </Link>
                 </td>
               </tr>
