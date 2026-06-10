@@ -29,5 +29,6 @@ export const tovholderRapport = pgTable('tovholder_rapport', {
   barrierer: text('barrierer'),
   naesteSkrid: text('naeste_skridt'),
   effektRealiseret: text('effekt_realiseret'),
+  forespoergselId: uuid('forespoergsel_id'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });

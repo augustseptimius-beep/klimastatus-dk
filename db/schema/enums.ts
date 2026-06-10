@@ -71,3 +71,10 @@ export const monitoreringsTypeEnum = pgEnum('monitorerings_type', [
 export const monitoreringsStatusEnum = pgEnum('monitorerings_status', [
   'aaben', 'lukket', 'rapporteret',
 ]);
+
+export const forespoergselStatusEnum = pgEnum('forespoergsel_status', [
+  'sendt', 'besvaret', 'forfalden',
+]);
+export const indhentningsKadenceEnum = pgEnum('indhentnings_kadence', [
+  'maanedlig', 'kvartalsvis', 'halvaarlig', 'aarlig', 'manuel',
+]);
