@@ -6,9 +6,11 @@ type Props = {
   antalTovholdere: number;
   sidstAnmodet: string | null;
   nyligAnmodet: boolean;
+  aabne: number;
+  forfaldne: number;
 };
 
-export function IndhentStatus({ action, antalTovholdere, sidstAnmodet, nyligAnmodet }: Props) {
+export function IndhentStatus({ action, antalTovholdere, sidstAnmodet, nyligAnmodet, aabne, forfaldne }: Props) {
   const [aaben, setAaben] = useState(false);
 
   if (antalTovholdere === 0) {
@@ -35,6 +37,21 @@ export function IndhentStatus({ action, antalTovholdere, sidstAnmodet, nyligAnmo
           </button>
         )}
       </div>
+
+      {(aabne > 0 || forfaldne > 0) && (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {aabne > 0 && (
+            <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
+              {aabne} afventer svar
+            </span>
+          )}
+          {forfaldne > 0 && (
+            <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
+              {forfaldne} forfalden{forfaldne === 1 ? '' : 'e'} — ryk tovholderen
+            </span>
+          )}
+        </div>
+      )}
 
       {aaben && (
         <form action={action} className="mt-4 space-y-3">

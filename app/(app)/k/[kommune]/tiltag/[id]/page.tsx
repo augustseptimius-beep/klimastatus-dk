@@ -12,7 +12,7 @@ import { opretLaeringspostForTiltagAction } from './actions';
 import type { TiltagStatus } from '@/lib/merl/tiltag-status';
 import { IndhentStatus } from './_indhent-status';
 import { indhentStatusAction } from './actions';
-import { nyligAnmodet as erNyligAnmodet } from '@/lib/merl/forespoergsel-status';
+import { erForfalden, nyligAnmodet as erNyligAnmodet } from '@/lib/merl/forespoergsel-status';
 
 export const metadata = { title: 'Tiltag — Klimastatus.dk' };
 
@@ -36,6 +36,9 @@ export default async function TiltagDetaljePage({ params }: Props) {
   const forespoergsler = detalje.forespoergsler;
   const sidstAnmodet = forespoergsler[0]?.sendtAt ?? null;
   const visNyligAnmodet = erNyligAnmodet(sidstAnmodet, iDag);
+  // "Forfalden" afledes ved læsning (pg-boss er no-op) — samme mønster som forsinket-overlayet.
+  const forfaldne = forespoergsler.filter((f) => erForfalden(f.status, f.sendtAt, iDag)).length;
+  const aabneForespoergsler = forespoergsler.filter((f) => f.status === 'sendt').length - forfaldne;
   const boundIndhent = indhentStatusAction.bind(null, slug, id);
 
   return (
@@ -63,6 +66,8 @@ export default async function TiltagDetaljePage({ params }: Props) {
         antalTovholdere={detalje.tovholdere.length}
         sidstAnmodet={sidstAnmodet}
         nyligAnmodet={visNyligAnmodet}
+        aabne={aabneForespoergsler}
+        forfaldne={forfaldne}
       />
 
       <Sektion titel="Indikatorer & målinger" resume={`${detalje.indikatorer.length} indikatorer`} aabenFraStart>

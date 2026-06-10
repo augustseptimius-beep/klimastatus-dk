@@ -1,13 +1,7 @@
 'use client';
-import type { IndhentningsKadence } from '@/lib/merl/forespoergsel-status';
+import { kadenceLabel, type IndhentningsKadence } from '@/lib/merl/forespoergsel-status';
 
-const VALG: { value: IndhentningsKadence; label: string }[] = [
-  { value: 'maanedlig', label: 'Månedlig' },
-  { value: 'kvartalsvis', label: 'Kvartalsvis' },
-  { value: 'halvaarlig', label: 'Halvårlig' },
-  { value: 'aarlig', label: 'Årlig' },
-  { value: 'manuel', label: 'Manuel (slukket)' },
-];
+const KADENCER: IndhentningsKadence[] = ['maanedlig', 'kvartalsvis', 'halvaarlig', 'aarlig', 'manuel'];
 
 export function KadenceForm({
   initial,
@@ -25,8 +19,8 @@ export function KadenceForm({
           defaultValue={initial}
           className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
         >
-          {VALG.map((v) => (
-            <option key={v.value} value={v.value}>{v.label}</option>
+          {KADENCER.map((k) => (
+            <option key={k} value={k}>{kadenceLabel(k)}</option>
           ))}
         </select>
       </div>

@@ -33,6 +33,10 @@ export async function upsertRapport(
     ),
   });
 
+  // Bemærk: nøglen er (tovholder, tiltag, dato). Besvarer en tovholder to
+  // forespørgsler for samme tiltag samme dag, opdateres den eksisterende række,
+  // og forespoergselId peger på den seneste. Acceptabel kant for et værktøj med
+  // én operatør; forespørgsel-tabellen sporer hver anmodning separat.
   if (existing) {
     const [updated] = await db
       .update(tovholderRapport)
