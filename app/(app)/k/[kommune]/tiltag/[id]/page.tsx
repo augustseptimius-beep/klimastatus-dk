@@ -10,6 +10,9 @@ import { RapportTidslinje } from './_rapport-tidslinje';
 import { LaeringSektion } from './_laering-sektion';
 import { opretLaeringspostForTiltagAction } from './actions';
 import type { TiltagStatus } from '@/lib/merl/tiltag-status';
+import { IndhentStatus } from './_indhent-status';
+import { indhentStatusAction } from './actions';
+import { nyligAnmodet as erNyligAnmodet } from '@/lib/merl/forespoergsel-status';
 
 export const metadata = { title: 'Tiltag — Klimastatus.dk' };
 
@@ -30,6 +33,11 @@ export default async function TiltagDetaljePage({ params }: Props) {
   const sidstOpdateret = detalje.rapporter[0]?.dato ?? null;
   const boundOpret = opretLaeringspostForTiltagAction.bind(null, slug, id);
 
+  const forespoergsler = detalje.forespoergsler;
+  const sidstAnmodet = forespoergsler[0]?.sendtAt ?? null;
+  const visNyligAnmodet = erNyligAnmodet(sidstAnmodet, iDag);
+  const boundIndhent = indhentStatusAction.bind(null, slug, id);
+
   return (
     <div className="max-w-3xl space-y-4">
       <div className="flex items-center justify-between">
@@ -48,6 +56,13 @@ export default async function TiltagDetaljePage({ params }: Props) {
         effektSum={detalje.effektSum}
         aabneBarrierer={aabneBarrierer}
         sidstOpdateret={sidstOpdateret}
+      />
+
+      <IndhentStatus
+        action={boundIndhent}
+        antalTovholdere={detalje.tovholdere.length}
+        sidstAnmodet={sidstAnmodet}
+        nyligAnmodet={visNyligAnmodet}
       />
 
       <Sektion titel="Indikatorer & målinger" resume={`${detalje.indikatorer.length} indikatorer`} aabenFraStart>
