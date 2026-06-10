@@ -3,6 +3,9 @@ import { getAktiveKommuneIndikatorer } from '@/db/queries/public-dashboard';
 import Link from 'next/link';
 import { PublicConfigForm } from './_public-config-form';
 import { updatePublicConfig } from './public-config-actions';
+import { KadenceForm } from './_kadence-form';
+import { updateKadenceAction } from './kadence-actions';
+import type { IndhentningsKadence } from '@/lib/merl/forespoergsel-status';
 
 export const metadata = { title: 'Indstillinger — Klimastatus.dk' };
 
@@ -33,6 +36,17 @@ export default async function IndstillingerPage({ params }: Props) {
             <dd className="mt-1 text-gray-900">{kommune.subdomain}.klimastatus.dk</dd>
           </div>
         </dl>
+      </div>
+
+      <div className="mt-4 rounded-xl border border-gray-200 bg-white p-6">
+        <h2 className="mb-1 text-base font-semibold text-gray-900">Status-indhentning fra tovholdere</h2>
+        <p className="mb-4 text-sm text-gray-500">
+          Hvor ofte skal tovholdere automatisk bedes om status? Manuel afsendelse fra et tiltag virker altid uanset valg.
+        </p>
+        <KadenceForm
+          initial={kommune.indhentningsKadence as IndhentningsKadence}
+          action={updateKadenceAction.bind(null, slug)}
+        />
       </div>
 
       <div className="mt-4 rounded-xl border border-gray-200 bg-white p-6">
