@@ -1,5 +1,7 @@
 import { requireKommuneContext } from '@/lib/kommune-context';
 import { getAllTovholdere, getAllTiltag, getAllIndsatsOmraader } from '@/db/queries';
+import { getEffektKomplethed } from '@/db/queries/tiltag';
+import { getUfuldstaendigeReduktionsMaal } from '@/db/queries/maal';
 import { getLatestRapporterForTovholder } from '@/db/queries/rapport';
 import { getCctfDaekning } from '@/db/queries/cctf';
 import Link from 'next/link';
@@ -16,10 +18,12 @@ export default async function DashboardPage({ params }: Props) {
   const { kommune: slug } = await params;
   const { kommune } = await requireKommuneContext(slug);
 
-  const [tovholdere, tiltag, indsatser] = await Promise.all([
+  const [tovholdere, tiltag, indsatser, effektKomplethed, ufuldstaendigeMaal] = await Promise.all([
     getAllTovholdere(kommune.id),
     getAllTiltag(kommune.id),
     getAllIndsatsOmraader(kommune.id),
+    getEffektKomplethed(kommune.id),
+    getUfuldstaendigeReduktionsMaal(kommune.id),
   ]);
 
   const co2eKI = await db
@@ -123,6 +127,32 @@ export default async function DashboardPage({ params }: Props) {
         )}
         <CctfDashboardWidget daekning={cctfDaekning} slug={slug} />
       </div>
+
+      {(effektKomplethed.tiltagUdenEffekt > 0 || ufuldstaendigeMaal.length > 0) && (
+        <div className="ks-card" style={{ marginTop: 16, background: '#fffbeb', border: '1px solid #fde68a' }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: '#92400e', marginBottom: 6 }}>
+            Datagrundlaget er ufuldstændigt — tallene herover undervurderer klimaplanen
+          </div>
+          <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: '#92400e', lineHeight: 1.7 }}>
+            {effektKomplethed.tiltagUdenEffekt > 0 && (
+              <li>
+                Effekt-skøn mangler på{' '}
+                <strong>{effektKomplethed.tiltagUdenEffekt} af {effektKomplethed.aktiveTiltag} handlinger</strong>
+                {' '}— deres CO₂-effekt tæller som 0 i alle summer.{' '}
+                <Link href={`/k/${slug}/tiltag`} style={{ color: '#92400e', fontWeight: 600 }}>Gennemgå handlinger →</Link>
+              </li>
+            )}
+            {ufuldstaendigeMaal.length > 0 && (
+              <li>
+                <strong>{ufuldstaendigeMaal.length} reduktionsmål</strong> mangler{' '}
+                {[...new Set(ufuldstaendigeMaal.flatMap((m) => m.mangler))].join(', ')}
+                {' '}og vises derfor ikke på grafer.{' '}
+                <Link href={`/k/${slug}/indsatser`} style={{ color: '#92400e', fontWeight: 600 }}>Redigér mål →</Link>
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
 
       <div className="ks-section">
         <div className="ks-section-head">

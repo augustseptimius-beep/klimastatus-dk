@@ -123,6 +123,35 @@ export async function setTiltagEffekter(tiltagId: string, effekter: TiltagEffekt
   }
 }
 
+export type EffektKomplethed = {
+  aktiveTiltag: number;
+  tiltagUdenEffekt: number;
+};
+
+/**
+ * Hvor mange aktive handlinger mangler effekt-skøn? Summer over tiltag uden
+ * effekter er ellers tavse nuller — det her gør hullet synligt.
+ */
+export async function getEffektKomplethed(kommuneId: string): Promise<EffektKomplethed> {
+  const alle = await db
+    .select({ id: tiltag.id, status: tiltag.status })
+    .from(tiltag)
+    .where(eq(tiltag.kommuneId, kommuneId));
+  const aktive = alle.filter((t) => t.status !== 'discontinued');
+  if (aktive.length === 0) return { aktiveTiltag: 0, tiltagUdenEffekt: 0 };
+
+  const medEffekt = await db
+    .selectDistinct({ tiltagId: tiltagEffekt.tiltagId })
+    .from(tiltagEffekt)
+    .where(inArray(tiltagEffekt.tiltagId, aktive.map((t) => t.id)));
+  const harEffekt = new Set(medEffekt.map((r) => r.tiltagId));
+
+  return {
+    aktiveTiltag: aktive.length,
+    tiltagUdenEffekt: aktive.filter((t) => !harEffekt.has(t.id)).length,
+  };
+}
+
 /** Sum af co2_reduktion-effekter pr. tiltag. Returnerer Map(tiltagId → sum). */
 export async function getCo2SumForTiltag(tiltagIds: string[]): Promise<Map<string, number>> {
   if (tiltagIds.length === 0) return new Map();

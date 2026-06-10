@@ -43,3 +43,45 @@ export async function getReduktionsMaal(kommuneId: string): Promise<ReduktionsMa
     enhed: v.enhed,
   };
 }
+
+export type UfuldstaendigtMaal = {
+  id: string;
+  beskrivelse: string;
+  mangler: string[];
+};
+
+/**
+ * SMART-reduktionsmål der mangler baseline eller målværdi/-år og derfor
+ * forsvinder tavst fra grafer (getReduktionsMaal springer dem over).
+ */
+export async function getUfuldstaendigeReduktionsMaal(kommuneId: string): Promise<UfuldstaendigtMaal[]> {
+  const rows = await db
+    .select({
+      id: maal.id,
+      beskrivelse: maal.beskrivelse,
+      maalAar: maal.maalAar,
+      maalVaerdi: maal.maalVaerdi,
+      baselineAar: maal.baselineAar,
+      baselineVaerdi: maal.baselineVaerdi,
+    })
+    .from(maal)
+    .innerJoin(indsatsOmraade, eq(maal.indsatsOmraadeId, indsatsOmraade.id))
+    .where(
+      and(
+        eq(indsatsOmraade.kommuneId, kommuneId),
+        eq(maal.kategori, 'reduction'),
+        eq(maal.type, 'smart'),
+      ),
+    );
+
+  const result: UfuldstaendigtMaal[] = [];
+  for (const r of rows) {
+    const mangler: string[] = [];
+    if (r.baselineVaerdi == null) mangler.push('baselineværdi');
+    if (r.baselineAar == null) mangler.push('baselineår');
+    if (r.maalVaerdi == null) mangler.push('målværdi');
+    if (r.maalAar == null) mangler.push('målår');
+    if (mangler.length > 0) result.push({ id: r.id, beskrivelse: r.beskrivelse, mangler });
+  }
+  return result;
+}
