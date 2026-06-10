@@ -5,6 +5,10 @@ import { createLaeringspost } from '@/db/queries/laeringspost';
 import { getTiltagById } from '@/db/queries/tiltag';
 import { BESLUTNINGER } from '@/lib/merl/laeringspost-types';
 import type { LaeringsBeslutning } from '@/lib/merl/laeringspost-types';
+import { getKommuneById } from '@/db/queries';
+import { createForespoergsel, getTovholdereForTiltag } from '@/db/queries/forespoergsel';
+import { createMagicLink } from '@/db/queries/magic-link';
+import { sendMagicLinkEmail } from '@/lib/email';
 
 export async function opretLaeringspostForTiltagAction(
   slug: string,
@@ -37,6 +41,45 @@ export async function opretLaeringspostForTiltagAction(
     dato,
     tovholderRapportId: null,
   });
+
+  revalidatePath(`/k/${slug}/tiltag/${tiltagId}`);
+}
+
+export async function indhentStatusAction(
+  slug: string,
+  tiltagId: string,
+  formData: FormData,
+): Promise<void> {
+  const { kommune } = await requireKommuneContext(slug);
+
+  const tiltag = await getTiltagById(tiltagId);
+  if (!tiltag || tiltag.kommuneId !== kommune.id) throw new Error('Ikke autoriseret');
+
+  const spoergsmaal = ((formData.get('spoergsmaal') as string) || '').trim() || null;
+
+  const [tovholdere, kommuneRow] = await Promise.all([
+    getTovholdereForTiltag(tiltagId),
+    getKommuneById(kommune.id),
+  ]);
+  if (!kommuneRow) throw new Error('Kommune ikke fundet');
+
+  const base = process.env.NODE_ENV === 'production'
+    ? `https://${kommuneRow.subdomain}.klimastatus.dk`
+    : (process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000');
+  const kanSendeMail = !!process.env.BREVO_API_KEY;
+
+  for (const th of tovholdere) {
+    await createForespoergsel({
+      kommuneId: kommune.id,
+      tovholderId: th.id,
+      tiltagId,
+      spoergsmaal,
+    });
+    if (kanSendeMail) {
+      const token = await createMagicLink(th.id);
+      await sendMagicLinkEmail(th.email, `${base}/rapport/${token}`, kommuneRow.navn);
+    }
+  }
 
   revalidatePath(`/k/${slug}/tiltag/${tiltagId}`);
 }
