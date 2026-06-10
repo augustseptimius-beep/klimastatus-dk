@@ -9,6 +9,7 @@ export type RapportData = {
   barrierer?: string;
   naesteSkrid?: string;
   effektRealiseret?: string;
+  forespoergselId?: string;
 };
 
 export async function getLatestRapporterForTovholder(tovholderId: string) {
