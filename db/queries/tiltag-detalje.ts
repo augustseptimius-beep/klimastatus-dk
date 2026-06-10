@@ -2,6 +2,7 @@ import { db } from '@/db';
 import { indikator, indikatorTiltag, indikatorMaaling, tovholderRapport, tovholder, laeringspost, tiltag, indsatsOmraade } from '@/db/schema';
 import { eq, and, desc, inArray } from 'drizzle-orm';
 import { getCo2SumForTiltag } from './tiltag';
+import { getForespoergslerForTiltag, getTovholdereForTiltag, type ForespoergselRow, type TovholderKort } from './forespoergsel';
 
 export type IndikatorMedMaaling = {
   id: string;
@@ -125,11 +126,13 @@ export type TiltagDetalje = {
   rapporter: RapportForTiltag[];
   laering: LaeringForTiltag[];
   effektSum: number;
+  forespoergsler: ForespoergselRow[];
+  tovholdere: TovholderKort[];
 };
 
 /** Alt om ét tiltag, batchet i parallel. Returnerer null hvis ikke fundet eller forkert kommune. */
 export async function getTiltagDetalje(kommuneId: string, tiltagId: string): Promise<TiltagDetalje | null> {
-  const [rows, indikatorer, rapporter, laering, co2Map] = await Promise.all([
+  const [rows, indikatorer, rapporter, laering, co2Map, forespoergsler, tovholdere] = await Promise.all([
     db.select({ t: tiltag, ioNavn: indsatsOmraade.navn })
       .from(tiltag)
       .leftJoin(indsatsOmraade, eq(tiltag.indsatsOmraadeId, indsatsOmraade.id))
@@ -139,6 +142,8 @@ export async function getTiltagDetalje(kommuneId: string, tiltagId: string): Pro
     getRapporterForTiltag(tiltagId),
     getLaeringsposterForTiltag(kommuneId, tiltagId),
     getCo2SumForTiltag([tiltagId]),
+    getForespoergslerForTiltag(tiltagId),
+    getTovholdereForTiltag(tiltagId),
   ]);
 
   const row = rows[0];
@@ -151,5 +156,7 @@ export async function getTiltagDetalje(kommuneId: string, tiltagId: string): Pro
     rapporter,
     laering,
     effektSum: co2Map.get(tiltagId) ?? 0,
+    forespoergsler,
+    tovholdere,
   };
 }
