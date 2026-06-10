@@ -97,7 +97,7 @@ export default async function DataPage({ params, searchParams }: Props) {
   const koblinger = await Promise.all(
     aktiveWithValue.map(async (ki) => ({
       kommuneIndikatorId: ki.id,
-      ...(await getIndikatorKobling(ki.indikatorId)),
+      ...(await getIndikatorKobling(ki.indikatorId, kommune.id)),
     }))
   );
 

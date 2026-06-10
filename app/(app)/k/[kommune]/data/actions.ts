@@ -5,6 +5,7 @@ import { requireKommuneContext } from '@/lib/kommune-context';
 import { db } from '@/db';
 import { indikator } from '@/db/schema';
 import { getTemplateById } from '@/db/queries/indikator-template';
+import { getTiltagById } from '@/db/queries/tiltag';
 import {
   createKommuneIndikator,
   setKommuneIndikatorAktiv,
@@ -104,6 +105,8 @@ export async function tilknytIndikatorTiltagAction(
   const { kommune } = await requireKommuneContext(slug);
   const ki = await getKommuneIndikatorById(kommuneIndikatorId);
   if (!ki || ki.kommuneId !== kommune.id) return;
+  const t = await getTiltagById(tiltagId);
+  if (!t || t.kommuneId !== kommune.id) return;
   await tilknytIndikatorTiltag(ki.indikatorId, tiltagId);
   revalidatePath(`/k/${slug}/data`);
 }
@@ -116,6 +119,8 @@ export async function fjernIndikatorTiltagAction(
   const { kommune } = await requireKommuneContext(slug);
   const ki = await getKommuneIndikatorById(kommuneIndikatorId);
   if (!ki || ki.kommuneId !== kommune.id) return;
+  const t = await getTiltagById(tiltagId);
+  if (!t || t.kommuneId !== kommune.id) return;
   await fjernIndikatorTiltag(ki.indikatorId, tiltagId);
   revalidatePath(`/k/${slug}/data`);
 }

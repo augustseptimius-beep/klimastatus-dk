@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { indikatorTiltag, tiltag, indikatorMaal, maal } from '@/db/schema';
+import { indikatorTiltag, tiltag, indikatorMaal, maal, indsatsOmraade } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 export type IndikatorKobling = {
@@ -7,18 +7,21 @@ export type IndikatorKobling = {
   tilknyttedeMaal: { id: string; titel: string }[];
 };
 
-export async function getIndikatorKobling(indikatorId: string): Promise<IndikatorKobling> {
+// Indikatorer er globale skabeloner og kan deles på tværs af kommuner —
+// koblinger skal derfor altid filtreres på kommunens egne tiltag og mål.
+export async function getIndikatorKobling(indikatorId: string, kommuneId: string): Promise<IndikatorKobling> {
   const tiltagRows = await db
     .select({ id: tiltag.id, titel: tiltag.titel })
     .from(indikatorTiltag)
     .innerJoin(tiltag, eq(indikatorTiltag.tiltagId, tiltag.id))
-    .where(eq(indikatorTiltag.indikatorId, indikatorId));
+    .where(and(eq(indikatorTiltag.indikatorId, indikatorId), eq(tiltag.kommuneId, kommuneId)));
 
   const maalRows = await db
     .select({ id: maal.id, titel: maal.beskrivelse })
     .from(indikatorMaal)
     .innerJoin(maal, eq(indikatorMaal.maalId, maal.id))
-    .where(eq(indikatorMaal.indikatorId, indikatorId));
+    .innerJoin(indsatsOmraade, eq(maal.indsatsOmraadeId, indsatsOmraade.id))
+    .where(and(eq(indikatorMaal.indikatorId, indikatorId), eq(indsatsOmraade.kommuneId, kommuneId)));
 
   return { tilknyttedeTiltag: tiltagRows, tilknyttedeMaal: maalRows };
 }
