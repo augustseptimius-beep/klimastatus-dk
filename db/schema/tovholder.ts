@@ -1,6 +1,8 @@
 import { pgTable, uuid, text, boolean, date, timestamp } from 'drizzle-orm/pg-core';
+import type { AnyPgColumn } from 'drizzle-orm/pg-core';
 import { kommune } from './kommune';
 import { tiltag } from './tiltag';
+import { forespoergsel } from './forespoergsel';
 
 export const tovholder = pgTable('tovholder', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -29,6 +31,6 @@ export const tovholderRapport = pgTable('tovholder_rapport', {
   barrierer: text('barrierer'),
   naesteSkrid: text('naeste_skridt'),
   effektRealiseret: text('effekt_realiseret'),
-  forespoergselId: uuid('forespoergsel_id'),
+  forespoergselId: uuid('forespoergsel_id').references((): AnyPgColumn => forespoergsel.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });

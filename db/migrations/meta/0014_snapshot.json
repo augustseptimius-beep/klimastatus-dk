@@ -1046,6 +1046,19 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "tovholder_rapport_forespoergsel_id_forespoergsel_id_fk": {
+          "name": "tovholder_rapport_forespoergsel_id_forespoergsel_id_fk",
+          "tableFrom": "tovholder_rapport",
+          "tableTo": "forespoergsel",
+          "columnsFrom": [
+            "forespoergsel_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
