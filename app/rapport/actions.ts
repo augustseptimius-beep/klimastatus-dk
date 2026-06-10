@@ -1,11 +1,13 @@
 'use server';
 import { cookies } from 'next/headers';
+import { revalidatePath } from 'next/cache';
 import { decryptTovholder } from '@/lib/tovholder-session';
 import { upsertRapport } from '@/db/queries/rapport';
-import { getTiltagForTovholder } from '@/db/queries/tiltag';
+import { getForespoergselById, markForespoergselBesvaret } from '@/db/queries/forespoergsel';
 import type { FormState } from '@/lib/definitions';
 
-export async function saveRapportAction(
+export async function besvarForespoergselAction(
+  forespoergselId: string,
   _state: FormState,
   formData: FormData,
 ): Promise<FormState> {
@@ -18,28 +20,22 @@ export async function saveRapportAction(
     return { message: 'Session udløbet — brug linket fra din email igen.' };
   }
 
+  const forespoergsel = await getForespoergselById(forespoergselId);
+  if (!forespoergsel || forespoergsel.tovholderId !== session.tovholderId) {
+    return { message: 'Forespørgslen kunne ikke findes.' };
+  }
+  if (forespoergsel.status === 'besvaret') {
+    return { message: 'Allerede besvaret.' };
+  }
+
   const dato = new Date().toISOString().split('T')[0];
+  await upsertRapport(session.tovholderId, forespoergsel.tiltagId, dato, {
+    statusImplementering: (formData.get('statusImplementering') as string) || undefined,
+    barrierer: (formData.get('barrierer') as string) || undefined,
+    forespoergselId,
+  });
+  await markForespoergselBesvaret(forespoergselId);
 
-  const tiltagIds = [...new Set(
-    [...formData.keys()]
-      .filter((k) => k.startsWith('tiltag_') && k.endsWith('_id'))
-      .map((k) => formData.get(k) as string)
-      .filter(Boolean),
-  )];
-
-  const ownedTiltag = await getTiltagForTovholder(session.tovholderId);
-  const ownedIds = new Set(ownedTiltag.map((t) => t.id));
-  const safeTiltagIds = tiltagIds.filter((id) => ownedIds.has(id));
-
-  await Promise.all(
-    safeTiltagIds.map((tiltagId) =>
-      upsertRapport(session.tovholderId, tiltagId, dato, {
-        statusImplementering: (formData.get(`tiltag_${tiltagId}_statusImplementering`) as string) || undefined,
-        barrierer: (formData.get(`tiltag_${tiltagId}_barrierer`) as string) || undefined,
-        naesteSkrid: (formData.get(`tiltag_${tiltagId}_naesteSkrid`) as string) || undefined,
-      }),
-    ),
-  );
-
-  return { message: 'Status gemt ✓' };
+  revalidatePath('/rapport');
+  return { message: 'Tak — status er sendt ✓' };
 }

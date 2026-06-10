@@ -1,9 +1,8 @@
 import { cookies } from 'next/headers';
 import { decryptTovholder } from '@/lib/tovholder-session';
 import { getTovholderById } from '@/db/queries/tovholder';
-import { getTiltagForTovholder } from '@/db/queries/tiltag';
-import { getLatestRapporterForTovholder } from '@/db/queries/rapport';
-import { TovholderRapportForm } from '@/components/tovholder-rapport-form';
+import { getAabneForespoergslerForTovholder } from '@/db/queries/forespoergsel';
+import { ForespoergselForm } from './_forespoergsel-form';
 
 export const metadata = { title: 'Tovholder-rapport — Klimastatus.dk' };
 
@@ -32,10 +31,9 @@ export default async function RapportPage() {
     );
   }
 
-  const [tovholder, tiltagListe, rapporter] = await Promise.all([
+  const [tovholder, forespoergsler] = await Promise.all([
     getTovholderById(session.tovholderId),
-    getTiltagForTovholder(session.tovholderId),
-    getLatestRapporterForTovholder(session.tovholderId),
+    getAabneForespoergslerForTovholder(session.tovholderId),
   ]);
 
   if (!tovholder) {
@@ -46,16 +44,27 @@ export default async function RapportPage() {
     );
   }
 
+  const aktiv = forespoergsler[0];
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-3xl px-4 py-8">
+      <div className="mx-auto max-w-2xl px-4 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Hej {tovholder.navn}</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Udfyld status for dine tiltag nedenfor. Du kan gemme og vende tilbage inden deadline.
+            {forespoergsler.length === 0
+              ? 'Du har ingen åbne forespørgsler lige nu. Tak!'
+              : `Du har ${forespoergsler.length} ${forespoergsler.length === 1 ? 'forespørgsel' : 'forespørgsler'}. Besvar én ad gangen.`}
           </p>
         </div>
-        <TovholderRapportForm tiltag={tiltagListe} rapporter={rapporter} />
+
+        {aktiv && (
+          <ForespoergselForm
+            aktiv={{ id: aktiv.id, tiltagTitel: aktiv.tiltagTitel, spoergsmaal: aktiv.spoergsmaal }}
+            antal={forespoergsler.length}
+            position={1}
+          />
+        )}
       </div>
     </div>
   );
