@@ -99,9 +99,15 @@ export async function sendRundeAction(slug: string): Promise<void> {
         ),
       );
 
+      // Mail er best-effort: forespørgslerne er allerede oprettet. En fejl hos
+      // mail-udbyderen må ikke vælte hele runden.
       if (kanSendeMail) {
-        const token = await createMagicLink(tovholder.id);
-        await sendMagicLinkEmail(tovholder.email, `${base}/rapport/${token}`, kommuneRow.navn);
+        try {
+          const token = await createMagicLink(tovholder.id);
+          await sendMagicLinkEmail(tovholder.email, `${base}/rapport/${token}`, kommuneRow.navn);
+        } catch (err) {
+          console.error(`[sendRunde] kunne ikke sende mail til ${tovholder.email}:`, err);
+        }
       }
     }),
   );

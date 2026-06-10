@@ -75,9 +75,15 @@ export async function indhentStatusAction(
       tiltagId,
       spoergsmaal,
     });
+    // Mail er best-effort: forespørgslen er kilden til sandhed og er allerede
+    // oprettet. En fejl hos mail-udbyderen må ikke vælte handlingen.
     if (kanSendeMail) {
-      const token = await createMagicLink(th.id);
-      await sendMagicLinkEmail(th.email, `${base}/rapport/${token}`, kommuneRow.navn);
+      try {
+        const token = await createMagicLink(th.id);
+        await sendMagicLinkEmail(th.email, `${base}/rapport/${token}`, kommuneRow.navn);
+      } catch (err) {
+        console.error(`[indhentStatus] kunne ikke sende mail til ${th.email}:`, err);
+      }
     }
   }
 
