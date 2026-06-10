@@ -7,6 +7,8 @@ import {
 } from '@/db/queries';
 import { createMagicLink } from '@/db/queries/magic-link';
 import { sendMagicLinkEmail } from '@/lib/email';
+import { getTiltagForTovholder } from '@/db/queries/tiltag';
+import { createForespoergsel } from '@/db/queries/forespoergsel';
 import { getKommuneById } from '@/db/queries';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
@@ -79,12 +81,28 @@ export async function sendRundeAction(slug: string): Promise<void> {
   const base = process.env.NODE_ENV === 'production'
     ? `https://${kommuneRow.subdomain}.klimastatus.dk`
     : (process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000');
+  const kanSendeMail = !!process.env.BREVO_API_KEY;
 
   const aktiveTovholdere = tovholdere.filter((t) => t.aktiv);
   await Promise.all(
     aktiveTovholdere.map(async (tovholder) => {
-      const token = await createMagicLink(tovholder.id);
-      await sendMagicLinkEmail(tovholder.email, `${base}/rapport/${token}`, kommuneRow.navn);
+      const tiltagListe = await getTiltagForTovholder(tovholder.id);
+      if (tiltagListe.length === 0) return;
+
+      await Promise.all(
+        tiltagListe.map((t) =>
+          createForespoergsel({
+            kommuneId: kommune.id,
+            tovholderId: tovholder.id,
+            tiltagId: t.id,
+          }),
+        ),
+      );
+
+      if (kanSendeMail) {
+        const token = await createMagicLink(tovholder.id);
+        await sendMagicLinkEmail(tovholder.email, `${base}/rapport/${token}`, kommuneRow.navn);
+      }
     }),
   );
 
