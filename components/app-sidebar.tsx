@@ -20,6 +20,7 @@ export function AppSidebar({ slug, kommuneNavn, isAdmin }: Props) {
     { href: `${base}/tovholdere`,  label: 'Tovholdere' },
     { href: `${base}/data`,        label: 'Datastyring' },
     { href: `${base}/laering`,     label: 'Læring' },
+    { href: `${base}/statusnotat`, label: 'Statusnotat' },
   ];
 
   const secondaryNav = [

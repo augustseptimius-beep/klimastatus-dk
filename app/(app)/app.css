@@ -301,3 +301,10 @@
   border-color: var(--forest-900, #1E6B3A);
   box-shadow: 0 0 0 2px rgba(30,107,58,0.15);
 }
+
+/* Print: kun sideindholdet — appskal (topbar/sidebar) skjules */
+@media print {
+  .ks-topbar, .ks-sidebar, .no-print { display: none !important; }
+  .ks-app { display: block !important; height: auto !important; background: white !important; }
+  .ks-main { overflow: visible !important; padding: 0 !important; }
+}

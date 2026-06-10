@@ -88,6 +88,11 @@ export default async function DashboardPage({ params }: Props) {
           <div className="eyebrow">Klimastatus 2025</div>
           <h1>{kommune.navn} Kommune</h1>
         </div>
+        <div className="actions">
+          <Link href={`/k/${slug}/statusnotat`} className="ks-btn ks-btn-primary">
+            Generér statusnotat
+          </Link>
+        </div>
       </div>
 
       <div className="ks-stat-grid" style={{ gridTemplateColumns: `repeat(${statCols}, 1fr)` }}>
