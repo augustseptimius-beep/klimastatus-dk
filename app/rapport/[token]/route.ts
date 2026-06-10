@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getMagicLinkByTokenHash, markMagicLinkUsed, hashToken } from '@/db/queries/magic-link';
+import { getMagicLinkByTokenHash, hashToken } from '@/db/queries/magic-link';
 import { getTovholderById } from '@/db/queries/tovholder';
 import { encryptTovholder } from '@/lib/tovholder-session';
 
@@ -27,7 +27,8 @@ export async function GET(
     return NextResponse.redirect(new URL('/rapport/udloebet', request.nextUrl));
   }
 
-  await markMagicLinkUsed(link.id);
+  // Linket forbliver gyldigt indtil rapporten indsendes (eller det udløber),
+  // så en tovholder der åbner uden at svare stadig kan vende tilbage — og rykkes.
 
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const sessionToken = await encryptTovholder({

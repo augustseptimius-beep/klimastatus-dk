@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, boolean, integer } from 'drizzle-orm/pg-core';
 import { kommune } from './kommune';
 
 export const user = pgTable('user', {
@@ -25,6 +25,9 @@ export const magicLink = pgTable('magic_link', {
   tokenHash: text('token_hash').notNull().unique(),
   tovholderId: uuid('tovholder_id').notNull(),
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  // 'used' betyder "rapport indsendt" — ikke "link åbnet".
   used: boolean('used').notNull().default(false),
+  rykkerAntal: integer('rykker_antal').notNull().default(0),
+  sidstRykketAt: timestamp('sidst_rykket_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });

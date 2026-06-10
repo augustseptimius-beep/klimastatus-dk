@@ -8,8 +8,8 @@ vi.mock('@/db', () => ({
     update: vi.fn(() => ({ set: vi.fn(() => ({ where: vi.fn().mockResolvedValue(undefined) })) })),
   },
 }));
-vi.mock('drizzle-orm', () => ({ eq: vi.fn() }));
-vi.mock('@/db/schema', () => ({ magicLink: {} }));
+vi.mock('drizzle-orm', () => ({ eq: vi.fn(), and: vi.fn(), inArray: vi.fn(), desc: vi.fn(), sql: vi.fn() }));
+vi.mock('@/db/schema', () => ({ magicLink: {}, tovholder: {}, tovholderRapport: {} }));
 
 describe('generateToken', () => {
   it('returns a 64-char hex string', async () => {

@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { decryptTovholder } from '@/lib/tovholder-session';
 import { upsertRapport } from '@/db/queries/rapport';
 import { getTiltagForTovholder } from '@/db/queries/tiltag';
+import { markMagicLinksUsedForTovholder } from '@/db/queries/magic-link';
 import type { FormState } from '@/lib/definitions';
 
 export async function saveRapportAction(
@@ -40,6 +41,11 @@ export async function saveRapportAction(
       }),
     ),
   );
+
+  // 'used' betyder "rapport indsendt": lukker linket og stopper rykkere.
+  if (safeTiltagIds.length > 0) {
+    await markMagicLinksUsedForTovholder(session.tovholderId);
+  }
 
   return { message: 'Status gemt ✓' };
 }

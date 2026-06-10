@@ -1,5 +1,6 @@
 import { requireKommuneContext } from '@/lib/kommune-context';
 import { getAllTovholdere } from '@/db/queries';
+import { getRundeStatusForKommune, type TovholderRundeStatus } from '@/db/queries/magic-link';
 import Link from 'next/link';
 import { sendRundeAction } from './actions';
 
@@ -7,11 +8,40 @@ export const metadata = { title: 'Tovholdere — Klimastatus.dk' };
 
 type Props = { params: Promise<{ kommune: string }> };
 
+function formaterDato(d: Date): string {
+  return new Intl.DateTimeFormat('da-DK', { day: 'numeric', month: 'short' }).format(d);
+}
+
+function RundeStatusBadge({ status }: { status: TovholderRundeStatus | undefined }) {
+  if (!status) {
+    return <span className="text-xs text-gray-400">Ingen runde sendt</span>;
+  }
+  if (status.harSvaret) {
+    return (
+      <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs text-green-700">
+        Har svaret
+      </span>
+    );
+  }
+  const rykket = status.rykkerAntal > 0
+    ? ` · rykket ${status.rykkerAntal} ${status.rykkerAntal === 1 ? 'gang' : 'gange'}`
+    : '';
+  const opgivet = status.rykkerAntal >= 2 ? ' — ingen flere automatiske rykkere' : '';
+  return (
+    <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-700">
+      Afventer svar (sendt {formaterDato(status.linkSendtAt)}){rykket}{opgivet}
+    </span>
+  );
+}
+
 export default async function TovholderePage({ params }: Props) {
   const { kommune: slug } = await params;
   const { kommune } = await requireKommuneContext(slug);
 
-  const tovholdere = await getAllTovholdere(kommune.id);
+  const [tovholdere, rundeStatus] = await Promise.all([
+    getAllTovholdere(kommune.id),
+    getRundeStatusForKommune(kommune.id),
+  ]);
   const aktive = tovholdere.filter((t) => t.aktiv);
 
   const boundSendRunde = sendRundeAction.bind(null, slug);
@@ -49,6 +79,7 @@ export default async function TovholderePage({ params }: Props) {
                 <p className="text-xs text-gray-500">{th.email}{th.forvaltning ? ` · ${th.forvaltning}` : ''}</p>
               </div>
               <div className="flex items-center gap-4">
+                {th.aktiv && <RundeStatusBadge status={rundeStatus.get(th.id)} />}
                 {!th.aktiv && <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">Inaktiv</span>}
                 <Link href={`/k/${slug}/tovholdere/${th.id}`} className="text-sm text-gray-500 hover:text-gray-900">
                   Administrer
