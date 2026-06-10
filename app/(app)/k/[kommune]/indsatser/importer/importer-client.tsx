@@ -2,7 +2,9 @@
 
 import { useState, useRef, useTransition } from 'react';
 import Link from 'next/link';
-import { bulkImportAction } from './actions';
+import { bulkImportAction, importDiffAction } from './actions';
+import type { ImportDiff } from '@/lib/import/merge-katalog';
+import type { ImportIndsats } from '@/lib/import/types';
 
 type Handling = {
   titel: string;
@@ -33,10 +35,20 @@ const STATUS_LABEL: Record<string, string> = {
   planned: 'Planlagt', in_progress: 'Igangværende', completed: 'Gennemført', discontinued: 'Udgået',
 };
 
+function tilPayload(indsatser: Indsats[]): ImportIndsats[] {
+  return indsatser.map((io) => ({
+    navn: io.navn, type: io.type, sektor: io.sektor, beskrivelse: io.beskrivelse,
+    handlinger: io.handlinger.map((h) => ({
+      titel: h.titel, type: h.type, status: h.status, beskrivelse: h.beskrivelse,
+    })),
+  }));
+}
+
 export function ImporterClient({ slug }: { slug: string }) {
   const [step, setStep] = useState<Step>('upload');
   const [errorMsg, setErrorMsg] = useState('');
   const [indsatser, setIndsatser] = useState<Indsats[]>([]);
+  const [diff, setDiff] = useState<ImportDiff | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [fileName, setFileName] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
@@ -69,6 +81,11 @@ export function ImporterClient({ slug }: { slug: string }) {
             handlinger: (io.handlinger ?? []).map((h) => ({ ...h, inkluder: true })),
           }));
           setIndsatser(raw);
+          try {
+            setDiff(await importDiffAction(slug, tilPayload(raw)));
+          } catch {
+            setDiff(null); // diff er kun vejledende — serveren fletter uanset
+          }
           setStep('review');
           return;
         }
@@ -107,20 +124,28 @@ export function ImporterClient({ slug }: { slug: string }) {
   }
 
   function doImport() {
-    const payload = indsatser
-      .filter((io) => io.inkluder)
-      .map((io) => ({
-        navn: io.navn, type: io.type, sektor: io.sektor, beskrivelse: io.beskrivelse,
-        handlinger: io.handlinger.filter((h) => h.inkluder).map((h) => ({
-          titel: h.titel, type: h.type, status: h.status, beskrivelse: h.beskrivelse,
-        })),
-      }));
+    const payload = tilPayload(
+      indsatser
+        .filter((io) => io.inkluder)
+        .map((io) => ({ ...io, handlinger: io.handlinger.filter((h) => h.inkluder) })),
+    );
     setStep('importing');
     startTransition(() => { bulkImportAction(slug, payload); });
   }
 
   const totalHandlinger = indsatser.filter((io) => io.inkluder).reduce((n, io) => n + io.handlinger.filter((h) => h.inkluder).length, 0);
   const totalIndsatser = indsatser.filter((io) => io.inkluder).length;
+  const fletIndsatser = indsatser.filter((io, i) => io.inkluder && diff?.indsatser[i]?.findes).length;
+  const dubletHandlinger = indsatser.reduce((n, io, i) =>
+    io.inkluder
+      ? n + io.handlinger.filter((h, j) => h.inkluder && diff?.indsatser[i]?.handlingerFindes[j]).length
+      : n,
+  0);
+  const nyeIndsatser = totalIndsatser - fletIndsatser;
+  const nyeHandlinger = totalHandlinger - dubletHandlinger;
+  const opretLabel = fletIndsatser > 0 || dubletHandlinger > 0
+    ? `Opret ${nyeIndsatser} nye + flet ${fletIndsatser} eksisterende (${nyeHandlinger} handlinger)`
+    : `Opret ${totalIndsatser} indsatsområder + ${totalHandlinger} handlinger`;
 
   return (
     <>
@@ -218,10 +243,21 @@ export function ImporterClient({ slug }: { slug: string }) {
                 onClick={doImport}
                 disabled={totalIndsatser === 0}
               >
-                Opret {totalIndsatser} indsatsområder + {totalHandlinger} handlinger
+                {opretLabel}
               </button>
             </div>
           </div>
+
+          {(fletIndsatser > 0 || dubletHandlinger > 0) && (
+            <div className="ks-card" style={{ marginBottom: 16, background: '#fffbeb', border: '1px solid #fde68a' }}>
+              <div style={{ fontSize: 13, color: '#92400e', lineHeight: 1.6 }}>
+                <strong>Dele af kataloget findes allerede.</strong>{' '}
+                {fletIndsatser > 0 && <>{fletIndsatser} indsatsområde{fletIndsatser === 1 ? '' : 'r'} genbruges — nye handlinger lægges ind i {fletIndsatser === 1 ? 'det' : 'dem'}. </>}
+                {dubletHandlinger > 0 && <>{dubletHandlinger} handling{dubletHandlinger === 1 ? '' : 'er'} springes over, fordi de allerede er oprettet. </>}
+                Der oprettes ingen dubletter.
+              </div>
+            </div>
+          )}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {indsatser.map((io, i) => (
@@ -238,6 +274,7 @@ export function ImporterClient({ slug }: { slug: string }) {
                       <span style={{ fontWeight: 700, fontSize: 16, color: 'var(--ink-900)' }}>{io.navn}</span>
                       <span className="ks-badge ks-badge-success">{TYPE_LABEL[io.type]}</span>
                       <span className="ks-badge ks-badge-neutral">{io.sektor}</span>
+                      {diff?.indsatser[i]?.findes && <span className="ks-badge ks-badge-warn">Findes — flettes</span>}
                     </div>
                     {io.beskrivelse && (
                       <p style={{ fontSize: 13, color: 'var(--ink-500)', marginTop: 4, lineHeight: 1.5 }}>{io.beskrivelse}</p>
@@ -256,6 +293,9 @@ export function ImporterClient({ slug }: { slug: string }) {
                           style={{ accentColor: 'var(--forest-900)', width: 13, height: 13, flexShrink: 0 }}
                         />
                         <span style={{ fontSize: 14, color: 'var(--ink-900)', flex: 1 }}>{h.titel}</span>
+                        {diff?.indsatser[i]?.handlingerFindes[j] && (
+                          <span className="ks-badge ks-badge-warn" style={{ fontSize: 11 }}>Findes — springes over</span>
+                        )}
                         <span className="ks-badge ks-badge-info" style={{ fontSize: 11 }}>{HANDLING_TYPE_LABEL[h.type]}</span>
                         <span className="ks-badge ks-badge-neutral" style={{ fontSize: 11 }}>{STATUS_LABEL[h.status]}</span>
                       </div>
@@ -272,7 +312,7 @@ export function ImporterClient({ slug }: { slug: string }) {
               onClick={doImport}
               disabled={totalIndsatser === 0 || isPending}
             >
-              {isPending ? 'Opretter…' : `Opret ${totalIndsatser} indsatsområder + ${totalHandlinger} handlinger`}
+              {isPending ? 'Opretter…' : opretLabel}
             </button>
           </div>
         </>

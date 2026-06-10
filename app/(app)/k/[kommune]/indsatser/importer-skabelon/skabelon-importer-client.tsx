@@ -3,7 +3,8 @@
 import { useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { parseSkabelonAction, type SkabelonPreview } from './actions';
-import { bulkImportAction } from '../importer/actions';
+import { bulkImportAction, importDiffAction } from '../importer/actions';
+import type { ImportDiff } from '@/lib/import/merge-katalog';
 
 const STATUS_LABEL: Record<string, string> = {
   planned: 'Planlagt', in_progress: 'Igangværende', completed: 'Gennemført', discontinued: 'Udgået',
@@ -11,6 +12,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 export function SkabelonImporterClient({ slug }: { slug: string }) {
   const [preview, setPreview] = useState<SkabelonPreview | null>(null);
+  const [diff, setDiff] = useState<ImportDiff | null>(null);
   const [fileName, setFileName] = useState('');
   const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -21,9 +23,17 @@ export function SkabelonImporterClient({ slug }: { slug: string }) {
     setFileName(file.name);
     setBusy(true);
     setPreview(null);
+    setDiff(null);
     const fd = new FormData();
     fd.append('file', file);
     const res = await parseSkabelonAction(slug, fd);
+    if (!res.fejl && res.indsatser.length > 0) {
+      try {
+        setDiff(await importDiffAction(slug, res.indsatser));
+      } catch {
+        setDiff(null); // diff er kun vejledende — serveren fletter uanset
+      }
+    }
     setPreview(res);
     setBusy(false);
   }
@@ -34,6 +44,12 @@ export function SkabelonImporterClient({ slug }: { slug: string }) {
   }
 
   const antalHandlinger = preview?.indsatser.reduce((n, io) => n + io.handlinger.length, 0) ?? 0;
+  const fletIndsatser = diff?.indsatser.filter((d) => d.findes).length ?? 0;
+  const dubletHandlinger = diff?.indsatser.reduce((n, d) => n + d.handlingerFindes.filter(Boolean).length, 0) ?? 0;
+  const antalIndsatser = preview?.indsatser.length ?? 0;
+  const opretLabel = fletIndsatser > 0 || dubletHandlinger > 0
+    ? `Opret ${antalIndsatser - fletIndsatser} nye + flet ${fletIndsatser} eksisterende (${antalHandlinger - dubletHandlinger} handlinger)`
+    : `Opret ${antalIndsatser} indsatsområder + ${antalHandlinger} handlinger`;
 
   return (
     <>
@@ -83,6 +99,17 @@ export function SkabelonImporterClient({ slug }: { slug: string }) {
             Klar til at oprette <strong style={{ color: 'var(--ink-900)' }}>{preview.indsatser.length} indsatsområder</strong> med <strong style={{ color: 'var(--ink-900)' }}>{antalHandlinger} handlinger</strong>.
           </div>
 
+          {(fletIndsatser > 0 || dubletHandlinger > 0) && (
+            <div className="ks-card" style={{ marginBottom: 16, background: '#fffbeb', border: '1px solid #fde68a' }}>
+              <div style={{ fontSize: 13, color: '#92400e', lineHeight: 1.6 }}>
+                <strong>Dele af kataloget findes allerede.</strong>{' '}
+                {fletIndsatser > 0 && <>{fletIndsatser} indsatsområde{fletIndsatser === 1 ? '' : 'r'} genbruges — nye handlinger lægges ind i {fletIndsatser === 1 ? 'det' : 'dem'}. </>}
+                {dubletHandlinger > 0 && <>{dubletHandlinger} handling{dubletHandlinger === 1 ? '' : 'er'} springes over, fordi de allerede er oprettet. </>}
+                Der oprettes ingen dubletter.
+              </div>
+            </div>
+          )}
+
           {preview.advarsler.length > 0 && (
             <div className="ks-card" style={{ marginBottom: 16, background: '#fffbeb', border: '1px solid #fde68a' }}>
               <div style={{ fontWeight: 700, fontSize: 13, color: '#92400e', marginBottom: 8 }}>
@@ -99,12 +126,16 @@ export function SkabelonImporterClient({ slug }: { slug: string }) {
               <div key={i} className="ks-card">
                 <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--ink-900)', marginBottom: io.handlinger.length ? 12 : 0 }}>
                   {io.navn} <span className="ks-badge ks-badge-neutral" style={{ fontSize: 11 }}>{io.sektor}</span>
+                  {diff?.indsatser[i]?.findes && <span className="ks-badge ks-badge-warn" style={{ fontSize: 11, marginLeft: 6 }}>Findes — flettes</span>}
                 </div>
                 {io.handlinger.length > 0 && (
                   <div style={{ borderTop: '1px solid var(--sand-200)', paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {io.handlinger.map((h, j) => (
                       <div key={j} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <span style={{ fontSize: 14, color: 'var(--ink-900)', flex: 1 }}>{h.titel}</span>
+                        {diff?.indsatser[i]?.handlingerFindes[j] && (
+                          <span className="ks-badge ks-badge-warn" style={{ fontSize: 11 }}>Findes — springes over</span>
+                        )}
                         <span className="ks-badge ks-badge-neutral" style={{ fontSize: 11 }}>{STATUS_LABEL[h.status]}</span>
                       </div>
                     ))}
@@ -116,7 +147,7 @@ export function SkabelonImporterClient({ slug }: { slug: string }) {
 
           <div style={{ marginTop: 20, display: 'flex', justifyContent: 'flex-end' }}>
             <button className="ks-btn ks-btn-primary" onClick={opret} disabled={preview.indsatser.length === 0 || isPending}>
-              {isPending ? 'Opretter…' : `Opret ${preview.indsatser.length} indsatsområder + ${antalHandlinger} handlinger`}
+              {isPending ? 'Opretter…' : opretLabel}
             </button>
           </div>
         </div>

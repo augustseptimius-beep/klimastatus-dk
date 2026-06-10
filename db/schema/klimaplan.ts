@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, integer, real, boolean, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, integer, real, boolean, timestamp, unique } from 'drizzle-orm/pg-core';
 import { kommune } from './kommune';
 import { indsatsTypeEnum, sektorEnum, maalTypeEnum, tidsrammeEnum, maalKategoriEnum } from './enums';
 
@@ -14,7 +14,9 @@ export const indsatsOmraade = pgTable('indsats_omraade', {
   aktiv: boolean('aktiv').notNull().default(true),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => [
+  unique('indsats_omraade_kommune_navn_unique').on(t.kommuneId, t.navn),
+]);
 
 export const maal = pgTable('maal', {
   id: uuid('id').primaryKey().defaultRandom(),
