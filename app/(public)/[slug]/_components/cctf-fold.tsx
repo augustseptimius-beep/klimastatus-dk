@@ -4,18 +4,15 @@ import { useState } from 'react';
 import type { CctfKriterieResult } from '@/lib/cctf/coverage-engine';
 
 const STATUS_COLORS = {
-  komplet: { bg: '#DDE9DE', color: '#2D5A3D', label: 'Komplet' },
-  delvis: { bg: '#F5EEDD', color: '#7A4E2A', label: 'Delvis' },
-  manglende: { bg: '#F2E0DC', color: '#8B2E2E', label: 'Manglende' },
-  afventer: { bg: '#E8E8E0', color: '#666666', label: 'Afventer' },
+  dokumenteret: { bg: '#DDE9DE', color: '#2D5A3D', label: 'Dokumenteret' },
+  manglende: { bg: '#F2E0DC', color: '#8B2E2E', label: 'Mangler' },
 };
 
 type Props = { daekning: CctfKriterieResult[] };
 
 export function CctfFold({ daekning }: Props) {
   const [open, setOpen] = useState(false);
-  const komplet = daekning.filter((d) => d.status === 'komplet').length;
-  const delvis = daekning.filter((d) => d.status === 'delvis').length;
+  const dokumenteret = daekning.filter((d) => d.status === 'dokumenteret').length;
   const manglende = daekning.filter((d) => d.status === 'manglende').length;
 
   return (
@@ -45,7 +42,7 @@ export function CctfFold({ daekning }: Props) {
             color: '#1E6B3A',
           }}
         >
-          CCTF-dækning (kriterie 16) — {komplet}/16 komplet, {delvis} delvis, {manglende} manglende
+          CCTF-dokumentation (kriterie 16) — {dokumenteret}/16 med dokumentation, {manglende} mangler
         </span>
         <span style={{ fontSize: 18, color: '#6B6B63', lineHeight: 1 }}>{open ? '−' : '+'}</span>
       </button>

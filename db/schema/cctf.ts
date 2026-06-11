@@ -25,7 +25,9 @@ export const cctfKriterieMapping = pgTable('cctf_kriterie_mapping', {
   dokumentationsstyrke: dokumentationsstyrkeEnum('dokumentationsstyrke').notNull().default('primary'),
   bemaerkning: text('bemaerkning'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => [
+  unique('cctf_kriterie_mapping_entitet_kriterie_unique').on(table.entitetType, table.entitetId, table.kriterieNr),
+]);
 
 export const selvevaluering = pgTable('selvevaluering', {
   id: uuid('id').primaryKey().defaultRandom(),

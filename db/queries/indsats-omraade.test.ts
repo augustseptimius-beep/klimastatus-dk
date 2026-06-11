@@ -1,5 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
 
+const txMock = {
+  select: vi.fn(() => ({ from: vi.fn(() => ({ where: vi.fn().mockResolvedValue([{ id: 't1' }]) })) })),
+  delete: vi.fn(() => ({ where: vi.fn().mockResolvedValue(undefined) })),
+  insert: vi.fn(() => ({ values: vi.fn(() => ({ onConflictDoNothing: vi.fn().mockResolvedValue(undefined) })) })),
+};
+
 vi.mock('@/db', () => ({
   db: {
     query: {
@@ -15,10 +21,16 @@ vi.mock('@/db', () => ({
     insert: vi.fn(() => ({ values: vi.fn(() => ({ returning: vi.fn().mockResolvedValue([{ id: 'io2', navn: 'Transport' }]) })) })),
     update: vi.fn(() => ({ set: vi.fn(() => ({ where: vi.fn(() => ({ returning: vi.fn().mockResolvedValue([{ id: 'io1', navn: 'Opdateret' }]) })) })) })),
     delete: vi.fn(() => ({ where: vi.fn().mockResolvedValue(undefined) })),
+    transaction: vi.fn(async (fn: (tx: typeof txMock) => Promise<void>) => fn(txMock)),
   },
 }));
-vi.mock('drizzle-orm', () => ({ eq: vi.fn(), asc: vi.fn() }));
-vi.mock('@/db/schema', () => ({ indsatsOmraade: {} }));
+vi.mock('drizzle-orm', () => ({ eq: vi.fn(), asc: vi.fn(), and: vi.fn(), inArray: vi.fn() }));
+vi.mock('@/db/schema', () => ({
+  indsatsOmraade: {}, tiltag: {},
+  // refereres af db/queries/cctf.ts (deleteCctfMappingsFor)
+  cctfKriterie: {}, cctfKriterieMapping: { entitetType: {}, entitetId: {} },
+  maal: {}, indikator: {}, kommuneIndikator: {}, laeringspost: {},
+}));
 
 describe('getAllIndsatsOmraader', () => {
   it('returns list for kommuneId', async () => {
@@ -60,10 +72,10 @@ describe('updateIndsatsOmraade', () => {
 });
 
 describe('deleteIndsatsOmraade', () => {
-  it('calls delete for the given id', async () => {
+  it('rydder mappings for indsats + tiltag og sletter i én transaktion', async () => {
     const { deleteIndsatsOmraade } = await import('./indsats-omraade');
     await deleteIndsatsOmraade('io1');
-    // Just verify it doesn't throw
-    expect(true).toBe(true);
+    // 2 × deleteCctfMappingsFor (tiltag + indsatsomraade) + 1 × slet indsats
+    expect(txMock.delete).toHaveBeenCalledTimes(3);
   });
 });

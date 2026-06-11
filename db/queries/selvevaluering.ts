@@ -167,7 +167,11 @@ export async function getDokumentationshenvisninger(
         .select({ beskrivelse: indikator.beskrivelse })
         .from(indikator)
         .innerJoin(kommuneIndikator, eq(indikator.id, kommuneIndikator.indikatorId))
-        .where(and(eq(indikator.id, m.entitetId), eq(kommuneIndikator.kommuneId, kommuneId)))
+        .where(and(
+          eq(indikator.id, m.entitetId),
+          eq(kommuneIndikator.kommuneId, kommuneId),
+          eq(kommuneIndikator.aktiv, true),
+        ))
         .limit(1);
       if (row) label = `Indikator: ${row.beskrivelse}`;
 

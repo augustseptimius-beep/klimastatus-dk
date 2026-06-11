@@ -87,9 +87,9 @@ export function KriterieEditor({ kriterie, besvarelse, daekning, liveDokRefs, sa
     ? besvarelse.dokumentationshenvisninger
     : liveDokRefs;
 
-  const daekningSuffix = daekning.status === 'komplet' ? '● Komplet' :
-    daekning.status === 'delvis' ? '◐ Delvis' :
-    daekning.status === 'manglende' ? '○ Manglende' : '○ Afventer';
+  const daekningSuffix = daekning.status === 'dokumenteret'
+    ? `● ${daekning.checks.length} henvisning${daekning.checks.length === 1 ? '' : 'er'}`
+    : '○ Ingen dokumentation';
 
   return (
     <div style={{ borderBottom: '1px solid var(--sand-200, #EAE4D6)' }}>

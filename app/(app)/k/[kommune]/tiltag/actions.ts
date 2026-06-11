@@ -1,6 +1,8 @@
 'use server';
 import { requireKommuneContext } from '@/lib/kommune-context';
 import { createTiltag, updateTiltag, getTiltagById, getIndsatsOmraadeById, setTiltagTovholdere, setTiltagEffekter } from '@/db/queries';
+import { syncCctfMappings } from '@/db/queries/cctf';
+import { kriterierForTiltag } from '@/lib/cctf/auto-mapping';
 import { normaliserEffekter, type RaaEffekt } from '@/lib/tiltag/normaliser-effekter';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
@@ -62,6 +64,7 @@ export async function createTiltagAction(slug: string, _state: FormState, formDa
     await setTiltagTovholdere(nytTiltag.id, tovholderIds);
   }
   await setTiltagEffekter(nytTiltag.id, normaliserEffekter(parseEffekter(formData)));
+  await syncCctfMappings('tiltag', nytTiltag.id, kriterierForTiltag(nytTiltag));
   redirect(`/k/${slug}/tiltag`);
 }
 
@@ -83,7 +86,7 @@ export async function updateTiltagAction(
   if (!indsatsOmraade || indsatsOmraade.kommuneId !== kommune.id) return { message: 'Ugyldigt indsatsområde' };
 
   const { tidsrammeStartAar, tidsrammeStartMaaned, tidsrammeSlutAar, tidsrammeSlutMaaned, ...rest } = parsed.data;
-  await updateTiltag(id, {
+  const opdateret = await updateTiltag(id, {
     ...rest,
     tidsrammeStart: byggDato(tidsrammeStartAar, tidsrammeStartMaaned),
     tidsrammeSlut: byggDato(tidsrammeSlutAar, tidsrammeSlutMaaned),
@@ -91,5 +94,6 @@ export async function updateTiltagAction(
   const tovholderIds = formData.getAll('tovholderIds') as string[];
   await setTiltagTovholdere(id, tovholderIds);
   await setTiltagEffekter(id, normaliserEffekter(parseEffekter(formData)));
+  await syncCctfMappings('tiltag', id, kriterierForTiltag(opdateret));
   redirect(`/k/${slug}/tiltag`);
 }

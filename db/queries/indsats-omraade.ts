@@ -1,6 +1,7 @@
 import { db } from '@/db';
-import { indsatsOmraade } from '@/db/schema';
+import { indsatsOmraade, tiltag } from '@/db/schema';
 import { eq, asc } from 'drizzle-orm';
+import { deleteCctfMappingsFor } from './cctf';
 
 type IndsatsOmraadeData = {
   kommuneId: string;
@@ -44,5 +45,14 @@ export async function updateIndsatsOmraade(
 }
 
 export async function deleteIndsatsOmraade(id: string) {
-  await db.delete(indsatsOmraade).where(eq(indsatsOmraade.id, id));
+  await db.transaction(async (tx) => {
+    // Polymorfe mappings har ingen FK-cascade — ryd op før tiltag kaskade-slettes.
+    const tiltagRows = await tx
+      .select({ id: tiltag.id })
+      .from(tiltag)
+      .where(eq(tiltag.indsatsOmraadeId, id));
+    await deleteCctfMappingsFor('tiltag', tiltagRows.map((t) => t.id), tx);
+    await deleteCctfMappingsFor('indsatsomraade', [id], tx);
+    await tx.delete(indsatsOmraade).where(eq(indsatsOmraade.id, id));
+  });
 }

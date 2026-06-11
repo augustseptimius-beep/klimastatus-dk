@@ -1,6 +1,8 @@
 'use server';
 import { requireKommuneContext } from '@/lib/kommune-context';
 import { createIndsatsOmraade, updateIndsatsOmraade, deleteIndsatsOmraade, getIndsatsOmraadeById } from '@/db/queries';
+import { syncCctfMappings } from '@/db/queries/cctf';
+import { kriterierForIndsatsOmraade } from '@/lib/cctf/auto-mapping';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import type { FormState } from '@/lib/definitions';
@@ -23,7 +25,8 @@ export async function createIndsatsOmraadeAction(
   const parsed = schema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: parsed.error.flatten().fieldErrors };
 
-  await createIndsatsOmraade({ ...parsed.data, kommuneId: kommune.id });
+  const oprettet = await createIndsatsOmraade({ ...parsed.data, kommuneId: kommune.id });
+  await syncCctfMappings('indsatsomraade', oprettet.id, kriterierForIndsatsOmraade());
   redirect(`/k/${slug}/indsatser`);
 }
 

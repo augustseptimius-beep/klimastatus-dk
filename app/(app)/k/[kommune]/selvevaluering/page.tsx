@@ -129,7 +129,7 @@ export default async function SelvevalueringPage({ params }: Props) {
                     key={k.id}
                     kriterie={k}
                     besvarelse={besvarelseByNr.get(k.kriterieNr) ?? fallbackBesvarelse}
-                    daekning={daekningByNr.get(k.kriterieNr) ?? { kriterieNr: k.kriterieNr, status: 'afventer', checks: [] }}
+                    daekning={daekningByNr.get(k.kriterieNr) ?? { kriterieNr: k.kriterieNr, status: 'manglende', checks: [] }}
                     liveDokRefs={liveDokRefsByNr.get(k.kriterieNr) ?? []}
                     saveAction={boundSave}
                     godkendAction={boundGodkend}

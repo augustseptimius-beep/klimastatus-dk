@@ -11,6 +11,8 @@ import { requireKommuneContext } from '@/lib/kommune-context';
 import { db } from '@/db';
 import { indsatsOmraade, tiltag } from '@/db/schema';
 import { getAllIndsatsOmraader, getAllTiltag } from '@/db/queries';
+import { syncCctfMappings } from '@/db/queries/cctf';
+import { kriterierForIndsatsOmraade, kriterierForTiltag } from '@/lib/cctf/auto-mapping';
 import { redirect } from 'next/navigation';
 
 async function hentEksisterendeKatalog(kommuneId: string): Promise<EksisterendeKatalog> {
@@ -60,10 +62,11 @@ export async function bulkImportAction(slug: string, indsatser: ImportIndsats[])
           })
           .returning({ id: indsatsOmraade.id });
         indsatsId = created.id;
+        await syncCctfMappings('indsatsomraade', indsatsId, kriterierForIndsatsOmraade(), tx);
       }
 
       if (p.nyeHandlinger.length > 0) {
-        await tx.insert(tiltag).values(
+        const oprettede = await tx.insert(tiltag).values(
           p.nyeHandlinger.map((h) => ({
             kommuneId: kommune.id,
             indsatsOmraadeId: indsatsId,
@@ -73,7 +76,10 @@ export async function bulkImportAction(slug: string, indsatser: ImportIndsats[])
             beskrivelse: h.beskrivelse ?? null,
             prioriteretTiltag: false,
           })),
-        );
+        ).returning({ id: tiltag.id });
+        for (const t of oprettede) {
+          await syncCctfMappings('tiltag', t.id, kriterierForTiltag({ prioriteretTiltag: false }), tx);
+        }
       }
     }
   });

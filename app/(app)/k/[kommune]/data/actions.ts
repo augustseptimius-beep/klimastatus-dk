@@ -6,6 +6,8 @@ import { db } from '@/db';
 import { indikator } from '@/db/schema';
 import { getTemplateById } from '@/db/queries/indikator-template';
 import { getTiltagById } from '@/db/queries/tiltag';
+import { syncCctfMappings } from '@/db/queries/cctf';
+import { kriterierForIndikator } from '@/lib/cctf/auto-mapping';
 import {
   createKommuneIndikator,
   setKommuneIndikatorAktiv,
@@ -38,6 +40,7 @@ export async function activateTemplateAction(
       templateId,
       indikatorId: newIndikator.id,
     });
+    await syncCctfMappings('indikator', newIndikator.id, kriterierForIndikator(template));
   } catch {
     return { message: 'Fejl ved aktivering af indikator.' };
   }

@@ -2,7 +2,13 @@ import { hash } from '@node-rs/argon2';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { eq, count } from 'drizzle-orm';
-import { cctfKriterie, user, indikatorMaaling, kommuneIndikator, kommune } from './schema';
+import {
+  cctfKriterie, user, indikatorMaaling, kommuneIndikator, kommune,
+  tiltag, indsatsOmraade, maal, cctfKriterieMapping, indikatorTemplate as indikatorTemplateTabel,
+} from './schema';
+import {
+  kriterierForTiltag, kriterierForMaal, kriterierForIndsatsOmraade, kriterierForIndikator,
+} from '../lib/cctf/auto-mapping';
 import { seedGroenkobing } from './seeds/groenkobing';
 import { handleFetchKlimaregnskabet } from '../lib/jobs/fetch-klimaregnskabet';
 import { handleFetchEnergidataservice } from '../lib/jobs/fetch-energidataservice';
@@ -184,6 +190,8 @@ async function seed() {
   console.log('Seeding Grønkøbing Kommune...');
   await seedGroenkobing();
 
+  await backfillCctfMappings();
+
   // Hent API-data hvis der endnu ingen målinger er for API-indikatorer.
   // Kører kun ved første opstart (eller efter DB-reset) — idempotent.
   const [groenkobing] = await db.select().from(kommune).where(eq(kommune.kommunekode, '0657')).limit(1);
@@ -204,6 +212,58 @@ async function seed() {
   }
 
   process.exit(0);
+}
+
+/**
+ * Regelbaseret backfill af CCTF-mappings for alt eksisterende data
+ * (regler: lib/cctf/auto-mapping.ts). Idempotent via unik constraint +
+ * onConflictDoNothing, og kører ved hver opstart ligesom resten af seedet —
+ * så både friske og eksisterende databaser får koblingerne.
+ */
+async function backfillCctfMappings() {
+  const values: { entitetType: string; entitetId: string; kriterieNr: number }[] = [];
+
+  const alleTiltag = await db
+    .select({ id: tiltag.id, prioriteretTiltag: tiltag.prioriteretTiltag })
+    .from(tiltag);
+  for (const t of alleTiltag) {
+    for (const nr of kriterierForTiltag(t)) {
+      values.push({ entitetType: 'tiltag', entitetId: t.id, kriterieNr: nr });
+    }
+  }
+
+  const alleIndsatser = await db.select({ id: indsatsOmraade.id }).from(indsatsOmraade);
+  for (const io of alleIndsatser) {
+    for (const nr of kriterierForIndsatsOmraade()) {
+      values.push({ entitetType: 'indsatsomraade', entitetId: io.id, kriterieNr: nr });
+    }
+  }
+
+  const alleMaal = await db.select({ id: maal.id, kategori: maal.kategori }).from(maal);
+  for (const m of alleMaal) {
+    for (const nr of kriterierForMaal(m)) {
+      values.push({ entitetType: 'maal', entitetId: m.id, kriterieNr: nr });
+    }
+  }
+
+  const aktiveKI = await db
+    .select({
+      indikatorId: kommuneIndikator.indikatorId,
+      cctfKriterier: indikatorTemplateTabel.cctfKriterier,
+    })
+    .from(kommuneIndikator)
+    .innerJoin(indikatorTemplateTabel, eq(kommuneIndikator.templateId, indikatorTemplateTabel.id))
+    .where(eq(kommuneIndikator.aktiv, true));
+  for (const ki of aktiveKI) {
+    for (const nr of kriterierForIndikator(ki)) {
+      values.push({ entitetType: 'indikator', entitetId: ki.indikatorId, kriterieNr: nr });
+    }
+  }
+
+  if (values.length > 0) {
+    await db.insert(cctfKriterieMapping).values(values).onConflictDoNothing();
+  }
+  console.log(`CCTF auto-mapping: ${values.length} regelbaserede koblinger sikret.`);
 }
 
 seed().catch((err) => {
