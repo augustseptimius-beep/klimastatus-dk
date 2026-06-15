@@ -1,5 +1,7 @@
 # klimastatus.dk - datamodel og CCTF-mapping
 
+> **Opdatering 2026-06-15 — Selvevaluering udfaset.** Selvevaluerings-dokumentet (CCTF-recertificering, ~hvert 4. år) er fjernet som feature. CCTF-kriterierne og mapping-tabellen bevares som rygraden i den **løbende rapportering** (dækningsberegning, dashboard, offentlig visning) — kun selve selvevaluerings-entiteten er taget ud af brug (tabellen står dormant). Se `AGENTS.md` for beslutningen. Afsnittet "Selvevaluering" nedenfor er bevaret som historik.
+
 Dette dokument er en arbejdsskitse for datamodellen i klimastatus.dk. Det er ikke et færdigt schema, men en gennemtænkt udgangsstruktur der kan oversættes direkte til kode. Strukturen tager udgangspunkt i CCTF-vejledningen (Klimaalliancen, version 1.0, november 2024) og er bygget så de 16 kriterier udgør datamodellens rygrad, ikke et lag oven på et generisk projektledelsessystem.
 
 ## Den arkitektoniske kerneidé
@@ -149,6 +151,8 @@ Den centrale junction-tabel der gør auto-evaluering mulig. Hver række kobler e
 Felter: `id`, `entitet_type` (tiltag / mål / indikator / aktør / klimafare / sårbar_gruppe / scenarie / etc.), `entitet_id`, `kriterie_nr` (1-16), `dokumentationsstyrke` (primær / sekundær), `bemærkning`.
 
 ### Selvevaluering
+
+> **Udfaset 2026-06-15** — entiteten er ikke længere i aktiv brug (tabellen står dormant). Bevaret som historik.
 
 Den genererede selvevalueringsskabelon. Versioneres så historik kan ses.
 

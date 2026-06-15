@@ -101,7 +101,7 @@ Det største tekniske risikoområde i hele platformen er afhængigheden af ekste
 
 CCTF-vejledningen er allerede ved version 1.0, og en v2 kommer med erfaringer fra første certificeringsrunde.
 
-**Strategi**: Hver selvevaluering gemmes med eksplicit reference til den CCTF-version den blev genereret under. Kriterie-definitioner ligger som versionerede records i databasen, ikke i koden. Når v2 udgives, oprettes nye kriterie-definitioner uden at slette de gamle, og platformen tilbyder kommunen at migrere deres dokumentation til v2 med en assisteret diff-visning.
+**Strategi**: Kriterie-definitioner ligger som versionerede records i databasen, ikke i koden, og hver mapping og dækningsberegning sker mod en eksplicit CCTF-version. Når v2 udgives, oprettes nye kriterie-definitioner uden at slette de gamle, og platformen tilbyder kommunen at migrere deres dokumentation til v2 med en assisteret diff-visning. (Bemærk: selve selvevaluerings-dokumentet er udfaset 2026-06-15 — se `AGENTS.md` — men kriterie-versioneringen gælder fortsat for dækning og rapportering.)
 
 **Skema-evolution**: Migrationsscripts via Drizzle Kit. Aldrig destruktive ændringer uden migrations-test mod produktionssnapshot.
 

@@ -28,8 +28,6 @@ flowchart TD
         TILTAG["/tiltag\nKlimatiltag"]
         TOVHOLDERE["/tovholdere\nTovholderstyring"]
         DATA["/data\nDatastyring + forældreløse indikatorer"]
-        SELVEVALUERING["/selvevaluering\nCCTF-selvevaluering (redigér + godkend)"]
-        SELVEVALPREVIEW["/selvevaluering/preview\nPrint-venlig eksport (Cmd+P → PDF)"]
         INDSTILLINGER["/indstillinger"]
         IMPORTER["/indsatser/importer\nCSV/API-import"]
     end
@@ -40,7 +38,6 @@ flowchart TD
         DBINDSATS["Indsatsområde"]
         DBINDIKATOR["Indikator + Indikator_måling"]
         DBCCTF["CCTF_kriterie_mapping"]
-        DBSELV["Selvevaluering (jsonb kriterieData)"]
     end
 
     subgraph Externe["Eksterne datakilder (API)"]
@@ -67,10 +64,9 @@ flowchart TD
     SAVERAP -->|"Valider ejerskab"| DBRAP
 
     %% Koordinator navigation
-    DASHBOARD --> INDSATSER & TILTAG & TOVHOLDERE & DATA & SELVEVALUERING & INDSTILLINGER
+    DASHBOARD --> INDSATSER & TILTAG & TOVHOLDERE & DATA & INDSTILLINGER
     INDSATSER --> IMPORTER
     TOVHOLDERE -->|"Generér token-link"| EMAILLINK
-    SELVEVALUERING --> SELVEVALPREVIEW
 
     %% DB-relationer
     TILTAG <-->|"CRUD"| DBTILTAG
@@ -81,8 +77,6 @@ flowchart TD
     DBINDSATS --> DBCCTF
     DBINDIKATOR --> DBCCTF
     DBCCTF -->|"Auto-dækningsgrad"| DASHBOARD
-    DBCCTF -->|"Dokumentationshenvisninger"| DBSELV
-    SELVEVALUERING <-->|"Læs/skriv"| DBSELV
 
     %% Ekstern datahentning
     Externe -->|"Periodisk pull (pg-boss)"| DBINDIKATOR

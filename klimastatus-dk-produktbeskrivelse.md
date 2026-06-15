@@ -1,5 +1,7 @@
 # klimastatus.dk
 
+> **Opdatering 2026-06-15 — Selvevaluering udfaset.** Selvevaluerings-dokumentet (CCTF-recertificering, ~hvert 4. år) er taget ud. CCTF bevares som det rammeværk kommunerne rapporterer ud fra. Portalen fokuserer på styring af handlinger, rapportering og indgang til data. Se `AGENTS.md` for beslutningen. **Bemærk:** dette dokuments positionering og feature-beskrivelser nedenfor er endnu ikke omskrevet til den nye retning — en samlet repositionering er udskudt.
+
 ## Hvad det er
 
 Et softwareværktøj til klimakoordinatorer i danske kommuner. Platformen indsamler status fra tovholdere, trækker offentlige data ind automatisk, og genererer både Klimastatus-rapporten til kommunalbestyrelsen og selvevalueringsskemaet til CCTF-recertificering.

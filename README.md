@@ -1,6 +1,6 @@
 # klimastatus.dk
 
-Et digitalt MERL-system til danske kommuners klimaplaner — designet til CCTF-certificering (Climate Change Task Force, Klimaalliancen).
+Et digitalt MERL-system til danske kommuners klimaplaner — struktureret om CCTF-rammeværket (Climate Change Task Force, Klimaalliancen).
 
 **Status:** Under aktiv udvikling. Demo-deadline: 1. september 2026.
 
@@ -13,7 +13,6 @@ klimastatus.dk samler klimaplanens monitorering, evaluering, rapportering og læ
 - **Koordinatoren** administrerer indsatsområder, tiltag og mål, tilknytter tovholdere og følger CCTF-dækning live
 - **Tovholdere** indberetter status via et unikt tokenlink — ingen login nødvendig
 - **Auto-evaluering** beregner dækningsgrad pr. CCTF-kriterie (1-16) ud fra kommunens data
-- **Selvevaluering** genereres direkte i systemet og kan eksporteres som PDF
 - **Dataindhentning** trækker CO₂-regnskab, VE-kapacitet og demografidata automatisk fra offentlige API'er
 
 Licens: **AGPL-3.0** — open core/hosted SaaS-model (samme model som Kausal, GitLab, Sentry).
@@ -74,7 +73,7 @@ db/
   queries/        DB-queries pr. domæne
   seeds/          Seed-data (Østerby Kommune)
 lib/
-  cctf/           Coverage-engine, selvevaluerings-typer
+  cctf/           Coverage-engine (CCTF-dækning pr. kriterie)
 docs/
   superpowers/    Planer og design-specs pr. fase
 ```
@@ -88,7 +87,7 @@ docs/
 | 0 | AI-import via pg-boss | Færdig |
 | 1 | Seed Østerby Kommune | Færdig |
 | 2 | CCTF-lag (16 kriterier, dækningsgrad, mapping-UI) | Færdig |
-| 3 | Selvevaluering (redigér, godkend, eksportér) | Færdig |
+| 3 | ~~Selvevaluering~~ — udfaset 2026-06-15; CCTF bevaret som rammeværk | Udgået |
 | 4 | MERL-lag (Læringspost, Beslutningsport) | Næste |
 | 5 | Dashboard-polish | Planlagt |
 | 6 | Resterende dataindhentning (BBR, DMI, KAMP) | Planlagt |

@@ -1,5 +1,7 @@
 # klimastatus.dk — MVP Design Spec
 
+> **Opdatering 2026-06-15 — Selvevaluering udfaset.** Selvevalueringsskemaet til CCTF-recertificering er taget ud; CCTF bevares som rammeværk for løbende rapportering. Se `AGENTS.md`. Den daterede spec nedenfor er bevaret som historik.
+
 ## Hvad vi bygger
 
 Et SaaS-værktøj til klimakoordinatorer i danske kommuner. Platformen samler tovholder-status, offentlige data og AI-generering i ét system der producerer den årlige Klimastatus-rapport til byrådet og (sjældnere) selvevalueringsskemaet til CCTF-recertificering.

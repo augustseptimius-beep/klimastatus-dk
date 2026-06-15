@@ -1,5 +1,7 @@
 # Klimastatus.dk — Roadmap mod levende demo
 
+> **Opdatering 2026-06-15 — Selvevaluering udfaset.** **Fase 3 (Selvevaluering) udgår.** Selvevaluerings-dokumentet (CCTF-recertificering) er fjernet som feature; CCTF-kriterierne, dækningsberegningen og mapping bevares som rammeværk. Demo-fokus flyttes fra "generér selvevalueringsskema" til rapporterings-outputtet (Klimastatus-rapporten). Succeskriteriet "Selvevaluering kan genereres og eksporteres" og "Wow-moment 2 → generere selvevalueringsskemaet" bortfalder; CCTF-dækning pr. kriterie (Fase 2) består. Se `AGENTS.md`. Den daterede plan nedenfor er bevaret som historik.
+
 **Dato:** 2026-05-21
 **Deadline:** 1. september 2026
 **Mål:** En levende demo med fiktiv model-kommune der viser "alt samlet ét sted" og automatisk CCTF-tjek
