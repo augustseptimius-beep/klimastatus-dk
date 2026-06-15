@@ -1,10 +1,9 @@
 'use client';
 import type { CctfKriterieResult } from '@/lib/cctf/coverage-engine';
-import Link from 'next/link';
 
-type Props = { daekning: CctfKriterieResult[]; slug: string };
+type Props = { daekning: CctfKriterieResult[] };
 
-export function CctfDashboardWidget({ daekning, slug }: Props) {
+export function CctfDashboardWidget({ daekning }: Props) {
   if (daekning.length === 0) return null;
 
   const komplet  = daekning.filter(d => d.status === 'komplet').length;
@@ -14,11 +13,7 @@ export function CctfDashboardWidget({ daekning, slug }: Props) {
 
   return (
     <div className="ks-stat" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 8 }}>
-      <div className="label">
-        <Link href={`/k/${slug}/selvevaluering`} style={{ color: 'inherit', textDecoration: 'none' }}>
-          CCTF-dækning →
-        </Link>
-      </div>
+      <div className="label">CCTF-dækning</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
         <div style={{
           flex: 1,

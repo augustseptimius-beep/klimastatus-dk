@@ -42,13 +42,6 @@ async function setupJobs() {
     if (!data?.importJobId) return;
     await handleImportHandlingskatalog(data);
   });
-
-  await boss.createQueue('generer-kriterie-besvarelse');
-  await boss.work('generer-kriterie-besvarelse', { localConcurrency: 1 }, async (jobs) => {
-    const data = jobs[0]?.data as { selvevalueringId?: string; kriterieNr?: number } | undefined;
-    // Stub — AI-generering implementeres i Fase 3b
-    console.log(`[generer-kriterie-besvarelse] not implemented (selvevalueringId=${data?.selvevalueringId}, kriterieNr=${data?.kriterieNr})`);
-  });
 }
 
 setupJobs().catch((err) => {

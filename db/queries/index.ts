@@ -9,5 +9,4 @@ export * from './indikator-template';
 export * from './kommune-indikator';
 export * from './monitorering';
 export * from './forespoergsel';
-export * from './selvevaluering';
 export * from './cctf';

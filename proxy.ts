@@ -7,7 +7,7 @@ const adminRoutes = ['/admin'];
 
 const reservedSegments = new Set([
   'k', 'login', 'admin', 'rapport', 'dashboard', 'tiltag',
-  'indsatser', 'tovholdere', 'data', 'selvevaluering',
+  'indsatser', 'tovholdere', 'data',
   'indstillinger', 'laering', 'api', '_next', 'favicon.ico',
 ]);
 

@@ -26,7 +26,7 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: "Klimastatus.dk",
-  description: "Klimarapportering og CCTF-selvevaluering for danske kommuner",
+  description: "Klimarapportering og handlingsstyring for danske kommuner",
 };
 
 export default function RootLayout({
