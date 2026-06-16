@@ -13,13 +13,13 @@
 
 ## Kernetese
 
-**Vejledningen fortæller, hvad platformen skal kunne. Analysen forærer det konkrete indhold at fylde i.** Sammen gør de det muligt at omdanne CCTF fra et dokument, man rører hvert 4. år, til en **løbende sammenhængs-rygrad** — fodret af nationale kataloger som udgangspunkt og lokal bottom-up data til styring. Hver af de tre søjler (styring af handlinger, rapportering, indgang til data) får et konkret løft, og produktet kan levere nationalt, autoritativt indhold fra dag ét i stedet for tomme skabeloner.
+**Vejledningen fortæller, hvad platformen skal kunne. Analysen forærer det konkrete indhold at fylde i.** Sammen gør de det muligt at omdanne CCTF fra et dokument, man rører hvert 4.–5. år, til en **løbende sammenhængs-rygrad** — fodret af nationale kataloger som udgangspunkt og lokal bottom-up data til styring. Hver af de tre søjler (styring af handlinger, rapportering, indgang til data) får et konkret løft, og produktet kan levere nationalt, autoritativt indhold fra dag ét i stedet for tomme skabeloner.
 
 ## Bærende principper (gælder på tværs af alle faser)
 
-1. **CCTF = sammenhæng, ikke checkliste.** Dækning betyder: holder kæden *mål → tiltag → indikator* pr. sektor og klimafare, og er alle fire kommunale roller i spil? — ikke "er kriteriet krydset af". (Kilde: Bilag 5, skabelon 5.1.)
+1. **CCTF = sammenhæng, ikke checkliste.** Dækning betyder: holder kæden *mål → tiltag → indikator* pr. sektor og klimafare, og er alle fire kommunale roller i spil? — ikke "er kriteriet krydset af". (Kilde: kæden = bilag 5/skabelon 5.1; rolle-matricen = bilag 1/skabelon 1.1.)
 2. **Nationalt katalog som start, lokal bottom-up til styring.** Top-down/nationale data = baggrundstæppe + benchmark; bottom-up/lokale data = det, man rent faktisk styrer efter. Begge bruges — lokal data giver lokal indsigt — men de må ikke forveksles. Hvert datapunkt bærer et eksplicit flag. (Kilde: Bilag 5's bottom-up/top-down-skel: nationale data "informerer i mindre grad om udviklingen lokalt".)
-3. **Årlig rytme + 5-årig læring**, knyttet til konfigurerbare politiske milepæle (budgetforhandling, kommunalvalg) frem for én fast dato. (Kilde: afsnit 1.1 + kriterie 15.)
+3. **Årlig rytme + flerårig læring** (grundig evaluering/revision hvert 4.–5. år, min. hvert 5. år), knyttet til konfigurerbare politiske milepæle (budgetforhandling, kommunalvalg) frem for én fast dato. (Kilde: afsnit 1.1 + kriterie 15.)
 4. **"Altid recertificerings-klar"** via løbende validering og friskheds-flag — platformen advarer, *før* noget forælder.
 5. **Spejl Klimaalliancens fælles monitoreringssystem, dupliker det ikke** — så kommunen indrapporterer én gang. (Kilde: kriterie 15.)
 
@@ -35,7 +35,7 @@ Hver fase er mærket med type (lille/mellem/stor indsats), søjle og hvilke CCTF
 Platformen mangler i dag et fælles handlingskatalog og har kun en håndfuld indikatorer. CO₂-analysen lukker begge huller næsten færdigpakket.
 
 - **Kommunetype:** adoptér Danmarks Statistiks 5 kommunetyper (land-, oplands-, provinsby-, storby-, hovedstadskommune) som felt på kommunen. Fuld mapping af alle 98 kommuner findes i analysen.
-- **Handlingskatalog:** seed ~31 navngivne standardtiltag (energi/transport/landbrug/scope 3) med empirisk udbredelses-% og kommunetype-tag. Eksempler: *konvertering af olie-/gasfyr til fjernvarme/varmepumpe* (99%), *skovrejsning* (78%), *understøtte ladeinfrastruktur* (85%), *udtag af lavbundsjorde* (70%), *CCS* (32%). Bliver til "foreslåede tiltag for din kommunetype" ved onboarding — ikke et blankt ark.
+- **Handlingskatalog:** seed 46 navngivne standardtiltag (energi/transport/landbrug/scope 3) med empirisk udbredelses-% og kommunetype-tag. Eksempler: *konvertering af olie-/gasfyr til fjernvarme/varmepumpe* (99%), *skovrejsning* (78%), *understøtte ladeinfrastruktur* (85%), *udtag af lavbundsjorde* (70%), *CCS* (32%). Bliver til "foreslåede tiltag for din kommunetype" ved onboarding — ikke et blankt ark.
 - **Indikatorkatalog:** seed de 9 omstillingsindikatorer som delte templates på outcome/impact-niveau, hver med enhed **og national målværdi som indbygget benchmark**:
 
 | Indikator | Enhed | National målværdi (ref.) |
@@ -83,7 +83,7 @@ Vejledningen er fuld af konkrete, tjekbare regler. De bliver til validering og f
 ### Fase 4 — Sammenhængs-motor (CCTF-dækning reframe)
 **Type:** Mellem–stor · **Søjle:** alle (rygraden) · **Kriterier:** alle 16
 
-Opgrader "CCTF-dækning" fra kriterie-tælling til en **kohærens- og hul-finder** (Bilag 5):
+Opgrader "CCTF-dækning" fra kriterie-tælling til en **kohærens- og hul-finder** (kæden: bilag 5/skabelon 5.1; rolle-matricen: bilag 1/skabelon 1.1):
 
 - Pr. sektor / klimafare: er kæden *mål → tiltag → indikator* hel? Vis brudte led som konkrete handlingspunkter ("dette mål har ingen indikator", "dette tiltag har intet mål").
 - **Rolle×sektor-matrix:** er alle fire kommunale roller (virksomhed/leverandør/myndighed/facilitator) i spil på tværs af sektorerne — og er **alle fire** brugt i fossil-udfasnings-kolonnen (den eneste hvor det er hårdt krav, kriterie 13)?

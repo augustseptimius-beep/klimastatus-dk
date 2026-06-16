@@ -290,6 +290,8 @@ Landbrug+areal **55%** · transport **43%** · industri 6% · øvrige 3% · ener
 
 Ved efterprøvning mod kilderne **holder design-doc'ens kildehenvisninger** — princip 2's bottom-up/top-down og Fase 2's 5 kvalitetskriterier *er* bilag 5 `[D1 s.76]`, og princip 1's kæde *mål→tiltag→indikator* *er* skabelon 5.1 `[D1 s.75]`. (Min oprindelige formodning om en fejl-tilskrivning af output/outcome/impact til bilag 5 **holdt ikke** ved verifikation — planen gør det ikke.) Tre mindre præciseringer:
 
+> **Status (foldet ind 2026-06-16):** alle tre er nu indarbejdet i `2026-06-15`-planen — (1) princip 1 + Fase 4 skelner kæden (bilag 5/skabelon 5.1) fra rolle-matricen (bilag 1/skabelon 1.1); (2) princip 3 + kernetesen siger "hvert 4.–5. år (min. hvert 5. år)"; (3) Fase 1 seeder nu **46** tiltag. Beskrivelserne nedenfor citerer den oprindelige plantekst for sporbarhed.
+
 1. **Roller hører til skabelon 1.1, ikke 5.1.** Princip 1 skriver `(Kilde: Bilag 5, skabelon 5.1.)` om både kæden *og* *"alle fire kommunale roller"*. Kæden er skabelon 5.1 ✓, men **rolle-matricen er skabelon 1.1/bilag 1** `[D1 s.50–52]`. Til protokollen: **output/outcome/impact** defineres i **K15-tekstboksen `[D1 s.40]`** (ikke i bilag 5; begge dele hører dog under komponent 6). → *Valgfri mikro-præcisering.*
 2. **Revisionsrytmen.** `AGENTS.md` siger selvevalueringen *"genereres ~hvert 4. år"*; design-doc'en taler om "5-årig læring". Kilderne: **[D4] "4.–5. år"**, **[D1] "minimum hvert 5. år"** (aldrig 4), **[W] "4–5 år"**. → *Anbefaling: standardisér til "hvert 4.–5. år (grundig evaluering min. hvert 5. år)".*
 3. **"~31 tiltag" → 46.** Design-doc'ens Fase 1 nævner "~31 navngivne standardtiltag"; kilden har **46** `[D2 s.28–37]`. → *Anbefaling: opdatér tallet.*
