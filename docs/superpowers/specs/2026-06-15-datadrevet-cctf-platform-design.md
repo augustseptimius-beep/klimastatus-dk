@@ -3,8 +3,9 @@
 **Dato:** 2026-06-15
 **Status:** Plan til godkendelse (afventer prioritering → implementeringsplaner pr. fase)
 **Bygger på beslutning:** Selvevaluering udfaset, CCTF bevaret som rapporteringsrygrad (se `AGENTS.md`).
+**Kildegrundlag (verificeret):** `2026-06-16-cctf-evidensgrundlag.md` — side-citeret evidens for hvert tal, regel og princip nedenfor (citatnøgle `[Dx s.n]`). Indeholder også §12 (præciseringer til denne plans tekst) og §13 (nye indsigter, fx sektor-intervaller og det nationale monitoreringssystem).
 
-**Afsæt — to eksterne kilder analyseret 2026-06-15:**
+**Afsæt — fire kilder + websøgning, dybdeanalyseret 2026-06-16** (oprindeligt to, udvidet med selvvurderingsskema, certificeringsoverblik og C40/KL-research — se evidensgrundlaget §1):
 - **CCTF-revisionsvejledningen** (CONCITO/C40, *Vejledning til revision og certificering af klimahandlingsplaner*, v1.0, 07.11.2024) — **kravene**: hvad en god plan skal kunne, regler, rytme, skabeloner.
 - **CO₂-analysen** (Ea Energianalyse + CONCITO, *Analyse af kommunernes CO₂-reduktionsbidrag til 70%-målet i 2030*, DK2020, marts 2024, 96 kommuner) — **det empiriske indhold**: de tiltag og indikatorer kommunerne faktisk bruger, plus nationale benchmarks.
 
