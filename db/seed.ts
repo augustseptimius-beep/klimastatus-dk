@@ -9,6 +9,7 @@ import { handleFetchKlimaregnskabet } from '../lib/jobs/fetch-klimaregnskabet';
 import { handleFetchEnergidataservice } from '../lib/jobs/fetch-energidataservice';
 import { handleFetchDst } from '../lib/jobs/fetch-dst';
 import { STANDARDTILTAG_KATALOG } from '../lib/kataloger/standardtiltag-katalog';
+import { OMSTILLINGSINDIKATORER } from '../lib/kataloger/omstillingsindikatorer';
 
 const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client);
@@ -204,6 +205,24 @@ async function seed() {
     set: { updatedAt: new Date() },
   });
   console.log(`Seeded ${STANDARDTILTAG_KATALOG.length} standardtiltag.`);
+
+  console.log('Seeding omstillingsindikator-templates...');
+  await db.insert(indikatorTemplate).values(
+    OMSTILLINGSINDIKATORER.map((i) => ({
+      titel: i.titel,
+      enhed: i.enhed,
+      beskrivelse: `National omstillingsindikator. Målværdi: ${i.nationalMaalvaerdiNote}. Kilde: CO₂-analysen (DK2020).`,
+      cctfKriterier: [15],
+      niveau: i.niveau,
+      sektor: i.sektor,
+      nationalMaalvaerdi: i.nationalMaalvaerdi,
+      nationalMaalvaerdiNote: i.nationalMaalvaerdiNote,
+    })),
+  ).onConflictDoUpdate({
+    target: indikatorTemplate.titel,
+    set: { updatedAt: new Date() },
+  });
+  console.log(`Seeded ${OMSTILLINGSINDIKATORER.length} omstillingsindikatorer.`);
 
   console.log('Seeding Grønkøbing Kommune...');
   await seedGroenkobing();
