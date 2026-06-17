@@ -1,5 +1,5 @@
 import { pgTable, uuid, text, integer, real, date, timestamp, boolean, jsonb } from 'drizzle-orm/pg-core';
-import { indhentningsKadenceEnum } from './enums';
+import { indhentningsKadenceEnum, kommunetypeEnum } from './enums';
 
 export const kommune = pgTable('kommune', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -20,6 +20,7 @@ export const kommune = pgTable('kommune', {
   publicHighlights: text('public_highlights').array(),
   publicWidgets: jsonb('public_widgets'),
   indhentningsKadence: indhentningsKadenceEnum('indhentnings_kadence').notNull().default('aarlig'),
+  kommunetype: kommunetypeEnum('kommunetype'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
