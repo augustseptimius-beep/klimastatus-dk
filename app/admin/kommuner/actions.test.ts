@@ -30,4 +30,19 @@ describe('createKommuneAction', () => {
     const result = await createKommuneAction(undefined, formData);
     expect(result?.errors?.kommunekode).toBeDefined();
   });
+
+  it('sætter kommunetype fra kommune-listen ved oprettelse', async () => {
+    const { createKommune } = await import('@/db/queries');
+    const formData = new FormData();
+    formData.set('kommunekode', '787'); // Thisted = land
+    const { createKommuneAction } = await import('./actions');
+    try {
+      await createKommuneAction(undefined, formData);
+    } catch {
+      // redirect() throws i test-miljøet — forventet på happy path
+    }
+    expect(createKommune).toHaveBeenCalledWith(
+      expect.objectContaining({ kommunekode: '787', kommunetype: 'land' }),
+    );
+  });
 });

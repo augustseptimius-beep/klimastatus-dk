@@ -1,6 +1,7 @@
 import { db } from '@/db';
 import { kommune } from '@/db/schema';
 import { eq, asc } from 'drizzle-orm';
+import type { Kommunetype } from '@/lib/kataloger/kommunetype';
 
 export async function getAllKommuner() {
   return db.query.kommune.findMany({ orderBy: asc(kommune.navn) });
@@ -18,6 +19,7 @@ export async function createKommune(data: {
   navn: string;
   kommunekode: string;
   subdomain: string;
+  kommunetype?: Kommunetype;
 }) {
   const [created] = await db.insert(kommune).values(data).returning();
   return created;

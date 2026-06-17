@@ -40,11 +40,11 @@ export async function createKommuneAction(
     return { errors: { kommunekode: ['Ukendt kommunekode.'] } };
   }
 
-  const { navn, kode: kommunekode } = kommune;
+  const { navn, kode: kommunekode, type: kommunetype } = kommune;
   const subdomain = toSubdomain(navn);
 
   try {
-    await createKommune({ navn, kommunekode, subdomain });
+    await createKommune({ navn, kommunekode, subdomain, kommunetype });
   } catch {
     return { message: 'Kommunen er allerede oprettet.' };
   }

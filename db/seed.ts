@@ -1,9 +1,10 @@
 import { hash } from '@node-rs/argon2';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { eq, count } from 'drizzle-orm';
+import { eq, count, isNull, and } from 'drizzle-orm';
 import { cctfKriterie, user, indikatorMaaling, kommuneIndikator, kommune } from './schema';
 import { seedGroenkobing } from './seeds/groenkobing';
+import { ALLE_KOMMUNER } from '../lib/kommuner-liste';
 import { handleFetchKlimaregnskabet } from '../lib/jobs/fetch-klimaregnskabet';
 import { handleFetchEnergidataservice } from '../lib/jobs/fetch-energidataservice';
 import { handleFetchDst } from '../lib/jobs/fetch-dst';
@@ -144,6 +145,14 @@ async function seed() {
     })
     .onConflictDoNothing();
   console.log('Admin user seeded (email: augustseptimius@gmail.com).');
+
+  console.log('Backfilling kommunetype...');
+  for (const k of ALLE_KOMMUNER) {
+    await db.update(kommune)
+      .set({ kommunetype: k.type })
+      .where(and(eq(kommune.kommunekode, k.kode), isNull(kommune.kommunetype)));
+  }
+  console.log('Kommunetype backfill done.');
 
   console.log('Seeding indicator templates...');
   const { indikatorTemplate } = await import('./schema');
