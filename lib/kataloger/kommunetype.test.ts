@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { KOMMUNETYPER, KOMMUNETYPE_LABEL, type Kommunetype } from './kommunetype';
+import { KOMMUNETYPER, KOMMUNETYPE_LABEL } from './kommunetype';
 
 describe('kommunetype', () => {
   it('har præcis de 5 Danmarks-Statistik-typer', () => {
