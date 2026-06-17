@@ -36,7 +36,7 @@ export default async function AdminIndikatorer() {
                 <td className="px-4 py-3 font-medium text-gray-900">{t.titel}</td>
                 <td className="px-4 py-3">
                   <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700">
-                    {KILDE_LABEL[t.kilde] ?? t.kilde}
+                    {t.kilde ? (KILDE_LABEL[t.kilde] ?? t.kilde) : '—'}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-gray-500">{t.enhed}</td>

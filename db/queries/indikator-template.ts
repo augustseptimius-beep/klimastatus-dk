@@ -19,11 +19,15 @@ export async function getTemplateById(id: string) {
 
 export async function createTemplate(data: {
   titel: string;
-  kilde: 'klimaregnskab' | 'energidataservice' | 'dst';
-  apiQuery: string;
   enhed: string;
   beskrivelse: string;
   cctfKriterier: number[];
+  kilde?: 'klimaregnskab' | 'energidataservice' | 'dst';
+  apiQuery?: string;
+  niveau?: 'output' | 'outcome' | 'impact';
+  sektor?: 'energy' | 'transport' | 'buildings' | 'food' | 'agriculture' | 'waste' | 'adaptation' | 'other';
+  nationalMaalvaerdi?: number;
+  nationalMaalvaerdiNote?: string;
 }) {
   const [created] = await db.insert(indikatorTemplate).values(data).returning();
   return created;

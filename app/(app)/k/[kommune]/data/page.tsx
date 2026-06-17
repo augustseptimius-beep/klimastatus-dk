@@ -158,7 +158,7 @@ export default async function DataPage({ params, searchParams }: Props) {
                       <td className="px-4 py-3">
                         <p className="font-medium text-gray-900">{ki.visningsnavn ?? ki.titel}</p>
                         <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700">
-                          {KILDE_LABEL[ki.kilde] ?? ki.kilde}
+                          {ki.kilde ? (KILDE_LABEL[ki.kilde] ?? ki.kilde) : '—'}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-gray-700">

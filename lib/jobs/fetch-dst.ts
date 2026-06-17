@@ -83,6 +83,10 @@ export async function handleFetchDst(options?: {
   if (targets.length === 0) return;
 
   for (const ki of targets) {
+    if (!ki.template.apiQuery) {
+      await updateSidsteFejl(ki.id, 'Template mangler apiQuery');
+      continue;
+    }
     let query: DstApiQuery;
     try {
       query = JSON.parse(ki.template.apiQuery) as DstApiQuery;

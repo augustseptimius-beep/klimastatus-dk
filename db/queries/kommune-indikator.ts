@@ -18,7 +18,7 @@ export type ActiveKommuneIndikator = {
   indikatorId: string;
   templateId: string;
   sidstHentet: Date | null;
-  template: { kilde: string; apiQuery: string };
+  template: { kilde: string | null; apiQuery: string | null };
   kommune: { kommunekode: string };
 };
 

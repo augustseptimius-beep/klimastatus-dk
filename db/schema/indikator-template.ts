@@ -1,16 +1,20 @@
-import { pgTable, uuid, text, boolean, integer, timestamp, unique, uniqueIndex } from 'drizzle-orm/pg-core';
-import { apiKildeEnum } from './enums';
+import { pgTable, uuid, text, boolean, integer, real, timestamp, unique, uniqueIndex } from 'drizzle-orm/pg-core';
+import { apiKildeEnum, indikatorNiveauEnum, sektorEnum } from './enums';
 import { kommune } from './kommune';
 import { indikator } from './indikator';
 
 export const indikatorTemplate = pgTable('indikator_template', {
   id: uuid('id').primaryKey().defaultRandom(),
   titel: text('titel').notNull(),
-  kilde: apiKildeEnum('kilde').notNull(),
-  apiQuery: text('api_query').notNull(),
+  kilde: apiKildeEnum('kilde'),
+  apiQuery: text('api_query'),
   enhed: text('enhed').notNull(),
   beskrivelse: text('beskrivelse').notNull(),
   cctfKriterier: integer('cctf_kriterier').array().notNull().default([]),
+  niveau: indikatorNiveauEnum('niveau'),
+  sektor: sektorEnum('sektor'),
+  nationalMaalvaerdi: real('national_maalvaerdi'),
+  nationalMaalvaerdiNote: text('national_maalvaerdi_note'),
   aktiv: boolean('aktiv').notNull().default(true),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
