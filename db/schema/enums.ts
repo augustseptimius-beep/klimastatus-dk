@@ -82,3 +82,7 @@ export const indhentningsKadenceEnum = pgEnum('indhentnings_kadence', [
 export const kommunetypeEnum = pgEnum('kommunetype', [
   'land', 'oplands', 'provinsby', 'storby', 'hovedstad',
 ]);
+
+export const standardtiltagKategoriEnum = pgEnum('standardtiltag_kategori', [
+  'energi', 'transport', 'landbrug_areal', 'scope3',
+]);

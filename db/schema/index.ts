@@ -3,6 +3,7 @@ export * from './kommune';
 export * from './auth';
 export * from './klimaplan';
 export * from './tiltag';
+export * from './standardtiltag';
 export * from './tovholder';
 export * from './indikator';
 export * from './vidensgrundlag';
