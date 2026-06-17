@@ -1,6 +1,7 @@
 import { verifySession } from '@/lib/dal';
 import { redirect } from 'next/navigation';
 import { logout } from '@/app/actions/auth';
+import Link from 'next/link';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await verifySession();
@@ -10,7 +11,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="min-h-screen bg-gray-50">
       <header className="border-b border-gray-200 bg-white px-6 py-4">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <span className="font-semibold text-gray-900">Klimastatus Admin</span>
+          <div className="flex items-center gap-6">
+            <span className="font-semibold text-gray-900">Klimastatus Admin</span>
+            <nav className="flex items-center gap-4 text-sm">
+              <Link href="/admin/kommuner" className="text-gray-600 hover:text-gray-900">Kommuner</Link>
+              <Link href="/admin/indikatorer" className="text-gray-600 hover:text-gray-900">Indikatorer</Link>
+              <Link href="/admin/katalog" className="text-gray-600 hover:text-gray-900">Kataloger</Link>
+            </nav>
+          </div>
           <form action={logout}>
             <button type="submit" className="text-sm text-gray-500 hover:text-gray-900">
               Log ud
