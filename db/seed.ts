@@ -8,6 +8,7 @@ import { ALLE_KOMMUNER } from '../lib/kommuner-liste';
 import { handleFetchKlimaregnskabet } from '../lib/jobs/fetch-klimaregnskabet';
 import { handleFetchEnergidataservice } from '../lib/jobs/fetch-energidataservice';
 import { handleFetchDst } from '../lib/jobs/fetch-dst';
+import { STANDARDTILTAG_KATALOG } from '../lib/kataloger/standardtiltag-katalog';
 
 const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client);
@@ -189,6 +190,20 @@ async function seed() {
     set: { updatedAt: new Date() },
   });
   console.log('Seeded 3 indicator templates.');
+
+  console.log('Seeding standardtiltag-katalog...');
+  const { standardtiltag } = await import('./schema');
+  await db.insert(standardtiltag).values(
+    STANDARDTILTAG_KATALOG.map((t) => ({
+      titel: t.titel,
+      kategori: t.kategori,
+      udbredelsesProcent: t.udbredelsesProcent,
+    })),
+  ).onConflictDoUpdate({
+    target: standardtiltag.titel,
+    set: { updatedAt: new Date() },
+  });
+  console.log(`Seeded ${STANDARDTILTAG_KATALOG.length} standardtiltag.`);
 
   console.log('Seeding Grønkøbing Kommune...');
   await seedGroenkobing();
