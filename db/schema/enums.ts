@@ -78,3 +78,7 @@ export const forespoergselStatusEnum = pgEnum('forespoergsel_status', [
 export const indhentningsKadenceEnum = pgEnum('indhentnings_kadence', [
   'maanedlig', 'kvartalsvis', 'halvaarlig', 'aarlig', 'manuel',
 ]);
+
+export const kommunetypeEnum = pgEnum('kommunetype', [
+  'land', 'oplands', 'provinsby', 'storby', 'hovedstad',
+]);
