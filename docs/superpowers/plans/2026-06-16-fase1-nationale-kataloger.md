@@ -321,6 +321,7 @@ export const ALLE_KOMMUNER = [
   { kode: '751', navn: 'Aarhus', type: 'storby' },
   { kode: '756', navn: 'Ikast-Brande', type: 'oplands' },
   { kode: '760', navn: 'Ringkøbing-Skjern', type: 'land' },
+  { kode: '766', navn: 'Hedensted', type: 'oplands' },
   { kode: '773', navn: 'Morsø', type: 'land' },
   { kode: '779', navn: 'Skive', type: 'land' },
   { kode: '787', navn: 'Thisted', type: 'land' },
