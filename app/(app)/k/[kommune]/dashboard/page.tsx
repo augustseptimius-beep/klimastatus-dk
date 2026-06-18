@@ -2,11 +2,13 @@ import { requireKommuneContext } from '@/lib/kommune-context';
 import { getAllTovholdere, getAllTiltag, getAllIndsatsOmraader } from '@/db/queries';
 import { getLatestRapporterForTovholder } from '@/db/queries/rapport';
 import { getCctfDaekning } from '@/db/queries/cctf';
+import { getDatafriskhed } from '@/db/queries/datafriskhed';
 import Link from 'next/link';
 import { db } from '@/db';
 import { kommuneIndikator, indikatorTemplate, indikatorMaaling } from '@/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { CctfDashboardWidget } from '@/components/cctf/cctf-dashboard-widget';
+import { FriskhedBanner } from '@/components/datafriskhed/friskhed-badge';
 
 export const metadata = { title: 'Dashboard — Klimastatus.dk' };
 
@@ -15,6 +17,11 @@ type Props = { params: Promise<{ kommune: string }> };
 export default async function DashboardPage({ params }: Props) {
   const { kommune: slug } = await params;
   const { kommune } = await requireKommuneContext(slug);
+
+  const indsigter = await getDatafriskhed(kommune.id, new Date());
+  const dashboardBanners = indsigter.filter(
+    (i) => (i.type === 'emissionsdata' || i.type === 'kadence') && i.niveau !== 'frisk',
+  );
 
   const [tovholdere, tiltag, indsatser] = await Promise.all([
     getAllTovholdere(kommune.id),
@@ -79,6 +86,9 @@ export default async function DashboardPage({ params }: Props) {
 
   return (
     <>
+      {dashboardBanners.map((i, n) => (
+        <FriskhedBanner key={n} niveau={i.niveau} besked={i.besked} href={`/k/${slug}/data`} />
+      ))}
       <div className="ks-page-header">
         <div>
           <div className="eyebrow">Klimastatus 2025</div>
