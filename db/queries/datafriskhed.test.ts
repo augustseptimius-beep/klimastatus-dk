@@ -14,9 +14,19 @@ vi.mock('@/lib/datafriskhed/motor', async (orig) => {
 vi.mock('@/db', () => {
   // Et chain-objekt der er thenable (await giver []) og har alle metoder der returnerer sig selv,
   // undtagen limit() der eksplicit returnerer et nyt Promise.
-  const makeChain = (): any => {
-    const c: any = {
-      then: (resolve: (v: any[]) => void) => Promise.resolve([]).then(resolve),
+  type Chain = {
+    then: (resolve: (v: unknown[]) => void) => Promise<void>;
+    select: () => Chain;
+    from: () => Chain;
+    innerJoin: () => Chain;
+    leftJoin: () => Chain;
+    where: () => Chain;
+    orderBy: () => Chain;
+    limit: () => Promise<unknown[]>;
+  };
+  const makeChain = (): Chain => {
+    const c: Chain = {
+      then: (resolve) => Promise.resolve([]).then(resolve),
       select: () => makeChain(),
       from: () => makeChain(),
       innerJoin: () => makeChain(),
