@@ -1,5 +1,7 @@
 import { requireKommuneContext } from '@/lib/kommune-context';
 import { getAllIndsatsOmraader } from '@/db/queries';
+import { getDatafriskhed } from '@/db/queries/datafriskhed';
+import { FriskhedBanner } from '@/components/datafriskhed/friskhed-badge';
 import Link from 'next/link';
 
 export const metadata = { title: 'Indsatsområder — Klimastatus.dk' };
@@ -31,9 +33,11 @@ export default async function IndsatserPage({ params }: Props) {
   const { kommune } = await requireKommuneContext(slug);
 
   const indsatser = await getAllIndsatsOmraader(kommune.id);
+  const delmaal = (await getDatafriskhed(kommune.id, new Date())).find((i) => i.type === 'delmaal');
 
   return (
     <>
+      {delmaal && <FriskhedBanner niveau={delmaal.niveau} besked={delmaal.besked} />}
       <div className="ks-page-header">
         <div>
           <div className="eyebrow">Klimaplan</div>
