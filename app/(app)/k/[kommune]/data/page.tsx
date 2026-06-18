@@ -10,6 +10,8 @@ import { getForaeldreloeseIndikatorer } from '@/db/queries/beslutningsport';
 import { getIndikatorKobling } from '@/db/queries/indikator-kobling';
 import { getAllTiltag } from '@/db/queries';
 import { KoblingPanel } from './_kobling-panel';
+import { getDatafriskhed } from '@/db/queries/datafriskhed';
+import { FriskhedBadge, FriskhedBanner } from '@/components/datafriskhed/friskhed-badge';
 
 export const metadata = { title: 'Data — Klimastatus.dk' };
 
@@ -19,33 +21,6 @@ const KILDE_LABEL: Record<string, string> = {
   dst: 'Danmarks Statistik',
 };
 
-function StalenessStatus({ sidstHentet, sidsteFejl, sidsteFejlBesked }: {
-  sidstHentet: Date | null;
-  sidsteFejl: Date | null;
-  sidsteFejlBesked: string | null;
-}) {
-  if (sidsteFejl && (!sidstHentet || sidsteFejl > sidstHentet)) {
-    return (
-      <div>
-        <span className="text-xs font-medium text-red-600">⚠ Fejl ved hentning</span>
-        {sidsteFejlBesked && (
-          <div className="mt-1 max-w-xs rounded bg-red-50 px-2 py-1 text-xs text-red-700 break-words">
-            {sidsteFejlBesked}
-          </div>
-        )}
-      </div>
-    );
-  }
-  if (!sidstHentet) {
-    return <span className="text-xs text-gray-400">Afventer første hentning</span>;
-  }
-  // eslint-disable-next-line react-hooks/purity
-  const daysSince = Math.floor((Date.now() - new Date(sidstHentet).getTime()) / (1000 * 60 * 60 * 24));
-  if (daysSince > 35) {
-    return <span className="text-xs text-yellow-600">⚠ Senest hentet: {daysSince} dage siden</span>;
-  }
-  return <span className="text-xs text-green-600">Hentet {new Date(sidstHentet).toLocaleDateString('da-DK')}</span>;
-}
 
 type Props = {
   params: Promise<{ kommune: string }>;
@@ -55,6 +30,12 @@ type Props = {
 export default async function DataPage({ params, searchParams }: Props) {
   const { kommune: slug } = await params;
   const { kommune } = await requireKommuneContext(slug);
+
+  const friskhed = await getDatafriskhed(kommune.id, new Date());
+  const emissionsBanner = friskhed.find((i) => i.type === 'emissionsdata' && i.niveau !== 'frisk');
+  const indikatorIndsigt = new Map(
+    friskhed.filter((i) => i.type === 'indikator' && i.entitetId).map((i) => [i.entitetId!, i]),
+  );
 
   const { tab } = await searchParams;
   const activeTab = tab === 'katalog' ? 'katalog' : 'aktive';
@@ -103,6 +84,9 @@ export default async function DataPage({ params, searchParams }: Props) {
 
   return (
     <div>
+      {emissionsBanner && (
+        <FriskhedBanner niveau={emissionsBanner.niveau} besked={emissionsBanner.besked} />
+      )}
       {foraeldreloese.length > 0 && (
         <div className="mb-4 rounded-lg border border-yellow-300 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
           <strong>{foraeldreloese.length} indikator{foraeldreloese.length === 1 ? '' : 'er'} uden kobling.</strong>{' '}
@@ -165,11 +149,12 @@ export default async function DataPage({ params, searchParams }: Props) {
                         {ki.latest ? `${ki.latest.vaerdi} ${ki.enhed} (${ki.latest.aar})` : '—'}
                       </td>
                       <td className="px-4 py-3">
-                        <StalenessStatus
-                          sidstHentet={ki.sidstHentet}
-                          sidsteFejl={ki.sidsteFejl}
-                          sidsteFejlBesked={ki.sidsteFejlBesked}
-                        />
+                        {(() => {
+                          const ind = indikatorIndsigt.get(ki.id);
+                          return ind
+                            ? <FriskhedBadge niveau={ind.niveau} besked={ind.besked} />
+                            : <span className="text-xs text-gray-400">Afventer første hentning</span>;
+                        })()}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
