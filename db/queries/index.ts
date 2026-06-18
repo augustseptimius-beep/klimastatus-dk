@@ -11,3 +11,4 @@ export * from './kommune-indikator';
 export * from './monitorering';
 export * from './forespoergsel';
 export * from './cctf';
+export * from './datafriskhed';
