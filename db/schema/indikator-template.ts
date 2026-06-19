@@ -1,5 +1,5 @@
 import { pgTable, uuid, text, boolean, integer, real, timestamp, unique, uniqueIndex } from 'drizzle-orm/pg-core';
-import { apiKildeEnum, indikatorNiveauEnum, sektorEnum } from './enums';
+import { apiKildeEnum, dataKarakterEnum, dataProvenansEnum, indikatorNiveauEnum, sektorEnum } from './enums';
 import { kommune } from './kommune';
 import { indikator } from './indikator';
 
@@ -13,6 +13,8 @@ export const indikatorTemplate = pgTable('indikator_template', {
   cctfKriterier: integer('cctf_kriterier').array().notNull().default([]),
   niveau: indikatorNiveauEnum('niveau'),
   sektor: sektorEnum('sektor'),
+  dataProvenans: dataProvenansEnum('data_provenans'),
+  dataKarakter: dataKarakterEnum('data_karakter'),
   nationalMaalvaerdi: real('national_maalvaerdi'),
   nationalMaalvaerdiNote: text('national_maalvaerdi_note'),
   aktiv: boolean('aktiv').notNull().default(true),

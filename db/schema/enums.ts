@@ -86,3 +86,6 @@ export const kommunetypeEnum = pgEnum('kommunetype', [
 export const standardtiltagKategoriEnum = pgEnum('standardtiltag_kategori', [
   'energi', 'transport', 'landbrug_areal', 'scope3',
 ]);
+
+export const dataProvenansEnum = pgEnum('data_provenans', ['top_down', 'bottom_up']);
+export const dataKarakterEnum = pgEnum('data_karakter', ['aggregeret', 'operationel']);
