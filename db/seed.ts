@@ -167,6 +167,8 @@ async function seed() {
       beskrivelse: 'Kommunens samlede drivhusgasudledning pr. indbygger. Kilde: Klimaregnskabet.dk.',
       cctfKriterier: [6, 11, 15],
       aktiv: true,
+      dataProvenans: 'top_down' as const,
+      dataKarakter: 'aggregeret' as const,
     },
     {
       titel: 'VE-kapacitet (vind + sol)',
@@ -176,6 +178,8 @@ async function seed() {
       beskrivelse: 'Samlet installeret kapacitet for landvind og solenergi i kommunen. Kilde: Energi Data Service.',
       cctfKriterier: [7, 11],
       aktiv: true,
+      dataProvenans: 'top_down' as const,
+      dataKarakter: 'aggregeret' as const,
     },
     {
       titel: 'Befolkningstal',
@@ -185,10 +189,12 @@ async function seed() {
       beskrivelse: 'Kommunens samlede folketal. Bruges til beregning af pr.-capita-indikatorer. Kilde: Danmarks Statistik.',
       cctfKriterier: [],
       aktiv: true,
+      dataProvenans: 'top_down' as const,
+      dataKarakter: 'aggregeret' as const,
     },
   ] as const).onConflictDoUpdate({
     target: indikatorTemplate.titel,
-    set: { updatedAt: new Date() },
+    set: { updatedAt: new Date(), dataProvenans: 'top_down', dataKarakter: 'aggregeret' },
   });
   console.log('Seeded 3 indicator templates.');
 
@@ -217,10 +223,12 @@ async function seed() {
       sektor: i.sektor,
       nationalMaalvaerdi: i.nationalMaalvaerdi,
       nationalMaalvaerdiNote: i.nationalMaalvaerdiNote,
+      dataProvenans: 'top_down' as const,
+      dataKarakter: 'aggregeret' as const,
     })),
   ).onConflictDoUpdate({
     target: indikatorTemplate.titel,
-    set: { updatedAt: new Date() },
+    set: { updatedAt: new Date(), dataProvenans: 'top_down', dataKarakter: 'aggregeret' },
   });
   console.log(`Seeded ${OMSTILLINGSINDIKATORER.length} omstillingsindikatorer.`);
 

@@ -28,6 +28,8 @@ export async function createTemplate(data: {
   sektor?: 'energy' | 'transport' | 'buildings' | 'food' | 'agriculture' | 'waste' | 'adaptation' | 'other';
   nationalMaalvaerdi?: number;
   nationalMaalvaerdiNote?: string;
+  dataProvenans?: 'top_down' | 'bottom_up';
+  dataKarakter?: 'aggregeret' | 'operationel';
 }) {
   const [created] = await db.insert(indikatorTemplate).values(data).returning();
   return created;

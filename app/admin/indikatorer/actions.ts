@@ -36,8 +36,12 @@ export async function createTemplateAction(
     ? cctfKriterier.split(',').map((s) => Number(s.trim())).filter((n) => !isNaN(n) && n > 0)
     : [];
 
+  const erApi = !!kilde;
+  const dataProvenans = erApi ? 'top_down' as const : 'bottom_up' as const;
+  const dataKarakter = erApi ? 'aggregeret' as const : 'operationel' as const;
+
   try {
-    await createTemplate({ titel, kilde, apiQuery, enhed, beskrivelse, cctfKriterier: cctfArr });
+    await createTemplate({ titel, kilde, apiQuery, enhed, beskrivelse, cctfKriterier: cctfArr, dataProvenans, dataKarakter });
   } catch {
     return { message: 'Fejl ved oprettelse af indikator.' };
   }
