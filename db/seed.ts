@@ -223,12 +223,14 @@ async function seed() {
       sektor: i.sektor,
       nationalMaalvaerdi: i.nationalMaalvaerdi,
       nationalMaalvaerdiNote: i.nationalMaalvaerdiNote,
-      dataProvenans: 'top_down' as const,
-      dataKarakter: 'aggregeret' as const,
+      // Kommunen indtaster sin egen lokale værdi (ingen API-kilde) → bottom_up styringsdata.
+      // nationalMaalvaerdi er den top_down benchmark, der vises ved siden af.
+      dataProvenans: 'bottom_up' as const,
+      dataKarakter: 'operationel' as const,
     })),
   ).onConflictDoUpdate({
     target: indikatorTemplate.titel,
-    set: { updatedAt: new Date(), dataProvenans: 'top_down', dataKarakter: 'aggregeret' },
+    set: { updatedAt: new Date(), dataProvenans: 'bottom_up', dataKarakter: 'operationel' },
   });
   console.log(`Seeded ${OMSTILLINGSINDIKATORER.length} omstillingsindikatorer.`);
 

@@ -202,7 +202,7 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
       set: { updatedAt: new Date(), dataProvenans: 'top_down', dataKarakter: 'aggregeret' },
     });
     ```
-  - **9 omstillingsindikatorer**: tilføj `dataProvenans: 'top_down', dataKarakter: 'aggregeret'` i `.map(...)`-objektet, OG i deres `onConflictDoUpdate`-`set` (samme mønster).
+  - **9 omstillingsindikatorer**: tilføj `dataProvenans: 'bottom_up', dataKarakter: 'operationel'` i `.map(...)`-objektet, OG i deres `onConflictDoUpdate`-`set`. (De har ingen API-kilde → kommunen indtaster lokalt → bottom_up styringsdata; `nationalMaalvaerdi` er den top_down benchmark ved siden af. Konsistent med regel: kilde sat → top_down, kilde fraværende → bottom_up.)
 
 - [ ] **Step 4: (Hvis `app/admin/indikatorer/actions.test.ts` findes) tilføj en test** der verificerer at `createTemplate` kaldes med `dataProvenans: 'top_down'` når kilde sættes, og `'bottom_up'` når kilde mangler. Følg mock-mønstret i den eksisterende fil. Hvis filen ikke findes, spring dette step.
 

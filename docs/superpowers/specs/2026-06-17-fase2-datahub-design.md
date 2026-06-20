@@ -40,8 +40,10 @@ To rene felter der beskriver **hvilken slags data** en indikator-template bærer
 - Klimaregnskab (CO₂e): `top_down` · `aggregeret`
 - Energidataservice (VE-kapacitet): `top_down` · `aggregeret`
 - DST (befolkning): `top_down` · `aggregeret`
-- De 9 omstillingsindikatorer (Fase 1-benchmark): `top_down` · `aggregeret`
-- Fremtidige manuelt indtastede indikatorer defaulter til `bottom_up` · `operationel` (sættes ved oprettelse/aktivering; admin kan justere).
+- De 9 omstillingsindikatorer: `bottom_up` · `operationel` — kommunen indtaster sin egen lokale værdi (ingen API-kilde), så det ER styringsdata; `nationalMaalvaerdi` er den top_down benchmark, der vises ved siden af. (Dette er to-lags realiseret: bottom_up serie + top_down benchmark.)
+- Fremtidige manuelt indtastede indikatorer defaulter til `bottom_up` · `operationel`.
+
+**Regel (konsistent overalt):** kilde sat (API) → `top_down`; kilde fraværende (lokal indtastning) → `bottom_up`. Samme regel i seed og ved oprettelse.
 
 Migrationen er additiv (to nullable kolonner + to enums), ikke-destruktiv — som Fase 1's mønster.
 
