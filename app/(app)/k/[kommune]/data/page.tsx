@@ -12,6 +12,8 @@ import { getAllTiltag } from '@/db/queries';
 import { KoblingPanel } from './_kobling-panel';
 import { getDatafriskhed } from '@/db/queries/datafriskhed';
 import { FriskhedBadge, FriskhedBanner } from '@/components/datafriskhed/friskhed-badge';
+import { ProvenansBadge } from '@/components/datahub/provenans-badge';
+import { benchmarkProcent } from '@/lib/datahub/provenans';
 
 export const metadata = { title: 'Data — Klimastatus.dk' };
 
@@ -52,6 +54,9 @@ export default async function DataPage({ params, searchParams }: Props) {
       titel: indikatorTemplate.titel,
       kilde: indikatorTemplate.kilde,
       enhed: indikatorTemplate.enhed,
+      dataProvenans: indikatorTemplate.dataProvenans,
+      dataKarakter: indikatorTemplate.dataKarakter,
+      nationalMaalvaerdi: indikatorTemplate.nationalMaalvaerdi,
     })
     .from(kommuneIndikator)
     .innerJoin(indikatorTemplate, eq(kommuneIndikator.templateId, indikatorTemplate.id))
@@ -144,9 +149,22 @@ export default async function DataPage({ params, searchParams }: Props) {
                         <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700">
                           {ki.kilde ? (KILDE_LABEL[ki.kilde] ?? ki.kilde) : '—'}
                         </span>
+                        <ProvenansBadge provenans={ki.dataProvenans} />
                       </td>
                       <td className="px-4 py-3 text-gray-700">
-                        {ki.latest ? `${ki.latest.vaerdi} ${ki.enhed} (${ki.latest.aar})` : '—'}
+                        {ki.latest ? (
+                          <>
+                            {ki.latest.vaerdi} {ki.enhed} ({ki.latest.aar})
+                            {(() => {
+                              const pct = benchmarkProcent(ki.latest.vaerdi, ki.nationalMaalvaerdi);
+                              return pct != null ? (
+                                <span className="block text-xs text-gray-400">
+                                  National målværdi: {ki.nationalMaalvaerdi} ({pct}%)
+                                </span>
+                              ) : null;
+                            })()}
+                          </>
+                        ) : '—'}
                       </td>
                       <td className="px-4 py-3">
                         {(() => {
