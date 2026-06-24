@@ -96,7 +96,7 @@ export default async function DashboardPage({ params }: Props) {
         </div>
       </div>
 
-      <div className="ks-stat-grid" style={{ gridTemplateColumns: `repeat(${statCols}, 1fr)` }}>
+      <div className="ks-stat-grid" style={{ '--stat-cols': statCols } as React.CSSProperties}>
         <div className="ks-stat">
           <div className="label">Handlinger igangværende</div>
           <div className="num">
@@ -141,7 +141,7 @@ export default async function DashboardPage({ params }: Props) {
             <h2>Genveje</h2>
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        <div className="ks-quicklinks">
           <QuickLink href={`/k/${slug}/indsatser`}  label="Indsatsområder"    count={indsatser.length} />
           <QuickLink href={`/k/${slug}/tiltag`}     label="Handlingsoverblik" count={aktiveTiltag.length} />
           <QuickLink href={`/k/${slug}/tovholdere`} label="Tovholdere"        count={aktiveTovholdere.length} />
