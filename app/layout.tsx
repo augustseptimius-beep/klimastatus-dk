@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Rubik, Poppins } from "next/font/google";
 import "./globals.css";
 
@@ -27,6 +27,11 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Klimastatus.dk",
   description: "Klimarapportering og handlingsstyring for danske kommuner",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
