@@ -330,6 +330,18 @@
 }
 .ks-stat .num em { font-style: normal; color: var(--forest-900, #1E6B3A); }
 
+/* Klikbar nøgletals-stribe (fx status-filter på Handlingsoverblik).
+   Falder til 2 kolonner på små skærme, så tallene ikke mases sammen. */
+.ks-stat-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1.5px solid var(--ink-900, #1A1A18);
+  margin-bottom: 32px;
+}
+@media (max-width: 560px) {
+  .ks-stat-strip { grid-template-columns: repeat(2, 1fr); }
+}
+
 /* Section */
 .ks-section { margin-bottom: 48px; }
 .ks-section-head {
@@ -386,11 +398,17 @@
   gap: 16px;
 }
 
-/* Wrap brede tabeller, så de kan scrolles vandret i stedet for at sprænge layoutet. */
+/* Wrap brede tabeller, så de kan scrolles vandret i stedet for at sprænge layoutet.
+   Uden dette tvinger en bred tabel hele .ks-main bredere end skærmen, hvilket
+   også skubber alt andet indhold (fx nøgletals-striben) ud over kanten. */
 .ks-table-wrap {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+}
+/* På mobil bevares læsbare kolonnebredder — tabellen scroller i stedet for at mases sammen. */
+@media (max-width: 768px) {
+  .ks-table-wrap > table { min-width: 560px; }
 }
 
 /* Tables */

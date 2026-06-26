@@ -19,8 +19,8 @@ export default async function AdminIndikatorer() {
         <h1 className="text-xl font-semibold text-gray-900">Indikatorkatalog</h1>
       </div>
 
-      <div className="mb-10 rounded-xl border border-gray-200 bg-white">
-        <table className="w-full text-sm">
+      <div className="mb-10 overflow-x-auto rounded-xl border border-gray-200 bg-white">
+        <table className="w-full min-w-[640px] text-sm">
           <thead>
             <tr className="border-b border-gray-200 text-left text-gray-500">
               <th className="px-4 py-3 font-medium">Titel</th>

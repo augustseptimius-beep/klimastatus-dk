@@ -108,12 +108,7 @@ export function TiltagTable({ tiltag, indsatser, slug }: { tiltag: Tiltag[]; ind
   return (
     <>
       {/* Status summary */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        borderTop: '1.5px solid var(--ink-900)',
-        marginBottom: 32,
-      }}>
+      <div className="ks-stat-strip">
         {(['planned', 'in_progress', 'completed', 'discontinued'] as const).map((s) => (
           <button
             key={s}
@@ -208,6 +203,7 @@ export function TiltagTable({ tiltag, indsatser, slug }: { tiltag: Tiltag[]; ind
           )}
         </div>
       ) : (
+        <div className="ks-table-wrap">
         <table className="ks-table">
           <thead>
             <tr>
@@ -260,6 +256,7 @@ export function TiltagTable({ tiltag, indsatser, slug }: { tiltag: Tiltag[]; ind
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </>
   );

@@ -9,11 +9,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="border-b border-gray-200 bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <div className="flex items-center gap-6">
+      <header className="border-b border-gray-200 bg-white px-4 py-4 sm:px-6">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <span className="font-semibold text-gray-900">Klimastatus Admin</span>
-            <nav className="flex items-center gap-4 text-sm">
+            <nav className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
               <Link href="/admin/kommuner" className="text-gray-600 hover:text-gray-900">Kommuner</Link>
               <Link href="/admin/indikatorer" className="text-gray-600 hover:text-gray-900">Indikatorer</Link>
               <Link href="/admin/katalog" className="text-gray-600 hover:text-gray-900">Kataloger</Link>
@@ -26,7 +26,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </form>
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-6 py-8">{children}</main>
+      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">{children}</main>
     </div>
   );
 }

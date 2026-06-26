@@ -130,8 +130,8 @@ export default async function DataPage({ params, searchParams }: Props) {
               </Link>
             </div>
           ) : (
-            <div className="rounded-xl border border-gray-200 bg-white">
-              <table className="w-full text-sm">
+            <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
+              <table className="w-full min-w-[640px] text-sm">
                 <thead>
                   <tr className="border-b border-gray-200 text-left text-gray-500">
                     <th className="px-4 py-3 font-medium">Indikator</th>
