@@ -51,7 +51,7 @@ export default async function IndsatserPage({ params }: Props) {
 
       {/* Help text */}
       <div className="ks-card" style={{ marginBottom: 32, background: 'var(--moss-50)', border: '1px solid var(--moss-100)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24 }}>
+        <div className="ks-grid-auto" style={{ '--col-min': '220px', gap: 24 } as React.CSSProperties}>
           <div>
             <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--forest-900)', marginBottom: 6 }}>Hvad er et indsatsområde?</div>
             <p style={{ fontSize: 13, color: 'var(--ink-700)', lineHeight: 1.6, margin: 0 }}>
@@ -84,6 +84,7 @@ export default async function IndsatserPage({ params }: Props) {
           </div>
         </div>
       ) : (
+        <div className="ks-table-wrap">
         <table className="ks-table">
           <thead>
             <tr>
@@ -125,6 +126,7 @@ export default async function IndsatserPage({ params }: Props) {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </>
   );

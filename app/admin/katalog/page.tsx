@@ -35,7 +35,7 @@ export default async function KatalogPage() {
             const rows = tiltag.filter((t) => t.kategori === kat);
             if (rows.length === 0) return null;
             return (
-              <div key={kat} className="rounded-xl border border-gray-200 bg-white">
+              <div key={kat} className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
                 <div className="border-b border-gray-200 px-4 py-2 text-sm font-medium text-gray-700">
                   {KATEGORI_LABEL[kat]} ({rows.length})
                 </div>
@@ -61,8 +61,8 @@ export default async function KatalogPage() {
         <h2 className="mb-3 text-base font-semibold text-gray-900">
           Omstillingsindikatorer ({benchmarks.length})
         </h2>
-        <div className="rounded-xl border border-gray-200 bg-white">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
+          <table className="w-full min-w-[560px] text-sm">
             <thead>
               <tr className="border-b border-gray-200 text-left text-gray-500">
                 <th className="px-4 py-3 font-medium">Indikator</th>
