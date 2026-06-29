@@ -149,11 +149,17 @@ Søjlerne (jf. `AGENTS.md`): **(1) styring af handlinger · (2) rapportering · 
 
 ---
 
+## Status: indarbejdet i roadmap (2026-06-29)
+Fundene er foldet ind i den eksisterende roadmap — **intet separat Kausal-spor**:
+- **Rapport-fastfrysning** → Fase 6 (besluttes tidligt) + note ved `Monitoreringscyklus` i `datamodel.md` + nyt succeskriterie. Se `docs/superpowers/specs/2026-06-15-datadrevet-cctf-platform-design.md`.
+- **Insight-netværk** → Fase 4 som valgfrit visuelt lag.
+- **Indikator mål-vs-faktisk + normalisering** og **to-målgruppe-UX/embeds/eksport** → Fase 6.
+- **Handlings-"forside"** → validering af eksisterende tiltag-arbejdsrum (polish).
+- **Paths scenarie-skydere** → fravalgt nu.
+
 ## Næste skridt (forslag, ikke besluttet)
 - Åbn `watch.kausal.us` og San Diego-rapport-PDF'en og vurdér UX'en med egne øjne.
-- Hvis rapport-fastfrysning godkendes som retning: skriv den ind som note ved `Monitoreringscyklus`
-  i `datamodel.md` og som et roadmap-punkt under rapporterings-søjlen.
-- Beslut om interventionslogik-visualiseringen skal være en tidlig eller sen feature.
+- Ved Fase 6-opstart: bryd rapport-fastfrysning til en konkret implementeringsplan i `docs/superpowers/plans/`.
 
 ## Kilder
 - Kausal Watch (Wikipedia): https://en.wikipedia.org/wiki/Climate_Watch_(Kausal_Ltd.)
