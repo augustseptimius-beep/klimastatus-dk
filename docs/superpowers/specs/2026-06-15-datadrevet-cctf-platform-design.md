@@ -88,6 +88,7 @@ Opgrader "CCTF-dækning" fra kriterie-tælling til en **kohærens- og hul-finder
 - Pr. sektor / klimafare: er kæden *mål → tiltag → indikator* hel? Vis brudte led som konkrete handlingspunkter ("dette mål har ingen indikator", "dette tiltag har intet mål").
 - **Rolle×sektor-matrix:** er alle fire kommunale roller (virksomhed/leverandør/myndighed/facilitator) i spil på tværs af sektorerne — og er **alle fire** brugt i fossil-udfasnings-kolonnen (den eneste hvor det er hårdt krav, kriterie 13)?
 - En "hvad mangler"-visning afløser den passive dækningsprocent.
+- **Kausal-inspireret UX (valgfrit visuelt lag):** kæden kan vises som et *insight-netværk* — mål/tiltag/indikatorer som noder forbundet med kausale links, så et brudt led ses visuelt og en skridende output-indikator kan spores til det mål den truer. Vi har allerede relationen (`Interventionslogik_kobling`); dette er den visuelle realisering. Kan udskydes — listevisningen af huller er minimumskravet, grafen er løftet. (Se `docs/research/2026-06-29-kausal-funktion-features-ux.md`.)
 
 **Værdi:** den løbende, året-rundt-værdi, der retfærdiggør at beholde CCTF efter selvevalueringen — selve den røde tråd i drejningen.
 
@@ -104,7 +105,9 @@ Opgrader "CCTF-dækning" fra kriterie-tælling til en **kohærens- og hul-finder
 **Type:** Stor · **Søjle:** Rapportering (den tyndeste i dag) · **Kriterier:** 16
 
 - **Klimastatus-rapporten** til kommunalbestyrelsen — det manglende output — genereret fra samme datasæt.
-- **Offentligt dashboard pr. kommune** (KPI'er, fremdrift, tiltagsstatus). Kriterie 16 kræver *aktiv, bred formidling på årlig basis*, ikke kun en KB-dagsorden. Widget-fundamentet til den offentlige side findes allerede.
+- **Rapport-fastfrysning (Kausal-fund — primær funktionel mangel i dag):** når en `Monitoreringscyklus` lukkes, **fryses tilstanden af hvert tiltag og hver indikator på det tidspunkt** (immutable snapshot-data i vores stak — ikke Kausals django-reversion). En afleveret Klimastatus skal kunne gengives identisk for evigt, også selvom underliggende records ændrer sig bagefter. Uden dette kan et dokument til kommunalbestyrelsen ændre sig under hånden — uacceptabelt for rapportering og recertificering. Understøtter direkte "altid recertificerings-klar". **Bemærk arkitektur-rækkefølge:** beslut dette tidligt (det påvirker hvordan cyklus-koblet data skrives), selvom det bygges her.
+- **Indikator-UX (Kausal-fund):** vis *mål-vs-faktisk* (national målværdi fra Fase 1 som målstreg oven på den lokale kurve) og *normalisering* (fx pr. indbygger). Billigt, stor læsbarhedsgevinst for kommunalbestyrelsen — "−12% siden 2020, mål −30%" i stedet for et nøgent tal.
+- **Offentligt dashboard pr. kommune** (KPI'er, fremdrift, tiltagsstatus). Kriterie 16 kræver *aktiv, bred formidling på årlig basis*, ikke kun en KB-dagsorden. Widget-fundamentet til den offentlige side findes allerede. Kausal-fund: tænk to-målgruppe (internt styringsværktøj vs. tilgængelig (WCAG) offentlig udgave + indlejrelige widgets) og CSV/Excel/PDF-eksport som førsteklasses feature.
 - Dæk alle tre spor: drivhusgasreduktion, klimatilpasning og merværdi/retfærdig fordeling.
 - Spejl Klimaalliancens årlige indrapportering, så kommunen ikke skal rapportere dobbelt.
 
@@ -143,6 +146,21 @@ Fordi platformen kommer til at trække på meget lokal data (det giver lokal ind
 
 ---
 
+## Kausal-fund — indarbejdelse (research → faser)
+
+Research af Kausal Watch (funktion/features/UX, ikke kode) i `docs/research/2026-06-29-kausal-funktion-features-ux.md`. **Tilgang: foldet ind i de eksisterende faser — intet separat "Kausal-spor".** Fundene var enten validering af planlagt arbejde eller berigelser; ét var et reelt hul.
+
+| Kausal-fund | Hjem i roadmap | Karakter |
+|---|---|---|
+| **Rapport-fastfrysning** (snapshot ved cyklus-luk) | **Fase 6** (beslut arkitektur tidligt) | **Reelt hul** — primær |
+| Insight-netværk (visuel kæde) | Fase 4 (valgfrit visuelt lag) | Berigelse — vi har modellen |
+| Indikator mål-vs-faktisk + normalisering | Fase 6 (bygger på Fase 1's målværdier) | Berigelse — billig, høj effekt |
+| To-målgruppe-UX + embeds + eksport | Fase 6 (offentligt dashboard) | Forstærker eksisterende plan |
+| Handlings-"forside" (tidslinje/opgaver/log) | Eksisterende tiltag-arbejdsrum | Validering — polish, ikke ny fase |
+| Interaktive scenarie-skydere (Kausal Paths) | — | Fravalgt nu (fremtidig) |
+
+**Eneste rækkefølge-konsekvens:** rapport-fastfrysning *bygges* i Fase 6, men *besluttes* nu, fordi den afgør om cyklus-koblet data skal kunne snapshottes immutabelt. Alt andet følger den eksisterende fase-rækkefølge uændret.
+
 ## Anbefalet rækkefølge & næste skridt
 
 1. **Fase 1 + Fase 3** først — konkrete, høj værdi, lav fortolkningsrisiko (seed katalogerne + læg de hårde regler ind).
@@ -161,3 +179,4 @@ Hver fase brydes til en separat implementeringsplan i `docs/superpowers/plans/`,
 - [ ] "CCTF-dækning" viser konkrete huller i mål→tiltag→indikator-kæden og rolle×sektor-matricen, ikke kun en procent.
 - [ ] Benchmarking viser kommunen mod peer-gennemsnit (kommunetype), sektorkorrigeret.
 - [ ] Tilpasnings-, interessent- og equity-sporene har egne entiteter (Fase 7).
+- [ ] En lukket Klimastatus-rapport gengives identisk over tid (tilstand fastfrosset ved cyklus-luk).

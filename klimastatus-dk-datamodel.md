@@ -92,6 +92,8 @@ Felter: `id`, `kommune_id`, `navn` (fx "Årsstatus 2025", "Q1 2026"), `periode_s
 
 Både `Tovholder_rapport` og `Indikator_måling` knyttes til en `Monitoreringscyklus` via `monitoreringscyklus_id`. Det giver en konfigurerbar kadence (kommunen sætter selv om de kører årligt eller kvartalsvist) og et naturligt ophæng for den årlige Klimastatus-generering.
 
+> **Åbent: rapport-fastfrysning (Kausal-fund, 2026-06-29).** "Snapshot" ovenfor er i dag kun en *logisk* gruppering — den fryser ikke tilstanden. Når en cyklus lukkes (`status → lukket/rapporteret`), bør tilstanden af de tiltag og indikatorer rapporten bygger på **fastfryses immutabelt**, så en afleveret Klimastatus kan gengives identisk for evigt, selvom records ændres bagefter. Kausal Watch løser det med versions-snapshots (django-reversion); vi gør det på vores måde — fx separate immutable snapshot-rækker skrevet ved cyklus-luk. Afgørende for revisionssikker rapportering og recertificering. Bygges i Fase 6, men arkitekturen besluttes tidligt (påvirker hvordan cyklus-koblet data skrives). Se `docs/research/2026-06-29-kausal-funktion-features-ux.md` og rapporterings-fasen i `docs/superpowers/specs/2026-06-15-datadrevet-cctf-platform-design.md`.
+
 ### Læringspost
 
 Det manglende "L" i MERL. Fanger kæden fra observation til beslutning og binder monitoreringen til den næste planrevision. Uden den er platformen et MER-værktøj der monitorerer og rapporterer, men ikke lærer (kriterie 15).
