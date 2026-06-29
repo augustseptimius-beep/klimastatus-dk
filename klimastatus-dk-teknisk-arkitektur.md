@@ -135,6 +135,16 @@ CCTF-vejledningen er allerede ved version 1.0, og en v2 kommer med erfaringer fr
 
 **Claude Code-venlighed**: README med klare entry-points, konsistent navngivning, og kommentarer der forklarer hvorfor (ikke hvad). Alle filer holdes under 300 linjer hvor muligt. Database-schema og prompts er de to mest vigtige steder at have ekstra kommentarer, fordi det er der hvor forretningslogikken faktisk bor.
 
+## Geovisualisering (fremtidig — endnu ikke bygget)
+
+Hvis klimastatus.dk på sigt skal vise data geografisk — fjernvarmedækning, varmepumpe-udrulning eller CO₂-tal pr. område inden for en kommune — så hold det selvstændigt og uden eksterne nøgleafhængigheder, i tråd med resten af stakken:
+
+- **MapLibre GL JS** til klient-rendering (open source, ingen Mapbox-token/lock-in).
+- **Protomaps** til selvhostede vektor-tiles (én `.pmtiles`-fil serveret statisk — ingen tile-server at drifte, ingen ekstern tile-API at afhænge af).
+- **OpenStreetMap** som baggrundsdata; kommune-/områdegrænser hentes fra **DAGI via Datafordeler** (ikke DAWA — se datakilde-reglen i `AGENTS.md`).
+
+Mønsteret er afprøvet i `martincollignon/parkeringspladser` (MIT, SvelteKit). Vi porterer *konceptet og stakken* til vores Next.js/React-opsætning — ikke koden direkte. Dette er bevidst noteret som fremtidig retning, ikke et åbent arbejdsstykke: byg det først når der er et konkret kort-behov i en rapport eller et dashboard.
+
 ## Hvad jeg ikke anbefaler
 
 **Vercel eller andre amerikanske hostere**: Selv om de er væsentligt mere udviklingsvenlige, modarbejder de selvstændighedsforslaget. Sværdet med at skulle forklare en kommune at deres data ligger på AWS Frankfurt er ikke værd at trække.
