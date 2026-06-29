@@ -83,6 +83,8 @@ Det største tekniske risikoområde i hele platformen er afhængigheden af ekste
 - Danmarks Statistik: månedligt
 - DMI Klimaatlas, KAMP, HIP: versions-detection (de udgiver versioner, ikke streaming data)
 
+**Adresse-/geodata — ikke DAWA**: DAWA er under udfasning, og BBR via DAWA er allerede lukket. BBR-integration (og enhver adresse-, matrikel- eller geodata-funktionalitet) sker via Datafordeler — ikke DAWA. Brug GSearch til brugervendt søgning/autocomplete, DAR/Datafordeler til autoritative registerdata, `husnummer` som access-address-id, GeoDanmark Vektor GraphQL til bygnings-footprints. Se datakilde-beslutningen i `AGENTS.md`. Verificér Datafordeler-adgang før commit.
+
 **Fejlhåndtering**: Tre forsøg med eksponentiel backoff. Efter tre fejl logges hændelsen i Sentry og vises i admin-dashboardet. Stale data markeres tydeligt i UI'et med dato for sidste vellykkede hentning.
 
 **Versionshåndtering af kilder**: Når DMI Klimaatlas eller KAMP udgiver ny version, markeres alle berørte indikatorer for genvurdering automatisk og klimakoordinatoren får en notifikation. Dette er en specifik regel i CCTF kriterie 5 om at vidensgrundlaget skal være retvisende.
@@ -132,6 +134,16 @@ CCTF-vejledningen er allerede ved version 1.0, og en v2 kommer med erfaringer fr
 **Observability**: Pino til strukturerede logs, Sentry til exceptions, og en simpel admin-side der viser status på alle background jobs og eksterne API-integrationer.
 
 **Claude Code-venlighed**: README med klare entry-points, konsistent navngivning, og kommentarer der forklarer hvorfor (ikke hvad). Alle filer holdes under 300 linjer hvor muligt. Database-schema og prompts er de to mest vigtige steder at have ekstra kommentarer, fordi det er der hvor forretningslogikken faktisk bor.
+
+## Geovisualisering (fremtidig — endnu ikke bygget)
+
+Hvis klimastatus.dk på sigt skal vise data geografisk — fjernvarmedækning, varmepumpe-udrulning eller CO₂-tal pr. område inden for en kommune — så hold det selvstændigt og uden eksterne nøgleafhængigheder, i tråd med resten af stakken:
+
+- **MapLibre GL JS** til klient-rendering (open source, ingen Mapbox-token/lock-in).
+- **Protomaps** til selvhostede vektor-tiles (én `.pmtiles`-fil serveret statisk — ingen tile-server at drifte, ingen ekstern tile-API at afhænge af).
+- **OpenStreetMap** som baggrundsdata; kommune-/områdegrænser hentes fra **DAGI via Datafordeler** (ikke DAWA — se datakilde-reglen i `AGENTS.md`).
+
+Mønsteret er afprøvet i `martincollignon/parkeringspladser` (MIT, SvelteKit). Vi porterer *konceptet og stakken* til vores Next.js/React-opsætning — ikke koden direkte. Dette er bevidst noteret som fremtidig retning, ikke et åbent arbejdsstykke: byg det først når der er et konkret kort-behov i en rapport eller et dashboard.
 
 ## Hvad jeg ikke anbefaler
 
