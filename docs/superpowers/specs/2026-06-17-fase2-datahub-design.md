@@ -18,7 +18,7 @@ Design-doc'ens Fase 2 bundtede tre ting: indikator-metadata, to-lags-serier, og 
 
 | Element | Beslutning | Begrundelse |
 |---|---|---|
-| **BBR som datakilde** | **Eget næste skridt (Fase 2b)** | Ekstern integration af anden karakter; kræver sandsynligvis Datafordeler-credentials (modsat de åbne API'er i dag). Verificér adgang *før* commit — ikke i blinde. |
+| **BBR som datakilde** | **Eget næste skridt (Fase 2b)** | Ekstern integration af anden karakter; kræver sandsynligvis Datafordeler-credentials (modsat de åbne API'er i dag). **Hent via Datafordeler — ikke DAWA: DAWA er under udfasning, og BBR via DAWA er allerede lukket** (se datakilde-beslutningen i `AGENTS.md`). Verificér adgang *før* commit — ikke i blinde. |
 | **5 kvalitetskriterier** (repræsentation/komplethed/pålidelighed/målbarhed/økonomi) | **Skåret** | At score hver indikator på 5 dimensioner er compliance-dekoration uden daglig værdi (samme slags vi skar i Fase 3). |
 | **Friskhed-metadata** | **Allerede gjort** | Datafriskheds-laget (Fase 3) dækker det. Genopbygges ikke. |
 | **Fulde to-serie-tidsserier** (national modelleret trajektorie) | **Skåret** | Den data findes ikke. "Top-down" = Fase 1's nationale benchmark (én målværdi), ikke en tidsserie. |

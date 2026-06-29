@@ -83,6 +83,8 @@ Det største tekniske risikoområde i hele platformen er afhængigheden af ekste
 - Danmarks Statistik: månedligt
 - DMI Klimaatlas, KAMP, HIP: versions-detection (de udgiver versioner, ikke streaming data)
 
+**Adresse-/geodata — ikke DAWA**: DAWA er under udfasning, og BBR via DAWA er allerede lukket. BBR-integration (og enhver adresse-, matrikel- eller geodata-funktionalitet) sker via Datafordeler — ikke DAWA. Brug GSearch til brugervendt søgning/autocomplete, DAR/Datafordeler til autoritative registerdata, `husnummer` som access-address-id, GeoDanmark Vektor GraphQL til bygnings-footprints. Se datakilde-beslutningen i `AGENTS.md`. Verificér Datafordeler-adgang før commit.
+
 **Fejlhåndtering**: Tre forsøg med eksponentiel backoff. Efter tre fejl logges hændelsen i Sentry og vises i admin-dashboardet. Stale data markeres tydeligt i UI'et med dato for sidste vellykkede hentning.
 
 **Versionshåndtering af kilder**: Når DMI Klimaatlas eller KAMP udgiver ny version, markeres alle berørte indikatorer for genvurdering automatisk og klimakoordinatoren får en notifikation. Dette er en specifik regel i CCTF kriterie 5 om at vidensgrundlaget skal være retvisende.

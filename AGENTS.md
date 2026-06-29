@@ -28,6 +28,23 @@ Begrundelse:
 
 Konsekvens for roadmap: tidligere "Fase 3 — Selvevaluering" udgår. Fokus flytter til rapporterings-outputtet (Klimastatus-rapporten til kommunalbestyrelsen) — den tyndeste af de tre søjler i dag. `selvevaluering`-DB-tabellen står dormant (ingen destruktiv migration).
 
+## Adresse-/geodata: DAWA er udfaset — brug ikke DAWA
+
+Beslutning truffet 2026-06-29.
+
+**DAWA (Danmarks Adressers Web API) er under udfasning.** BBR-data via DAWA er allerede lukket, og den officielle DAWA-dokumentation melder at tjenesten lukker. Coding-agenter (inkl. denne) griber pr. refleks efter DAWA, fordi gamle eksempler og Stack Overflow-svar lærer dem det. **Gør det ikke.** Når der bygges adresse-, matrikel-, BBR- eller geodata-funktionalitet, vælges kilde efter behov:
+
+- **Brugervendt søgning / autocomplete / typeahead** → GSearch (SDFI/Dataforsyningens søge-API). GSearch er *ikke* Google Search og *ikke* en 1:1-erstatning for alle DAWA-endpoints.
+- **Autoritative registerdata** → DAR / Datafordeler. Bevar DAR-UUID'er og strukturerede felter.
+- **Access-address-id mod BBR/BFE-property-workflows** → `husnummer`.
+- **Bygnings-footprints** → GeoDanmark Vektor GraphQL.
+- **Replikering / historik / lokal kopi** → Datafordeler events/downloads/WFS/OGC.
+- GSearch har **ikke** DAWA-style reverse geocoding eller datavask — lov ikke det modsatte.
+
+Konkret for vores roadmap: BBR (`teknisk-arkitektur.md`, Fase 2b i `docs/superpowers/specs/2026-06-17-fase2-datahub-design.md`) skal hentes via Datafordeler — aldrig via DAWA. Verificér Datafordeler-adgang før commit.
+
+Reference: `martincollignon/dawa_to_gsearch` (migrationsguide + service-chooser skrevet til agenter) og `martincollignon/gsearch-cli`.
+
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 
