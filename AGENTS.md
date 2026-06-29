@@ -38,10 +38,20 @@ Beslutning truffet 2026-06-29.
 - **Autoritative registerdata** → DAR / Datafordeler. Bevar DAR-UUID'er og strukturerede felter.
 - **Access-address-id mod BBR/BFE-property-workflows** → `husnummer`.
 - **Bygnings-footprints** → GeoDanmark Vektor GraphQL.
-- **Replikering / historik / lokal kopi** → Datafordeler events/downloads/WFS/OGC.
-- GSearch har **ikke** DAWA-style reverse geocoding eller datavask — lov ikke det modsatte.
+- **Replikering / historik / lokal kopi** → Datafordeler events/downloads/WFS/OGC. GSearch er en online søge-API, ikke et replikerings-/lokal-kopi-feed.
+- **Reverse geocoding** → dedikeret spatial/reverse-tjeneste eller eget spatial-opslag mod autoritative data — *ikke* GSearch.
+- **Datavask / normalisering** → Adressevask (annonceret som DAWA-datavask-erstatning, forventet ~slut august 2026; var endnu ikke tilgængelig pr. juni 2026). GSearch gør det ikke.
 
-Konkret for vores roadmap: BBR (`teknisk-arkitektur.md`, Fase 2b i `docs/superpowers/specs/2026-06-17-fase2-datahub-design.md`) skal hentes via Datafordeler — aldrig via DAWA. Verificér Datafordeler-adgang før commit.
+### GSearch i praksis (verificér mod officielle docs før brug)
+
+- **Base-URL:** `https://api.dataforsyningen.dk/rest/gsearch/v2.0/{resource}`
+- **Påkrævede parametre:** `token` (Dataforsyningen-token, som query-param) og `q` (søgetekst — GSearch håndterer stave- og fonetiske varianter).
+- **Valgfri parametre:** `limit` (default 10, max 100), `filter` (ECQL-udtryk for attribut-/geometri-constraints), `srid` (returneret koordinatsystem, fx `4326` for WGS84).
+- **Resources (`{resource}`):** `adresse` (adresser/enheder inkl. etage/dør), `husnummer` (access-adresser på bygningsniveau), `navngivenvej`, `postnummer`, `kommune`, `region`, `sogn`, `politikreds`, `retskreds`, `opstillingskreds`, `matrikel`, `matrikel_udgaaet`, `stednavn`.
+- **Response-shape (pr. resultat):** `id` (autoritativ UUID for det matchede objekt — gem denne til downstream DAR/Datafordeler-opslag), `visningstekst` (display-tekst til forslagslister), geometri-felter (typisk GeoJSON), samt resource-specifikke felter som `kommunekode`, `vejkode`, `postnummer`.
+- **Typisk mønster:** brug GSearch til `husnummer`-/`adresse`-udvælgelse i UI'et → gem `id` (DAR-UUID) → resolvér register-/property-data (BFE/BBR/MAT) via DAR/Datafordeler.
+
+Konkret for vores roadmap: BBR (`teknisk-arkitektur.md`, Fase 2b i `docs/superpowers/specs/2026-06-17-fase2-datahub-design.md`) skal hentes via Datafordeler — aldrig via DAWA. Verificér Datafordeler-adgang før commit (fx med `gsearch-cli`'s `doctor`-kommando).
 
 Reference: `martincollignon/dawa_to_gsearch` (migrationsguide + service-chooser skrevet til agenter) og `martincollignon/gsearch-cli`.
 
