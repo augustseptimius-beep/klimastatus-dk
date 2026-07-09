@@ -3,6 +3,8 @@ import { describe, it, expect, vi } from 'vitest';
 vi.mock('server-only', () => ({}));
 vi.mock('@/db/queries', () => ({
   createKommune: vi.fn(),
+  getKommuneById: vi.fn(),
+  deleteKommune: vi.fn(),
 }));
 vi.mock('next/navigation', () => ({
   redirect: vi.fn(),
@@ -44,5 +46,57 @@ describe('createKommuneAction', () => {
     expect(createKommune).toHaveBeenCalledWith(
       expect.objectContaining({ kommunekode: '787', kommunetype: 'land' }),
     );
+  });
+});
+
+describe('deleteKommuneAction — kræver indtastet kommunenavn', () => {
+  async function setup(kommuneNavn = 'Thisted') {
+    const { getKommuneById, deleteKommune } = await import('@/db/queries');
+    vi.mocked(getKommuneById).mockResolvedValue({ id: 'k-1', navn: kommuneNavn } as never);
+    vi.mocked(deleteKommune).mockClear();
+    const { deleteKommuneAction } = await import('./actions');
+    return { deleteKommuneAction, deleteKommune };
+  }
+
+  it('afviser uden bekræftelsesnavn', async () => {
+    const { deleteKommuneAction, deleteKommune } = await setup();
+    const fd = new FormData();
+    fd.set('id', 'k-1');
+    const result = await deleteKommuneAction(undefined, fd);
+    expect(result?.message).toContain('Sletning afvist');
+    expect(deleteKommune).not.toHaveBeenCalled();
+  });
+
+  it('afviser forkert bekræftelsesnavn', async () => {
+    const { deleteKommuneAction, deleteKommune } = await setup();
+    const fd = new FormData();
+    fd.set('id', 'k-1');
+    fd.set('bekraeftNavn', 'Thistde'); // tastefejl
+    const result = await deleteKommuneAction(undefined, fd);
+    expect(result?.message).toContain('Sletning afvist');
+    expect(deleteKommune).not.toHaveBeenCalled();
+  });
+
+  it('sletter ved præcist navn (med tolerance for whitespace)', async () => {
+    const { deleteKommuneAction, deleteKommune } = await setup();
+    const fd = new FormData();
+    fd.set('id', 'k-1');
+    fd.set('bekraeftNavn', '  Thisted  ');
+    const result = await deleteKommuneAction(undefined, fd);
+    expect(result?.message).toContain('slettet');
+    expect(deleteKommune).toHaveBeenCalledWith('k-1');
+  });
+
+  it('afviser ukendt kommune-id', async () => {
+    const { getKommuneById, deleteKommune } = await import('@/db/queries');
+    vi.mocked(getKommuneById).mockResolvedValue(undefined as never);
+    vi.mocked(deleteKommune).mockClear();
+    const { deleteKommuneAction } = await import('./actions');
+    const fd = new FormData();
+    fd.set('id', 'findes-ikke');
+    fd.set('bekraeftNavn', 'X');
+    const result = await deleteKommuneAction(undefined, fd);
+    expect(result?.message).toContain('findes ikke');
+    expect(deleteKommune).not.toHaveBeenCalled();
   });
 });

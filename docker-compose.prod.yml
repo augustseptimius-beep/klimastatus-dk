@@ -20,6 +20,15 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       NODE_ENV: production
+      # Kritiske secrets — sættes i deploy-miljøet (Coolify → Environment
+      # Variables). Uden SESSION_SECRET nægter appen at starte (se lib/env.ts).
+      SESSION_SECRET: ${SESSION_SECRET}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      SEED_PASSWORD: ${SEED_PASSWORD}
+      BREVO_API_KEY: ${BREVO_API_KEY}
+      BREVO_FROM_EMAIL: ${BREVO_FROM_EMAIL:-noreply@klimastatus.dk}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      KLIMAREGNSKABET_API_KEY: ${KLIMAREGNSKABET_API_KEY}
     depends_on:
       db:
         condition: service_healthy
