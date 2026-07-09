@@ -10,6 +10,9 @@ on:
     paths-ignore:
       - '**.md'
       - 'docs/**'
+  # Kør typecheck/test/lint på pull requests, så fejl fanges FØR merge —
+  # build/deploy-jobs er gated til push (se `if` nedenfor).
+  pull_request:
 
 env:
   REGISTRY: ghcr.io
@@ -45,6 +48,8 @@ jobs:
 
   build-and-push:
     needs: check
+    # Kun på push til main — PRs skal ikke bygge/pushe images
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
