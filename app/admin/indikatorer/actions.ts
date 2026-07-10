@@ -2,6 +2,7 @@
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { createTemplate, setTemplateAktiv } from '@/db/queries/indikator-template';
+import { requireAdmin } from '@/lib/dal';
 import type { FormState } from '@/lib/definitions';
 
 const TemplateSchema = z.object({
@@ -19,6 +20,7 @@ export async function createTemplateAction(
   _prevState: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  await requireAdmin();
   const raw = {
     titel: formData.get('titel'),
     kilde: formData.get('kilde'),
@@ -50,6 +52,7 @@ export async function createTemplateAction(
 }
 
 export async function toggleTemplateAktivAction(id: string, aktiv: boolean): Promise<void> {
+  await requireAdmin();
   await setTemplateAktiv(id, aktiv);
   revalidatePath('/admin/indikatorer');
 }

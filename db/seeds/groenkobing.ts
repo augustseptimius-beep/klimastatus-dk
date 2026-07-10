@@ -3,6 +3,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { eq, and } from 'drizzle-orm';
 import { standardSkabelon } from '../../lib/widgets/standard-skabelon';
+import { resolveSeedPassword } from '../../lib/seed-guard';
 import {
   kommune,
   user,
@@ -79,14 +80,24 @@ export async function seedGroenkobing() {
     }).returning();
 
     // 2. Koordinator-bruger
-    const passwordHash = await hash(process.env.SEED_PASSWORD ?? 'klimastatus2026!');
-    await db.insert(user).values({
-      kommuneId: groenkobing.id,
-      email: 'koordinator@groenkobing.dk',
-      passwordHash,
-      navn: 'Maja Vestergaard',
-      role: 'koordinator',
-    }).onConflictDoNothing();
+    const seedPassword = resolveSeedPassword({
+      envNavn: 'SEED_PASSWORD',
+      envVaerdi: process.env.SEED_PASSWORD,
+      fallback: 'klimastatus2026!',
+      erProduktion: process.env.NODE_ENV === 'production',
+    });
+    if (seedPassword.password === null) {
+      console.error(`[seed] SPRINGER DEMO-KOORDINATOR OVER: ${seedPassword.fejl}`);
+    } else {
+      const passwordHash = await hash(seedPassword.password);
+      await db.insert(user).values({
+        kommuneId: groenkobing.id,
+        email: 'koordinator@groenkobing.dk',
+        passwordHash,
+        navn: 'Maja Vestergaard',
+        role: 'koordinator',
+      }).onConflictDoNothing();
+    }
 
     // 3. Indsatsområder
     const [io1, io2, io3, io4, io5] = await db.insert(indsatsOmraade).values([

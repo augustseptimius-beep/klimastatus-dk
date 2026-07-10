@@ -42,4 +42,7 @@ USER nextjs
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-CMD ["sh", "-c", "node scripts/migrate.mjs && node scripts/seed-compiled.mjs && node server.js"]
+# Migrationer SKAL lykkes før serveren starter (ellers kører kode mod forkert
+# skema). Seed er konvergens/demo-data — fejler den, må det ALDRIG holde
+# serveren nede; log og fortsæt.
+CMD ["sh", "-c", "node scripts/migrate.mjs && (node scripts/seed-compiled.mjs || echo '[seed] FEJLEDE (non-fatal) — serveren starter alligevel. Se loggen ovenfor.') && node server.js"]

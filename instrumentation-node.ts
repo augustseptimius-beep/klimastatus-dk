@@ -1,5 +1,10 @@
 import { PgBoss } from 'pg-boss';
+import { validerEnvVedStart } from './lib/env';
 import { handleRykker } from './lib/jobs/rykker';
+
+// Fail fast: i produktion stopper serveren her med en tydelig fejl, hvis
+// kritiske miljøvariabler mangler — i stedet for kryptiske 500'ere pr. request.
+validerEnvVedStart();
 import { handleFetchKlimaregnskabet } from './lib/jobs/fetch-klimaregnskabet';
 import { handleFetchEnergidataservice } from './lib/jobs/fetch-energidataservice';
 import { handleFetchDst } from './lib/jobs/fetch-dst';

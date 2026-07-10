@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { tilknytIndikatorTiltag, fjernIndikatorTiltag } from '@/db/queries/indikator-kobling';
+import { getTiltagById } from '@/db/queries/tiltag';
 import { requireKommuneContext } from '@/lib/kommune-context';
 import { db } from '@/db';
 import { indikator } from '@/db/schema';
@@ -104,6 +105,8 @@ export async function tilknytIndikatorTiltagAction(
   const { kommune } = await requireKommuneContext(slug);
   const ki = await getKommuneIndikatorById(kommuneIndikatorId);
   if (!ki || ki.kommuneId !== kommune.id) return;
+  const t = await getTiltagById(tiltagId);
+  if (!t || t.kommuneId !== kommune.id) return;
   await tilknytIndikatorTiltag(ki.indikatorId, tiltagId);
   revalidatePath(`/k/${slug}/data`);
 }

@@ -1,17 +1,32 @@
 'use client';
+import { useActionState } from 'react';
 import { deleteKommuneAction } from './actions';
 
+/**
+ * Sletning kræver at kommunens navn skrives præcist. Navnet verificeres
+ * SERVER-side i deleteKommuneAction — prompten her er kun UI.
+ */
 export function DeleteKommuneButton({ id, navn }: { id: string; navn: string }) {
+  const [state, formAction] = useActionState(deleteKommuneAction, undefined);
+
   return (
     <form
-      action={deleteKommuneAction}
+      action={formAction}
       onSubmit={e => {
-        if (!confirm(`Slet "${navn}" og al tilhørende data? Dette kan ikke fortrydes.`)) {
+        const svar = window.prompt(
+          `Slet "${navn}" og AL tilhørende data (tiltag, målinger, rapporter, brugere)?\n\n` +
+          `Dette kan ikke fortrydes. Skriv kommunens navn for at bekræfte:`,
+        );
+        if (svar === null) {
           e.preventDefault();
+          return;
         }
+        const input = e.currentTarget.elements.namedItem('bekraeftNavn') as HTMLInputElement;
+        input.value = svar;
       }}
     >
       <input type="hidden" name="id" value={id} />
+      <input type="hidden" name="bekraeftNavn" defaultValue="" />
       <button
         type="submit"
         style={{
@@ -26,6 +41,9 @@ export function DeleteKommuneButton({ id, navn }: { id: string; navn: string }) 
       >
         Slet
       </button>
+      {state?.message && (
+        <p style={{ marginTop: 4, fontSize: 12, color: '#b91c1c', maxWidth: 220 }}>{state.message}</p>
+      )}
     </form>
   );
 }

@@ -1,6 +1,6 @@
 'use server';
 import { z } from 'zod';
-import { createKommune } from '@/db/queries';
+import { createKommune, getKommuneById } from '@/db/queries';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import type { FormState } from '@/lib/definitions';
@@ -53,13 +53,34 @@ export async function createKommuneAction(
   redirect('/admin/kommuner');
 }
 
-export async function deleteKommuneAction(formData: FormData): Promise<void> {
+/**
+ * Sletning af en kommune CASCADE-sletter ALT kommunens data (tiltag, mål,
+ * målinger, rapporter, brugere ...). Derfor kræves kommunens navn indtastet
+ * og verificeret SERVER-side — en browser-confirm kan klikkes væk i søvne,
+ * og for en betalende kunde er dette uopretteligt (op til 24 t datatab
+ * siden seneste backup).
+ */
+export async function deleteKommuneAction(
+  _prevState: FormState,
+  formData: FormData,
+): Promise<FormState> {
   const session = await verifySession();
   if (!session || session.role !== 'admin') redirect('/login');
 
   const id = formData.get('id');
-  if (typeof id !== 'string' || !id) return;
+  if (typeof id !== 'string' || !id) return { message: 'Ugyldigt id.' };
+
+  const kommune = await getKommuneById(id);
+  if (!kommune) return { message: 'Kommunen findes ikke.' };
+
+  const bekraeftNavn = formData.get('bekraeftNavn');
+  if (typeof bekraeftNavn !== 'string' || bekraeftNavn.trim() !== kommune.navn) {
+    return {
+      message: `Sletning afvist: skriv kommunens navn ("${kommune.navn}") præcist for at bekræfte.`,
+    };
+  }
 
   await deleteKommune(id);
   revalidatePath('/admin/kommuner');
+  return { message: `${kommune.navn} er slettet.` };
 }

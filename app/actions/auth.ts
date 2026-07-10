@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { verify } from '@node-rs/argon2';
 import { getUserByEmail, getKommuneById } from '@/db/queries';
 import { createSession, deleteSession } from '@/lib/session';
+import { erBlokeret, registrerFejletForsoeg, nulstilForsoeg } from '@/lib/rate-limit';
 import { redirect } from 'next/navigation';
 import type { FormState } from '@/lib/definitions';
 
@@ -21,16 +22,24 @@ export async function login(
     return { errors: parsed.error.flatten().fieldErrors };
   }
   const { email, password } = parsed.data;
+  const rateNoegle = email.toLowerCase();
+
+  if (erBlokeret(rateNoegle)) {
+    return { message: 'For mange loginforsøg. Prøv igen om 15 minutter.' };
+  }
 
   const foundUser = await getUserByEmail(email);
   if (!foundUser || !foundUser.passwordHash) {
+    registrerFejletForsoeg(rateNoegle);
     return { message: 'Forkert email eller adgangskode.' };
   }
 
   const passwordValid = await verify(foundUser.passwordHash, password);
   if (!passwordValid) {
+    registrerFejletForsoeg(rateNoegle);
     return { message: 'Forkert email eller adgangskode.' };
   }
+  nulstilForsoeg(rateNoegle);
 
   // Koordinator: hent slug til session og redirect
   let kommuneSlug: string | null = null;

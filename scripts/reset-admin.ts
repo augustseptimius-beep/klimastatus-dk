@@ -3,9 +3,20 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { user } from '../db/schema';
 import { eq } from 'drizzle-orm';
+import { resolveSeedPassword } from '../lib/seed-guard';
 
 const EMAIL = process.env.ADMIN_EMAIL ?? 'augustseptimius@gmail.com';
-const PASSWORD = process.env.ADMIN_PASSWORD ?? 'admin123!';
+const resultat = resolveSeedPassword({
+  envNavn: 'ADMIN_PASSWORD',
+  envVaerdi: process.env.ADMIN_PASSWORD,
+  fallback: 'admin123!',
+  erProduktion: process.env.NODE_ENV === 'production',
+});
+if (resultat.password === null) {
+  console.error(`[reset-admin] ${resultat.fejl}`);
+  process.exit(1);
+}
+const PASSWORD = resultat.password;
 
 const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client);

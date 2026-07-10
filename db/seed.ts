@@ -10,6 +10,7 @@ import { handleFetchEnergidataservice } from '../lib/jobs/fetch-energidataservic
 import { handleFetchDst } from '../lib/jobs/fetch-dst';
 import { STANDARDTILTAG_KATALOG } from '../lib/kataloger/standardtiltag-katalog';
 import { OMSTILLINGSINDIKATORER } from '../lib/kataloger/omstillingsindikatorer';
+import { resolveSeedPassword } from '../lib/seed-guard';
 
 const client = postgres(process.env.DATABASE_URL!);
 const db = drizzle(client);
@@ -135,18 +136,27 @@ async function seed() {
   console.log(`Seeded ${CCTF_V25_CRITERIA.length} criteria.`);
 
   console.log('Seeding admin user...');
-  const adminPassword = process.env.ADMIN_PASSWORD ?? 'admin123!';
-  const passwordHash = await hash(adminPassword);
-  await db
-    .insert(user)
-    .values({
-      email: 'augustseptimius@gmail.com',
-      passwordHash,
-      navn: 'August Septimius',
-      role: 'admin',
-    })
-    .onConflictDoNothing();
-  console.log('Admin user seeded (email: augustseptimius@gmail.com).');
+  const adminPassword = resolveSeedPassword({
+    envNavn: 'ADMIN_PASSWORD',
+    envVaerdi: process.env.ADMIN_PASSWORD,
+    fallback: 'admin123!',
+    erProduktion: process.env.NODE_ENV === 'production',
+  });
+  if (adminPassword.password === null) {
+    console.error(`[seed] SPRINGER ADMIN-BRUGER OVER: ${adminPassword.fejl}`);
+  } else {
+    const passwordHash = await hash(adminPassword.password);
+    await db
+      .insert(user)
+      .values({
+        email: 'augustseptimius@gmail.com',
+        passwordHash,
+        navn: 'August Septimius',
+        role: 'admin',
+      })
+      .onConflictDoNothing();
+    console.log('Admin user seeded (email: augustseptimius@gmail.com).');
+  }
 
   console.log('Backfilling kommunetype...');
   for (const k of ALLE_KOMMUNER) {
@@ -239,6 +249,13 @@ async function seed() {
 
   // Hent API-data hvis der endnu ingen målinger er for API-indikatorer.
   // Kører kun ved første opstart (eller efter DB-reset) — idempotent.
+  // KUN uden for produktion: server-opstart må aldrig afhænge af tre eksterne
+  // API'er. I produktion henter pg-boss-cronjobbet (månedligt) eller
+  // "Hent nu"-knappen på /data det samme data.
+  if (process.env.NODE_ENV === 'production') {
+    console.log('[seed] Produktion — springer boot-tids API-hentning over (håndteres af cron/"Hent nu").');
+    process.exit(0);
+  }
   const [groenkobing] = await db.select().from(kommune).where(eq(kommune.kommunekode, '0657')).limit(1);
   if (groenkobing) {
     const [{ value: apiMaalingCount }] = await db
