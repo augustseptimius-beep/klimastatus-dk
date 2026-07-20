@@ -55,6 +55,21 @@ Konkret for vores roadmap: BBR (`teknisk-arkitektur.md`, Fase 2b i `docs/superpo
 
 Reference: `martincollignon/dawa_to_gsearch` (migrationsguide + service-chooser skrevet til agenter) og `martincollignon/gsearch-cli`.
 
+## Token-effektivitet — arbejdsprincipper for coding-agenter
+
+Beslutning truffet 2026-07-20.
+
+For at holde token-forbrug (og dermed omkostninger) nede skal enhver coding-agent i dette repo arbejde sparsomt som standard — uden at brugeren skal bede om det. Følg disse principper i hver session:
+
+- **Læs målrettet, ikke bredt.** Find først med `Grep`/`Glob`, og læs derefter kun de relevante linjer (`offset`/`limit`). Læs ikke hele store filer eller mange filer "for en sikkerheds skyld". De tunge PDF-/binærfiler i roden (fx `vejledning-til-klimaplanrevision_v10.pdf`, `selvvurderingsskema-25.pdf`, `Start_with_kDrive.pdf`) må aldrig læses i fuld længde uden et konkret behov — brug side-/sektionsudsnit.
+- **Læs ikke det samme to gange.** En fil, der allerede er læst i sessionen, læses ikke igen "for at tjekke". Genlæs ikke en fil efter `Edit`/`Write` for at verificere — værktøjet fejler af sig selv, hvis ændringen ikke gik igennem.
+- **Hold svar og output kort.** Dump ikke hele filers indhold eller lange kommando-output i chatten. Svar præcist og uden unødig indledning/opsummering.
+- **Begræns kommando-output.** Filtrér terminal-output (`head`, `--quiet`, målrettede forespørgsler), og kør tests/build målrettet på det relevante frem for hele suiten, så store logs ikke fylder konteksten.
+- **Udforsk ikke bredere end nødvendigt.** Gå efter det, opgaven kræver; undgå at skanne hele kodebasen, når få filer rækker.
+- **Genudled ikke kendte fakta.** Byg videre på det, der allerede er fastslået i samtalen, frem for at slå det op igen.
+
+Valgfrit, men størst effekt: Start gerne en **ny session** (eller ryd konteksten med `/clear`), når du skifter til en ny, urelateret opgave — det er det enkeltstående, der sparer flest tokens.
+
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 
