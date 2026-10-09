@@ -56,6 +56,10 @@ Konkret for vores roadmap: BBR (`teknisk-arkitektur.md`, Fase 2b i `docs/superpo
 Reference: `martincollignon/dawa_to_gsearch` (migrationsguide + service-chooser skrevet til agenter) og `martincollignon/gsearch-cli`.
 
 <!-- BEGIN:nextjs-agent-rules -->
+## Projektet er nedlukket
+
+Beslutning truffet 2026-10-09: klimastatus.dk videreføres ikke. Repoet er mothballed, ikke slettet: deploy-jobs i `.github/workflows/deploy.yml` er slået fra, baggrundsjobs starter kun med `JOBS_ENABLED=true`, og koden står uændret under AGPL-3.0. Se `NEDLUKNING.md` for tjekliste og genoplivning. Byg ikke nye features, og genaktivér ikke deploy uden en ny eksplicit beslutning fra ejeren.
+
 # This is NOT the Next.js you know
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.

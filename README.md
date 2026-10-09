@@ -2,7 +2,7 @@
 
 Et digitalt MERL-system til danske kommuners klimaplaner — struktureret om CCTF-rammeværket (Climate Change Task Force, Klimaalliancen).
 
-**Status:** Under aktiv udvikling. Demo-deadline: 1. september 2026.
+**Status:** Nedlukket 2026-10-09. Projektet videreføres ikke. Koden er bevaret under AGPL-3.0, deploy og baggrundsjobs er slået fra. Se [NEDLUKNING.md](NEDLUKNING.md) for hvad der er gjort, hvad der mangler, og hvordan det genoplives.
 
 ---
 

@@ -11,6 +11,13 @@ import { handleFetchDst } from './lib/jobs/fetch-dst';
 import { handleImportHandlingskatalog } from './lib/jobs/import-handlingskatalog';
 
 async function setupJobs() {
+  // NEDLUKKET 2026-10-09 (se NEDLUKNING.md): jobs er slået fra som standard, så
+  // en ved et uheld genstartet instans ikke kalder eksterne API'er eller sender
+  // påmindelses-emails. Sæt JOBS_ENABLED=true for at genoplive.
+  if (process.env.JOBS_ENABLED !== 'true') {
+    console.warn('[jobs] Slået fra (projektet er nedlukket). Sæt JOBS_ENABLED=true for at starte.');
+    return;
+  }
   const boss = new PgBoss(process.env.DATABASE_URL!);
   await boss.start();
 
