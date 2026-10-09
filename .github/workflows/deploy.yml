@@ -48,8 +48,10 @@ jobs:
 
   build-and-push:
     needs: check
-    # Kun på push til main — PRs skal ikke bygge/pushe images
-    if: ${{ github.event_name == 'push' }}
+    # NEDLUKKET 2026-10-09: build/push er slået fra (se NEDLUKNING.md).
+    # Genaktivér ved at gendanne den oprindelige betingelse:
+    #   if: ${{ github.event_name == 'push' }}
+    if: ${{ false }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -97,7 +99,11 @@ jobs:
     #     (Settings → Secrets and variables → Actions → Variables)
     #   - secret COOLIFY_TOKEN = en Coolify API-token
     #     (Coolify → Keys & Tokens → API tokens)
-    if: ${{ vars.DEPLOY_ENABLED == 'true' }}
+    #
+    # NEDLUKKET 2026-10-09: deploy er slået fra (se NEDLUKNING.md).
+    # Genaktivér ved at gendanne den oprindelige betingelse:
+    #   if: ${{ vars.DEPLOY_ENABLED == 'true' }}
+    if: ${{ false }}
     steps:
       - name: Trigger Coolify deploy
         run: |
